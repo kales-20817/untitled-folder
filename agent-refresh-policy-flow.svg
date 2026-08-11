@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 2200" width="1440" height="2200">
+<title>Agent refresh policy</title><desc>Agent refresh policy flowchart: the agent service starts, initiates a refresh policy, downloads meta.xml and compares its version with the registry. If the version matches it checks whether the machine was removed from the server, then applies each server setting in turn and ends the refresh policy. If the version differs it verifies the installer checksum and either installs the new agent or skips the upgrade. Separately the agent checks its slot time in the registry and either waits ninety minutes or schedules the next refresh policy at the interval the server returned.</desc><rect x="0" y="0" width="1440" height="2200" fill="#FFFFFF" /><line x1="470" y1="73" x2="470" y2="122" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<line x1="470" y1="178" x2="470" y2="221" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<line x1="470" y1="279" x2="470" y2="321" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<line x1="470" y1="379" x2="470" y2="421" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<line x1="470" y1="495" x2="470" y2="520" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<path d="M605 140 L940 140 L940 192" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<path d="M1070 250 L1090 250" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<text x="1074" y="242" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="10.5" fill="#0F9D58" font-weight="500">Available</text>
+<line x1="940" y1="308" x2="940" y2="361" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<text x="950" y="336" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="10.5" fill="#5F6368" font-weight="500">Not Available</text>
+<line x1="940" y1="419" x2="940" y2="463" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<path d="M805 500 L650 500 L650 165 L605 165" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<path d="M1310 250 L1400 250 L1400 100 L540 100 L540 122" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<path d="M325 570 L180 570 L180 643" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<text x="316" y="562" text-anchor="end" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="10.5" fill="#5F6368" font-weight="500">Same version</text>
+<path d="M615 570 L790 570 L790 643" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<text x="626" y="562" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="10.5" fill="#5F6368" font-weight="500">Version differed</text>
+<line x1="180" y1="701" x2="180" y2="736" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<path d="M275 780 L480 780 L480 831" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<text x="288" y="772" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="10.5" fill="#D93025" font-weight="500">Removed</text>
+<line x1="180" y1="824" x2="180" y2="871" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<text x="172" y="852" text-anchor="end" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="10.5" fill="#0F9D58" font-weight="500">Not Removed</text>
+<line x1="180" y1="929" x2="180" y2="967" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<line x1="180" y1="1025" x2="180" y2="1063" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<line x1="180" y1="1121" x2="180" y2="1159" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<line x1="180" y1="1217" x2="180" y2="1255" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<line x1="180" y1="1313" x2="180" y2="1351" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<line x1="180" y1="1441" x2="180" y2="1479" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<line x1="180" y1="1537" x2="180" y2="1575" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<line x1="180" y1="1633" x2="180" y2="1671" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<line x1="180" y1="1729" x2="180" y2="1767" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<line x1="180" y1="1841" x2="180" y2="1879" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<line x1="180" y1="1937" x2="180" y2="1975" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<line x1="180" y1="2049" x2="180" y2="2087" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<path d="M315 2110 L1360 2110 L1360 290 L1250 290 L1250 276" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<line x1="790" y1="701" x2="790" y2="743" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<line x1="790" y1="817" x2="790" y2="859" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<line x1="790" y1="917" x2="790" y2="959" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<line x1="790" y1="1033" x2="790" y2="1062" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<line x1="790" y1="1158" x2="790" y2="1211" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<text x="780" y="1186" text-anchor="end" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="10.5" fill="#D93025" font-weight="500">Not Matched</text>
+<path d="M920 1110 L1130 1110 L1130 1181" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<text x="932" y="1102" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="10.5" fill="#0F9D58" font-weight="500">Matched</text>
+<line x1="1130" y1="1239" x2="1130" y2="1289" fill="none" stroke="#E3E3E3" stroke-width="1.4" />
+<rect x="335" y="27" width="270" height="46" rx="23" fill="#F9F9F9" stroke="#E3E3E3" stroke-width="1.6" />
+<text x="470" y="54" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Agent Service started</text>
+<rect x="335" y="122" width="270" height="56" rx="8" fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" />
+<text x="470" y="147" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Initiate refresh policy from</text>
+<text x="470" y="162" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Agent service</text>
+<rect x="335" y="221" width="270" height="58" rx="8" fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" />
+<text x="470" y="247" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Download Meta xml from</text>
+<text x="470" y="262" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">the server</text>
+<rect x="335" y="321" width="270" height="58" rx="8" fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" />
+<text x="470" y="347" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Get the Agent version managed in</text>
+<text x="470" y="362" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">server from meta xml.</text>
+<rect x="335" y="421" width="270" height="74" rx="8" fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" />
+<text x="470" y="447" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Compare the above version with</text>
+<text x="470" y="462" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">the version available in the</text>
+<text x="470" y="477" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">registry.</text>
+<polygon points="470,520 615,570 470,620 325,570" fill="#FFF2E4" stroke="#FBD4A4" stroke-width="1.6" />
+<text x="470" y="567" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Both the agent</text>
+<text x="470" y="582" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">version differed ?</text>
+<polygon points="940,192 1070,250 940,308 810,250" fill="#FFF2E4" stroke="#FBD4A4" stroke-width="1.6" />
+<text x="940" y="239" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Check Agent</text>
+<text x="940" y="254" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">slot time is available in</text>
+<text x="940" y="269" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Agent registry</text>
+<rect x="1090" y="224" width="220" height="52" rx="8" fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" />
+<text x="1200" y="254" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Wait for 90 mins</text>
+<text x="1200" y="318" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="10.5" fill="#5F6368" text-anchor="middle">( Slot time is calculated by server to</text>
+<text x="1200" y="332" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="10.5" fill="#5F6368" text-anchor="middle">adjust the Agent - Server communication</text>
+<text x="1200" y="346" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="10.5" fill="#5F6368" text-anchor="middle">based on Computers count managed</text>
+<text x="1200" y="360" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="10.5" fill="#5F6368" text-anchor="middle">in server )</text>
+<rect x="805" y="361" width="270" height="58" rx="8" fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" />
+<text x="940" y="387" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Get the agent slot time from server</text>
+<text x="940" y="402" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">for next refresh policy</text>
+<rect x="805" y="463" width="270" height="74" rx="8" fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" />
+<text x="940" y="489" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Schedule next refresh policy</text>
+<text x="940" y="504" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">with the interval of slot time</text>
+<text x="940" y="519" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">received from server</text>
+<rect x="45" y="643" width="270" height="58" rx="8" fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" />
+<text x="180" y="669" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Check the agent machine is</text>
+<text x="180" y="684" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">removed from server</text>
+<polygon points="180,736 275,780 180,824 85,780" fill="#FFF2E4" stroke="#FBD4A4" stroke-width="1.6" />
+<text x="180" y="784" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Removed ?</text>
+<rect x="355" y="831" width="250" height="58" rx="8" fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" />
+<text x="480" y="857" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Proceed to uninstall</text>
+<text x="480" y="872" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">the existing agent</text>
+<rect x="45" y="871" width="270" height="58" rx="8" fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" />
+<text x="180" y="897" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Process MDM enrollment if it is</text>
+<text x="180" y="912" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">enabled in server</text>
+<rect x="45" y="967" width="270" height="58" rx="8" fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" />
+<text x="180" y="993" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Process IP scope settings</text>
+<text x="180" y="1008" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">configured in server</text>
+<rect x="45" y="1063" width="270" height="58" rx="8" fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" />
+<text x="180" y="1089" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Update Agent last contact time</text>
+<text x="180" y="1104" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">to server</text>
+<rect x="45" y="1159" width="270" height="58" rx="8" fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" />
+<text x="180" y="1185" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Refresh the current Remote office</text>
+<text x="180" y="1200" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">details from server</text>
+<rect x="45" y="1255" width="270" height="58" rx="8" fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" />
+<text x="180" y="1281" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Update Patch scan and deployment</text>
+<text x="180" y="1296" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">related settings from server</text>
+<rect x="45" y="1351" width="270" height="90" rx="8" fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" />
+<text x="180" y="1378" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Process Agent settings and</text>
+<text x="180" y="1393" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">rebranding settings configured in</text>
+<text x="180" y="1408" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">server. ( Settings available in Agent</text>
+<text x="180" y="1423" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Tab -&gt; Agent Settings )</text>
+<rect x="45" y="1479" width="270" height="58" rx="8" fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" />
+<text x="180" y="1505" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Update security Addon related</text>
+<text x="180" y="1520" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">settings from server</text>
+<rect x="45" y="1575" width="270" height="58" rx="8" fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" />
+<text x="180" y="1601" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Apply Self service portal</text>
+<text x="180" y="1616" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">configurations deployed in server</text>
+<rect x="45" y="1671" width="270" height="58" rx="8" fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" />
+<text x="180" y="1697" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Update Removed configurations</text>
+<text x="180" y="1712" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">details from server</text>
+<rect x="45" y="1767" width="270" height="74" rx="8" fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" />
+<text x="180" y="1793" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Apply new / modified Computer</text>
+<text x="180" y="1808" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">specific configurations deployed</text>
+<text x="180" y="1823" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">from the server.</text>
+<rect x="45" y="1879" width="270" height="58" rx="8" fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" />
+<text x="180" y="1905" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Apply Inventory scan and USB scan</text>
+<text x="180" y="1920" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">settings configured from the server</text>
+<rect x="45" y="1975" width="270" height="74" rx="8" fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" />
+<text x="180" y="2001" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Apply user specific configurations</text>
+<text x="180" y="2016" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">deployed from server for every</text>
+<text x="180" y="2031" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">logged on user in agent machine.</text>
+<rect x="45" y="2087" width="270" height="46" rx="23" fill="#F9F9F9" stroke="#E3E3E3" stroke-width="1.6" />
+<text x="180" y="2114" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Refresh policy ended</text>
+<rect x="655" y="643" width="270" height="58" rx="8" fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" />
+<text x="790" y="669" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Get latest Agent installer's</text>
+<text x="790" y="684" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">checksum from the server.</text>
+<rect x="655" y="743" width="270" height="74" rx="8" fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" />
+<text x="790" y="769" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Download AgentUpgrader.exe</text>
+<text x="790" y="784" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">from server and Invoke it</text>
+<text x="790" y="799" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">for latest Agent upgrade</text>
+<rect x="655" y="859" width="270" height="58" rx="8" fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" />
+<text x="790" y="885" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Download latest Agent Installer</text>
+<text x="790" y="900" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">files.</text>
+<rect x="655" y="959" width="270" height="74" rx="8" fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" />
+<text x="790" y="985" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Verify the checksum for the</text>
+<text x="790" y="1000" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">downloaded Agent MSI with the</text>
+<text x="790" y="1015" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">existing one</text>
+<polygon points="790,1062 920,1110 790,1158 660,1110" fill="#FFF2E4" stroke="#FBD4A4" stroke-width="1.6" />
+<text x="790" y="1107" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Both checksum</text>
+<text x="790" y="1122" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">matched ?</text>
+<rect x="655" y="1211" width="270" height="58" rx="8" fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" />
+<text x="790" y="1237" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Skip the agent upgrade and</text>
+<text x="790" y="1252" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">wait for next refresh policy</text>
+<rect x="1005" y="1181" width="250" height="58" rx="8" fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" />
+<text x="1130" y="1207" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Uninstall the existing</text>
+<text x="1130" y="1222" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">agent</text>
+<rect x="1005" y="1289" width="250" height="58" rx="8" fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" />
+<text x="1130" y="1315" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">Install the latest agent with</text>
+<text x="1130" y="1330" font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle">the downloaded files</text>
+<g fill="#E3E3E3"><path d="M470 122 L466 113 L474 113 Z" /><path d="M470 221 L466 212 L474 212 Z" /><path d="M470 321 L466 312 L474 312 Z" /><path d="M470 421 L466 412 L474 412 Z" /><path d="M470 520 L466 511 L474 511 Z" /><path d="M940 192 L936 183 L944 183 Z" /><path d="M1090 250 L1081 254 L1081 246 Z" /><path d="M940 361 L936 352 L944 352 Z" /><path d="M940 463 L936 454 L944 454 Z" /><path d="M605 165 L614 161 L614 169 Z" /><path d="M540 122 L536 113 L544 113 Z" /><path d="M180 643 L176 634 L184 634 Z" /><path d="M790 643 L786 634 L794 634 Z" /><path d="M180 736 L176 727 L184 727 Z" /><path d="M480 831 L476 822 L484 822 Z" /><path d="M180 871 L176 862 L184 862 Z" /><path d="M180 967 L176 958 L184 958 Z" /><path d="M180 1063 L176 1054 L184 1054 Z" /><path d="M180 1159 L176 1150 L184 1150 Z" /><path d="M180 1255 L176 1246 L184 1246 Z" /><path d="M180 1351 L176 1342 L184 1342 Z" /><path d="M180 1479 L176 1470 L184 1470 Z" /><path d="M180 1575 L176 1566 L184 1566 Z" /><path d="M180 1671 L176 1662 L184 1662 Z" /><path d="M180 1767 L176 1758 L184 1758 Z" /><path d="M180 1879 L176 1870 L184 1870 Z" /><path d="M180 1975 L176 1966 L184 1966 Z" /><path d="M180 2087 L176 2078 L184 2078 Z" /><path d="M1250 276 L1254 285 L1246 285 Z" /><path d="M790 743 L786 734 L794 734 Z" /><path d="M790 859 L786 850 L794 850 Z" /><path d="M790 959 L786 950 L794 950 Z" /><path d="M790 1062 L786 1053 L794 1053 Z" /><path d="M790 1211 L786 1202 L794 1202 Z" /><path d="M1130 1181 L1126 1172 L1134 1172 Z" /><path d="M1130 1289 L1126 1280 L1134 1280 Z" /></g></svg>

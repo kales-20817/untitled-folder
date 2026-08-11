@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="1064" viewBox="0 0 520 1064">
+<title>Agent installation</title>
+<desc>Agent installation flowchart: eight sequential steps, from writing the server details from DCAgentServerInfo.json into the Windows registry, through fetching the authentication token, CDN and download server details, service registration, binaries extraction, post-install asset and patch scans, reporting the install status to the server, and finally starting the Agent service.</desc>
+<rect x="0" y="0" width="520" height="1064" fill="#FFFFFF"/>
+<!-- connectors -->
+<line fill="none" stroke="#E3E3E3" stroke-width="1.4" x1="260" y1="128" x2="260" y2="168"/>
+<path fill="#E3E3E3" d="M260 168 L256 159 L264 159 Z"/>
+<line fill="none" stroke="#E3E3E3" stroke-width="1.4" x1="260" y1="256" x2="260" y2="296"/>
+<path fill="#E3E3E3" d="M260 296 L256 287 L264 287 Z"/>
+<line fill="none" stroke="#E3E3E3" stroke-width="1.4" x1="260" y1="384" x2="260" y2="424"/>
+<path fill="#E3E3E3" d="M260 424 L256 415 L264 415 Z"/>
+<line fill="none" stroke="#E3E3E3" stroke-width="1.4" x1="260" y1="512" x2="260" y2="552"/>
+<path fill="#E3E3E3" d="M260 552 L256 543 L264 543 Z"/>
+<line fill="none" stroke="#E3E3E3" stroke-width="1.4" x1="260" y1="640" x2="260" y2="680"/>
+<path fill="#E3E3E3" d="M260 680 L256 671 L264 671 Z"/>
+<line fill="none" stroke="#E3E3E3" stroke-width="1.4" x1="260" y1="768" x2="260" y2="808"/>
+<path fill="#E3E3E3" d="M260 808 L256 799 L264 799 Z"/>
+<line fill="none" stroke="#E3E3E3" stroke-width="1.4" x1="260" y1="896" x2="260" y2="936"/>
+<path fill="#E3E3E3" d="M260 936 L256 927 L264 927 Z"/>
+<!-- steps -->
+<rect fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" x="80" y="40" width="360" height="88" rx="8"/>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="260" y="71.5">Update Server details from</text>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="260" y="88.5">DCAgentServerInfo.json into windows</text>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="260" y="105.5">registry during Agent installation</text>
+<rect fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" x="80" y="168" width="360" height="88" rx="8"/>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="260" y="208">Gets Agent authentication token from</text>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="260" y="225">the server</text>
+<rect fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" x="80" y="296" width="360" height="88" rx="8"/>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="260" y="336">Get other server details like CDN and</text>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="260" y="353">download server details from server</text>
+<rect fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" x="80" y="424" width="360" height="88" rx="8"/>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="260" y="472.5">Agent service registration</text>
+<rect fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" x="80" y="552" width="360" height="88" rx="8"/>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="260" y="600.5">Agent binaries extraction</text>
+<rect fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" x="80" y="680" width="360" height="88" rx="8"/>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="260" y="720">Initiate Asset / patch scans based on</text>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="260" y="737">Post install settings</text>
+<rect fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" x="80" y="808" width="360" height="88" rx="8"/>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="260" y="848">Update Agent installation status to</text>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="260" y="865">the server</text>
+<rect fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" x="80" y="936" width="360" height="88" rx="8"/>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="260" y="984.5">Start the Agent service</text>
+</svg>

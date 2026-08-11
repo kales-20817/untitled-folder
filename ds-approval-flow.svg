@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="1180" viewBox="0 0 1180 1180">
+<title>DS enrollment and approval</title>
+<desc>DS enrollment and approval flowchart: after installation the distribution server requests an approval token, sets its status to PENDING, polls the server for the approval status while an administrator reviews the request, and then branches three ways — Approved fetches an authentication token and starts replication, Pending waits for the next refresh cycle and returns to the PENDING state, and Rejected triggers DS uninstallation.</desc>
+<rect x="0" y="0" width="1180" height="1180" fill="#FFFFFF"/>
+<!-- spine -->
+<line fill="none" stroke="#E3E3E3" stroke-width="1.4" x1="540" y1="116" x2="540" y2="156"/>
+<path fill="#E3E3E3" d="M540 156 L536 147 L544 147 Z"/>
+<line fill="none" stroke="#E3E3E3" stroke-width="1.4" x1="540" y1="232" x2="540" y2="272"/>
+<path fill="#E3E3E3" d="M540 272 L536 263 L544 263 Z"/>
+<line fill="none" stroke="#E3E3E3" stroke-width="1.4" x1="540" y1="348" x2="540" y2="388"/>
+<path fill="#E3E3E3" d="M540 388 L536 379 L544 379 Z"/>
+<line fill="none" stroke="#E3E3E3" stroke-width="1.4" x1="540" y1="464" x2="540" y2="504"/>
+<path fill="#E3E3E3" d="M540 504 L536 495 L544 495 Z"/>
+<line fill="none" stroke="#E3E3E3" stroke-width="1.4" x1="540" y1="580" x2="540" y2="620"/>
+<path fill="#E3E3E3" d="M540 620 L536 611 L544 611 Z"/>
+<!-- three-way fan-out -->
+<line fill="none" stroke="#E3E3E3" stroke-width="1.4" x1="540" y1="792" x2="540" y2="840"/>
+<line fill="none" stroke="#E3E3E3" stroke-width="1.4" x1="190" y1="840" x2="890" y2="840"/>
+<line fill="none" stroke="#E3E3E3" stroke-width="1.4" x1="190" y1="840" x2="190" y2="904"/>
+<path fill="#E3E3E3" d="M190 904 L186 895 L194 895 Z"/>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="10.5" fill="#0F9D58" font-weight="500" x="199" y="878">Approved</text>
+<line fill="none" stroke="#E3E3E3" stroke-width="1.4" x1="540" y1="840" x2="540" y2="904"/>
+<path fill="#E3E3E3" d="M540 904 L536 895 L544 895 Z"/>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="10.5" fill="#5F6368" font-weight="500" x="549" y="878">Pending</text>
+<line fill="none" stroke="#E3E3E3" stroke-width="1.4" x1="890" y1="840" x2="890" y2="904"/>
+<path fill="#E3E3E3" d="M890 904 L886 895 L894 895 Z"/>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="10.5" fill="#D93025" font-weight="500" x="899" y="878">Rejected</text>
+<!-- approved path -->
+<line fill="none" stroke="#E3E3E3" stroke-width="1.4" x1="190" y1="980" x2="190" y2="1020"/>
+<path fill="#E3E3E3" d="M190 1020 L186 1011 L194 1011 Z"/>
+<!-- pending returns to the PENDING state -->
+<path fill="none" stroke="#E3E3E3" stroke-width="1.4" d="M540 980 L540 1140 L1120 1140 L1120 310 L690 310"/>
+<path fill="#E3E3E3" d="M690 310 L699 306 L699 314 Z"/>
+<!-- nodes -->
+<rect fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" x="390" y="40" width="300" height="76" rx="8"/>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="540" y="82.5">DS Installation Complete</text>
+<rect fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" x="390" y="156" width="300" height="76" rx="8"/>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="540" y="198.5">Request Approval Token</text>
+<rect fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" x="390" y="272" width="300" height="76" rx="8"/>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="540" y="314.5">DS Status : PENDING</text>
+<rect fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" x="390" y="388" width="300" height="76" rx="8"/>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="540" y="430.5">Poll Server for Approval Status</text>
+<rect fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" x="390" y="504" width="300" height="76" rx="8"/>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="540" y="546.5">Administrator Reviews DS Request</text>
+<polygon fill="#FFF2E4" stroke="#FBD4A4" stroke-width="1.6" points="540,620 655,706 540,792 425,706"/>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="540" y="702">Approval</text>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="540" y="719">Status?</text>
+<rect fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" x="40" y="904" width="300" height="76" rx="8"/>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="190" y="946.5">Fetch Authentication Token</text>
+<rect fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" x="390" y="904" width="300" height="76" rx="8"/>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="540" y="946.5">Wait for Next refresh cycle</text>
+<rect fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" x="740" y="904" width="300" height="76" rx="8"/>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="890" y="946.5">Trigger DS Uninstallation</text>
+<rect fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" x="40" y="1020" width="300" height="76" rx="8"/>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="190" y="1062.5">Start Replication</text>
+</svg>

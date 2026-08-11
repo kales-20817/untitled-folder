@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="910" height="1184" viewBox="0 0 910 1184">
+<title>DS replication cycle</title>
+<desc>DS replication cycle flowchart: the DS service starts, validates its approval status and checks for a DS upgrade, then forks to download configuration policies, patches and software packages in parallel. After the branches rejoin it configures the Nginx web server, starts or restarts the Nginx service, cleans up old files, sends the replication status to the server and schedules the next replication.</desc>
+<rect x="0" y="0" width="910" height="1184" fill="#FFFFFF"/>
+<!-- connectors -->
+<line fill="none" stroke="#E3E3E3" stroke-width="1.4" x1="455" y1="116" x2="455" y2="156"/>
+<path fill="#E3E3E3" d="M455 156 L451 147 L459 147 Z"/>
+<line fill="none" stroke="#E3E3E3" stroke-width="1.4" x1="455" y1="232" x2="455" y2="272"/>
+<path fill="#E3E3E3" d="M455 272 L451 263 L459 263 Z"/>
+<line fill="none" stroke="#E3E3E3" stroke-width="1.4" x1="455" y1="348" x2="455" y2="396"/>
+<line fill="none" stroke="#B2CFFF" stroke-width="4" stroke-linecap="round" x1="165" y1="396" x2="745" y2="396"/>
+<line fill="none" stroke="#E3E3E3" stroke-width="1.4" x1="165" y1="396" x2="165" y2="440"/>
+<path fill="#E3E3E3" d="M165 440 L161 431 L169 431 Z"/>
+<line fill="none" stroke="#E3E3E3" stroke-width="1.4" x1="455" y1="396" x2="455" y2="440"/>
+<path fill="#E3E3E3" d="M455 440 L451 431 L459 431 Z"/>
+<line fill="none" stroke="#E3E3E3" stroke-width="1.4" x1="745" y1="396" x2="745" y2="440"/>
+<path fill="#E3E3E3" d="M745 440 L741 431 L749 431 Z"/>
+<line fill="none" stroke="#E3E3E3" stroke-width="1.4" x1="165" y1="516" x2="165" y2="560"/>
+<path fill="#E3E3E3" d="M165 560 L161 551 L169 551 Z"/>
+<line fill="none" stroke="#E3E3E3" stroke-width="1.4" x1="455" y1="516" x2="455" y2="560"/>
+<path fill="#E3E3E3" d="M455 560 L451 551 L459 551 Z"/>
+<line fill="none" stroke="#E3E3E3" stroke-width="1.4" x1="745" y1="516" x2="745" y2="560"/>
+<path fill="#E3E3E3" d="M745 560 L741 551 L749 551 Z"/>
+<line fill="none" stroke="#B2CFFF" stroke-width="4" stroke-linecap="round" x1="165" y1="560" x2="745" y2="560"/>
+<line fill="none" stroke="#E3E3E3" stroke-width="1.4" x1="455" y1="560" x2="455" y2="604"/>
+<path fill="#E3E3E3" d="M455 604 L451 595 L459 595 Z"/>
+<line fill="none" stroke="#E3E3E3" stroke-width="1.4" x1="455" y1="680" x2="455" y2="720"/>
+<path fill="#E3E3E3" d="M455 720 L451 711 L459 711 Z"/>
+<line fill="none" stroke="#E3E3E3" stroke-width="1.4" x1="455" y1="796" x2="455" y2="836"/>
+<path fill="#E3E3E3" d="M455 836 L451 827 L459 827 Z"/>
+<line fill="none" stroke="#E3E3E3" stroke-width="1.4" x1="455" y1="912" x2="455" y2="952"/>
+<path fill="#E3E3E3" d="M455 952 L451 943 L459 943 Z"/>
+<line fill="none" stroke="#E3E3E3" stroke-width="1.4" x1="455" y1="1028" x2="455" y2="1068"/>
+<path fill="#E3E3E3" d="M455 1068 L451 1059 L459 1059 Z"/>
+<!-- steps -->
+<rect fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" x="305" y="40" width="300" height="76" rx="8"/>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="455" y="82.5">DS Service Started</text>
+<rect fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" x="305" y="156" width="300" height="76" rx="8"/>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="455" y="198.5">Validate DS Approval Status</text>
+<rect fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" x="305" y="272" width="300" height="76" rx="8"/>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="455" y="314.5">Check for DS Upgrade</text>
+<rect fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" x="305" y="604" width="300" height="76" rx="8"/>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="455" y="646.5">Configure Nginx Web Server</text>
+<rect fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" x="305" y="720" width="300" height="76" rx="8"/>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="455" y="762.5">Start/Restart Nginx Service</text>
+<rect fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" x="305" y="836" width="300" height="76" rx="8"/>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="455" y="878.5">Cleanup Old Files</text>
+<rect fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" x="305" y="952" width="300" height="76" rx="8"/>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="455" y="994.5">Send Replication Status to Server</text>
+<rect fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" x="305" y="1068" width="300" height="76" rx="8"/>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="455" y="1110.5">Schedule Next Replication</text>
+<!-- parallel downloads -->
+<rect fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" x="40" y="440" width="250" height="76" rx="8"/>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="165" y="482.5">Download Configuration Policies</text>
+<rect fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" x="330" y="440" width="250" height="76" rx="8"/>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="455" y="482.5">Download Patches</text>
+<rect fill="#F2F6FD" stroke="#B2CFFF" stroke-width="1.6" x="620" y="440" width="250" height="76" rx="8"/>
+<text font-family="Roboto, Arial, Helvetica, sans-serif" font-size="12.5" fill="#202124" text-anchor="middle" x="745" y="482.5">Download Software Packages</text>
+</svg>
