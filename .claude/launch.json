@@ -1,0 +1,48 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "prism-shell",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "-c",
+        "cd '/Users/kale-20817/prism-ds-3' && python3 serve.py 4610"
+      ],
+      "port": 4610,
+      "autoPort": false,
+      "url": "http://localhost:4610"
+    },
+    {
+      "name": "prism-dist",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "-c",
+        "python3 '/private/tmp/claude-502/-Users-kale-20817-untitled-folder/36bfeb5b-5ee6-4719-88e5-77da2ba3b7dd/scratchpad/spa-serve.py' '/Users/kale-20817/prism-ds-3/webapp/dist' 4730"
+      ],
+      "port": 4730,
+      "autoPort": false,
+      "url": "http://localhost:4730"
+    },
+    {
+      "name": "prism-ember",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "-c",
+        "cd '/Users/kale-20817/prism-ds-3/webapp' && npm start"
+      ],
+      "port": 4200,
+      "autoPort": false,
+      "url": "http://localhost:4200"
+    },
+    {
+      "name": "ec-reports",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "-c",
+        "cd '/Users/kale-20817/untitled folder' && python3 -m http.server 4720"
+      ],
+      "port": 4720,
+      "url": "http://localhost:4720"
+    }
+  ]
+}

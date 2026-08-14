@@ -1,0 +1,1347 @@
+<meta charset="utf-8">
+<title>Dashboards · Endpoint Central Reports</title>
+<style>
+  :root {
+    --violet:#2563eb; --violet-hov:#1d4ed8; --violet-soft:rgba(37,99,235,.08);
+    --surface:#fff; --surface-2:#f4f6fb; --page:#f7f9fc;
+    --border:rgba(37,99,235,.13); --border-soft:rgba(37,99,235,.07);
+    --text:#15181e; --muted:#64748b; --faint:#94a3b8;
+    --ok:#16a34a; --ok-bg:rgba(34,197,94,.12);
+    --warn:#a16207; --warn-bg:rgba(234,179,8,.13); --warn-line:rgba(234,179,8,.4);
+    --err:#dc2626; --err-bg:rgba(239,68,68,.10); --err-line:rgba(239,68,68,.3);
+    --sev4:#dc2626; --sev3:#ea580c; --sev2:#ca8a04; --sev1:#0891b2;
+    --shadow:0 2px 12px rgba(37,99,235,.06); --pop:0 10px 34px rgba(16,25,42,.14);
+    --r:12px; --font:'Zoho Puvi',ui-sans-serif,system-ui,'Segoe UI',Roboto,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+    --violet:#3b82f6; --violet-hov:#60a5fa; --violet-soft:rgba(59,130,246,.14);
+    --surface:#12131a; --surface-2:#1a1c25; --page:#0a0a0c;
+    --border:rgba(255,255,255,.10); --border-soft:rgba(255,255,255,.06);
+    --text:rgba(255,255,255,.92); --muted:rgba(255,255,255,.50); --faint:rgba(255,255,255,.34);
+    --ok:#22c55e; --ok-bg:rgba(34,197,94,.15);
+    --warn:#eab308; --warn-bg:rgba(234,179,8,.13); --warn-line:rgba(234,179,8,.32);
+    --err:#f87171; --err-bg:rgba(239,68,68,.12); --err-line:rgba(239,68,68,.30);
+    --sev4:#f87171; --sev3:#fb923c; --sev2:#facc15; --sev1:#22d3ee;
+    --shadow:none; --pop:0 10px 34px rgba(0,0,0,.55);
+  }}
+  :root[data-theme="dark"]{
+    --violet:#3b82f6; --violet-hov:#60a5fa; --violet-soft:rgba(59,130,246,.14);
+    --surface:#12131a; --surface-2:#1a1c25; --page:#0a0a0c;
+    --border:rgba(255,255,255,.10); --border-soft:rgba(255,255,255,.06);
+    --text:rgba(255,255,255,.92); --muted:rgba(255,255,255,.50); --faint:rgba(255,255,255,.34);
+    --ok:#22c55e; --ok-bg:rgba(34,197,94,.15);
+    --warn:#eab308; --warn-bg:rgba(234,179,8,.13); --warn-line:rgba(234,179,8,.32);
+    --err:#f87171; --err-bg:rgba(239,68,68,.12); --err-line:rgba(239,68,68,.30);
+    --sev4:#f87171; --sev3:#fb923c; --sev2:#facc15; --sev1:#22d3ee;
+    --shadow:none; --pop:0 10px 34px rgba(0,0,0,.55);
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--page);color:var(--text);font:14px/1.5 var(--font);-webkit-font-smoothing:antialiased}
+  button,input,select,textarea{font-family:inherit}
+  a{color:inherit}
+  :focus-visible{outline:2px solid var(--violet);outline-offset:2px;border-radius:6px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+  /* ── prototype chrome ── */
+  .chrome{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:14px;padding:9px 20px;
+          background:var(--surface);border-bottom:1px solid var(--border)}
+  .brand{font-weight:700;font-size:13px} .brand span{color:var(--muted);font-weight:500}
+  .tabs{display:flex;gap:2px;background:var(--surface-2);padding:3px;border-radius:9px}
+  .tabs a{padding:6px 14px;border-radius:7px;text-decoration:none;font:600 13px var(--font);color:var(--muted)}
+  .tabs a.on{background:var(--surface);color:var(--violet);box-shadow:var(--shadow)}
+  .sp{flex:1}
+
+  .btn{padding:8px 14px;border-radius:8px;font:600 13.5px/1 var(--font);cursor:pointer;
+       display:inline-flex;align-items:center;gap:7px;border:1px solid transparent;text-decoration:none;
+       transition:.15s;white-space:nowrap;background:none;color:inherit}
+  .btn.primary{background:var(--violet);color:#fff} .btn.primary:hover{background:var(--violet-hov)}
+  .btn.ghost{background:var(--surface);color:var(--text);border-color:var(--border)}
+  .btn.ghost:hover{background:var(--surface-2);border-color:var(--violet)}
+  .btn.sm{padding:6px 11px;font-size:12.5px}
+  .btn.xs{padding:4px 8px;font-size:12px;border-radius:6px}
+  .btn.danger{color:var(--err);border-color:var(--err-line);background:var(--surface)}
+  .btn.danger:hover{background:var(--err-bg)}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn:disabled:hover{background:var(--violet)}
+
+  /* ── dashboard bar ── */
+  .dbar{position:sticky;top:43px;z-index:55;display:flex;align-items:center;gap:9px;flex-wrap:wrap;
+        padding:9px clamp(14px,3vw,30px);background:var(--surface);border-bottom:1px solid var(--border)}
+  .picker{position:relative}
+  .picker>button{display:flex;align-items:center;gap:9px;padding:6px 11px 6px 9px;border-radius:9px;
+                 border:1px solid var(--border);background:var(--surface);cursor:pointer;color:inherit;transition:.15s}
+  .picker>button:hover{border-color:var(--violet);background:var(--violet-soft)}
+  .picker .pi{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;
+              background:var(--violet-soft);color:var(--violet);flex-shrink:0}
+  .picker .pn{text-align:left;line-height:1.2}
+  .picker .pn b{display:block;font-size:13.5px;font-weight:700}
+  .picker .pn i{font-style:normal;font-size:11.5px;color:var(--muted)}
+  .menu{position:absolute;top:calc(100% + 6px);left:0;z-index:70;width:340px;max-height:440px;overflow-y:auto;
+        background:var(--surface);border:1px solid var(--border);border-radius:11px;box-shadow:var(--pop);
+        padding:5px 0;display:none}
+  .menu.on{display:block}
+  .menu-g{padding:9px 14px 4px;font-size:10.5px;font-weight:700;color:var(--faint);
+          text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:8px}
+  .menu-g .sp{height:1px;background:var(--border)}
+  .mi{display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;width:100%;
+      border:none;background:none;color:inherit;text-align:left;font:inherit}
+  .mi:hover{background:var(--violet-soft)}
+  .mi .gi{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;
+          background:var(--surface-2);border:1px solid var(--border);color:var(--muted);flex-shrink:0}
+  .mi b{font-size:13.5px;font-weight:600;display:block}
+  .mi small{font-size:11.5px;color:var(--muted)}
+  .mi.cur{background:var(--violet-soft)} .mi.cur b{color:var(--violet)}
+  .mi .tick{margin-left:auto;color:var(--violet)}
+
+  .ctl{display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:8px;border:1px solid var(--border);
+       background:var(--surface);font-size:12.5px;color:var(--muted);cursor:pointer;transition:.15s}
+  .ctl:hover{border-color:var(--violet)}
+  .ctl b{color:var(--text);font-weight:600}
+  select.ctl{appearance:none;padding-right:24px;
+             background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);
+             background-position:calc(100% - 14px) 12px,calc(100% - 9px) 12px;background-size:5px 5px;background-repeat:no-repeat}
+
+  /* ── page + canvas head ── */
+  .page{max-width:1480px;margin:0 auto;padding:20px clamp(14px,3vw,30px) 80px}
+  .chead{display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap;margin-bottom:14px}
+  h1{font-size:22px;font-weight:700;letter-spacing:-.015em;margin:0 0 4px}
+  .chead p{margin:0;font-size:13.5px;color:var(--muted);max-width:68ch}
+  [contenteditable]{border-radius:7px;transition:.15s}
+  [contenteditable]:hover{background:var(--violet-soft);box-shadow:0 0 0 5px var(--violet-soft)}
+  [contenteditable]:focus{outline:2px solid var(--violet);outline-offset:4px;background:none;box-shadow:none}
+  .cmeta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:9px;font-size:12.5px;color:var(--muted)}
+  .cmeta .dot{width:3px;height:3px;border-radius:50%;background:var(--faint)}
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:999px;
+         font-size:11.5px;font-weight:600;background:var(--surface-2);color:var(--muted);border:1px solid var(--border)}
+  .badge i{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+  .badge.ok{background:var(--ok-bg);color:var(--ok);border-color:transparent}
+  .badge.bad{background:var(--err-bg);color:var(--err);border-color:transparent}
+  .badge.warn{background:var(--warn-bg);color:var(--warn);border-color:transparent}
+  .badge.pre{background:var(--violet-soft);color:var(--violet);border-color:transparent}
+
+  .note{display:flex;gap:10px;align-items:flex-start;padding:11px 13px;border-radius:10px;
+        background:var(--warn-bg);border:1px solid var(--warn-line);font-size:12.5px;color:var(--text);margin-bottom:14px}
+  .note svg{flex-shrink:0;margin-top:1px;color:var(--warn)}
+  .note .sp{flex:1}
+  .note code{font:11.5px ui-monospace,'SF Mono',Menlo,monospace;background:var(--surface);
+             border:1px solid var(--border);padding:1px 5px;border-radius:5px}
+
+  /* ── the canvas grid ── */
+  .grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:12px;align-items:start}
+  .w{grid-column:span var(--s,3);background:var(--surface);border:1px solid var(--border);
+     border-radius:var(--r);box-shadow:var(--shadow);display:flex;flex-direction:column;overflow:hidden;transition:.15s}
+  .w:hover{border-color:var(--violet)}
+  @media (max-width:1180px){.w{--s:6!important}}
+  @media (max-width:720px){.w{--s:12!important}}
+  .w-h{display:flex;align-items:flex-start;gap:9px;padding:12px 13px 0}
+  .w-h .tt{flex:1;min-width:0}
+  .w-h b{font-size:13px;font-weight:700;line-height:1.3;display:block}
+  .w-h small{font-size:11.5px;color:var(--faint);display:block;margin-top:2px;
+             overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .w-b{padding:12px 13px 13px;flex:1;display:flex;flex-direction:column;justify-content:center;min-height:var(--h,150px)}
+  .w-f{padding:0 13px 11px;font-size:11.5px;color:var(--faint);display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .w-f a{color:var(--violet);text-decoration:none;font-weight:600}
+  .w-f a:hover{text-decoration:underline}
+  .wmenu{opacity:0;transition:.15s;display:flex;gap:3px;flex-shrink:0}
+  .w:hover .wmenu,.w:focus-within .wmenu{opacity:1}
+  .ico-b{width:24px;height:24px;border-radius:6px;border:1px solid transparent;background:none;color:var(--faint);
+         cursor:pointer;display:grid;place-items:center;transition:.15s}
+  .ico-b:hover{background:var(--surface-2);border-color:var(--border);color:var(--text)}
+  .ico-b.del:hover{color:var(--err);border-color:var(--err-line);background:var(--err-bg)}
+
+  /* editing */
+  body.edit .w{border-style:dashed;cursor:grab}
+  body.edit .w.drag{opacity:.35}
+  body.edit .w.over{border-color:var(--violet);border-style:solid;box-shadow:0 0 0 3px var(--violet-soft)}
+  body.edit .wmenu{opacity:1}
+  .spanctl{display:none;gap:2px;background:var(--surface-2);border-radius:6px;padding:2px}
+  body.edit .spanctl{display:flex}
+  .spanctl button{border:none;background:none;color:var(--muted);font:600 11px var(--font);
+                  padding:2px 6px;border-radius:4px;cursor:pointer}
+  .spanctl button.on{background:var(--surface);color:var(--violet);box-shadow:var(--shadow)}
+  .addtile{grid-column:span 3;min-height:190px;border:1.5px dashed var(--border);border-radius:var(--r);
+           display:none;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+           color:var(--muted);background:none;cursor:pointer;font:600 13px var(--font);transition:.15s}
+  body.edit .addtile{display:flex}
+  .addtile:hover{border-color:var(--violet);color:var(--violet);background:var(--violet-soft)}
+  @media (max-width:1180px){.addtile{grid-column:span 6}}
+  @media (max-width:720px){.addtile{grid-column:span 12}}
+
+  .empty{grid-column:span 12;padding:56px 24px;text-align:center;border:1.5px dashed var(--border);
+         border-radius:var(--r);color:var(--muted)}
+  .empty b{display:block;font-size:15px;color:var(--text);margin-bottom:5px}
+
+  /* ── viz primitives ── */
+  .kpi{display:flex;flex-direction:column;gap:3px}
+  .kpi .v{font-size:34px;font-weight:700;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+  .kpi .v small{font-size:13px;font-weight:500;color:var(--muted);margin-left:6px;letter-spacing:0}
+  .kpi .cap{font-size:12.5px;color:var(--muted);margin-top:5px}
+  .kpi .delta{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;margin-top:7px}
+  .kpi .delta.up{color:var(--err)} .kpi .delta.down{color:var(--ok)} .kpi .delta.flat{color:var(--muted)}
+
+  .hb{display:flex;align-items:center;gap:10px;padding:4px 0;text-decoration:none}
+  .hb .l{width:38%;max-width:170px;flex-shrink:0;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .hb .t{flex:1;height:16px;background:var(--surface-2);border-radius:4px;overflow:hidden;min-width:20px}
+  .hb .t i{display:block;height:100%;border-radius:4px;background:var(--violet);opacity:.85}
+  .hb .v{width:34px;text-align:right;font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;flex-shrink:0}
+  .hb:hover .l{color:var(--violet)}
+
+  .vbars{display:flex;align-items:flex-end;gap:5px;height:112px;margin-bottom:6px}
+  .vbars .c{flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:4px;min-width:0}
+  .vbars .c i{display:block;border-radius:4px 4px 2px 2px;background:var(--violet);opacity:.85;transition:.2s}
+  .vbars .c:hover i{opacity:1}
+  .vlabs{display:flex;gap:5px} .vlabs span{flex:1;text-align:center;font-size:10.5px;color:var(--faint);
+         overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+
+  .stack{display:flex;height:11px;border-radius:999px;overflow:hidden;gap:2px;margin-bottom:12px}
+  .stack span{display:block}
+  .leg{display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;font-size:12px}
+  .leg div{display:flex;align-items:center;gap:7px;color:var(--muted);min-width:0}
+  .leg i{width:8px;height:8px;border-radius:2.5px;flex-shrink:0}
+  .leg span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .leg b{margin-left:auto;color:var(--text);font-variant-numeric:tabular-nums;font-weight:700}
+
+  .donut{display:flex;align-items:center;gap:14px}
+  .donut svg{flex-shrink:0}
+  .donut .dc{font-size:19px;font-weight:700;letter-spacing:-.02em}
+  .donut .dl{font-size:10px;fill:var(--muted)}
+  .donut .leg{grid-template-columns:1fr;flex:1;min-width:0}
+
+  .gauge{display:flex;flex-direction:column;align-items:center;gap:2px}
+  .gauge .gv{font-size:30px;font-weight:700;letter-spacing:-.03em;margin-top:-34px}
+  .gauge .gc{font-size:12px;color:var(--muted);text-align:center;margin-top:8px}
+
+  table.wt{width:100%;border-collapse:collapse;font-size:12.5px}
+  table.wt th{text-align:left;font-size:10.5px;font-weight:700;color:var(--faint);text-transform:uppercase;
+              letter-spacing:.05em;padding:0 8px 6px 0;border-bottom:1px solid var(--border)}
+  table.wt td{padding:7px 8px 7px 0;border-bottom:1px solid var(--border-soft);
+              overflow:hidden;text-overflow:ellipsis;max-width:0;white-space:nowrap}
+  table.wt tr:last-child td{border-bottom:none}
+  table.wt td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;width:60px}
+
+  .lst{display:flex;flex-direction:column;gap:2px}
+  .lst .r{display:flex;align-items:flex-start;gap:9px;padding:7px 0;border-bottom:1px solid var(--border-soft)}
+  .lst .r:last-child{border-bottom:none}
+  .lst .sv{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px}
+  .lst .b{flex:1;min-width:0} .lst .b b{font-size:12.5px;font-weight:600;display:block;
+          overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lst .b span{font-size:11.5px;color:var(--muted)}
+  .lst .n{font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--muted);flex-shrink:0}
+
+  .heat{display:grid;grid-template-columns:repeat(14,1fr);gap:3px}
+  .heat i{aspect-ratio:1;border-radius:2.5px;background:var(--surface-2);display:block}
+
+  .line-wrap{width:100%} .line-wrap svg{width:100%;height:112px;display:block}
+  .xlabs{display:flex;justify-content:space-between;font-size:10.5px;color:var(--faint);margin-top:5px}
+
+  /* ── widget library drawer ── */
+  .lib{position:fixed;top:0;right:0;bottom:0;width:min(410px,100%);z-index:90;background:var(--surface);
+       border-left:1px solid var(--border);box-shadow:var(--pop);display:flex;flex-direction:column;
+       transform:translateX(103%);transition:transform .28s cubic-bezier(.4,0,.2,1)}
+  .lib.on{transform:none}
+  .lib-h{padding:15px 17px 12px;border-bottom:1px solid var(--border)}
+  .lib-h .row{display:flex;align-items:center;gap:10px;margin-bottom:3px}
+  .lib-h h3{margin:0;font-size:15.5px;font-weight:700;flex:1}
+  .lib-h p{margin:0 0 11px;font-size:12.5px;color:var(--muted)}
+  .search{display:flex;align-items:center;gap:8px;padding:8px 11px;border:1px solid var(--border);
+          border-radius:8px;background:var(--surface-2)}
+  .search:focus-within{border-color:var(--violet);background:var(--surface)}
+  .search svg{color:var(--muted);flex-shrink:0}
+  .search input{flex:1;border:none;background:none;outline:none;color:var(--text);font-size:13px}
+  .chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}
+  .chip{padding:4px 10px;border-radius:999px;border:1px solid var(--border);background:var(--surface);
+        font:600 11.5px var(--font);color:var(--muted);cursor:pointer;transition:.15s}
+  .chip:hover{border-color:var(--violet)}
+  .chip.on{background:var(--violet-soft);border-color:var(--violet);color:var(--violet)}
+  .lib-b{flex:1;overflow-y:auto;padding:6px 0 20px}
+  .lgrp{padding:12px 17px 5px;font-size:10.5px;font-weight:700;color:var(--faint);text-transform:uppercase;
+        letter-spacing:.06em;display:flex;align-items:center;gap:8px}
+  .lgrp em{font-style:normal;color:var(--faint);font-weight:600;text-transform:none;letter-spacing:0;font-size:11px}
+  .li{display:flex;align-items:center;gap:11px;padding:9px 17px;transition:.15s}
+  .li:hover{background:var(--violet-soft)}
+  .li .vz{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;flex-shrink:0;
+          background:var(--surface-2);border:1px solid var(--border);color:var(--muted)}
+  .li .nm{flex:1;min-width:0}
+  .li .nm b{display:block;font-size:13px;font-weight:600;line-height:1.3}
+  .li .nm small{font-size:11.5px;color:var(--faint);display:block;
+                overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .li .add{flex-shrink:0}
+  .li.in .vz{background:var(--violet-soft);border-color:transparent;color:var(--violet)}
+  .lib-none{padding:40px 20px;text-align:center;color:var(--muted);font-size:13px}
+
+  /* ── modals ── */
+  .scrim{position:fixed;inset:0;background:rgba(10,12,20,.46);z-index:100;display:none;
+         align-items:center;justify-content:center;padding:20px}
+  .scrim.on{display:flex}
+  .modal{width:min(880px,100%);max-height:min(760px,90vh);background:var(--surface);border-radius:14px;
+         box-shadow:var(--pop);display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--border)}
+  .modal.sm{width:min(560px,100%)}
+  .modal-h{padding:16px 19px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:12px}
+  .modal-h h3{margin:0 0 3px;font-size:16px;font-weight:700}
+  .modal-h p{margin:0;font-size:12.5px;color:var(--muted)}
+  .modal-b{overflow-y:auto;flex:1;padding:17px 19px}
+  .modal-f{padding:13px 19px;border-top:1px solid var(--border);display:flex;gap:8px;
+           justify-content:flex-end;align-items:center;flex-wrap:wrap}
+  .modal-f .sp{flex:1;min-width:0}
+
+  /* gallery */
+  .ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(238px,1fr));gap:12px}
+  .gcard{border:1px solid var(--border);border-radius:11px;overflow:hidden;background:var(--surface);
+         display:flex;flex-direction:column;transition:.15s}
+  .gcard:hover{border-color:var(--violet);box-shadow:var(--shadow)}
+  .gprev{height:88px;background:var(--surface-2);border-bottom:1px solid var(--border-soft);
+         padding:9px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:6px}
+  .gprev i{border-radius:5px;display:grid;place-items:center}
+  .gprev i svg{width:16px;height:16px}
+  .gcard .gb{padding:11px 12px 12px;flex:1;display:flex;flex-direction:column}
+  .gcard .gb b{font-size:13.5px;font-weight:700;line-height:1.3}
+  .gcard .gb p{margin:4px 0 0;font-size:12px;color:var(--muted);line-height:1.4;flex:1}
+  .gcard .ga{display:flex;gap:6px;margin-top:11px;align-items:center}
+  .gcard .ga .sp{flex:1}
+
+  /* forms */
+  .fld{margin-bottom:15px}
+  .fld>label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px}
+  .fld>label .req{color:var(--err)}
+  .fld input[type=text],.fld input[type=time],.fld textarea,.fld select{
+    width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:8px;background:var(--surface);
+    color:var(--text);font-size:13.5px;outline:none;transition:.15s}
+  .fld input:focus,.fld textarea:focus,.fld select:focus{border-color:var(--violet);box-shadow:0 0 0 3px var(--violet-soft)}
+  .fld .hint{font-size:11.5px;color:var(--faint);margin-top:5px}
+  .frow{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+  @media (max-width:560px){.frow{grid-template-columns:1fr}}
+  .opts{display:flex;gap:7px;flex-wrap:wrap}
+  .opt{display:flex;align-items:center;gap:7px;padding:7px 12px;border:1px solid var(--border);border-radius:8px;
+       cursor:pointer;font-size:13px;background:var(--surface);transition:.15s;user-select:none}
+  .opt:hover{border-color:var(--violet)}
+  .opt.on{background:var(--violet-soft);border-color:var(--violet);color:var(--violet);font-weight:600}
+  .cbx{display:flex;align-items:flex-start;gap:9px;font-size:13px;cursor:pointer;line-height:1.45}
+  .cbx input{margin-top:2px;accent-color:var(--violet);width:15px;height:15px;flex-shrink:0}
+  .sched-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+  .sched-i{display:flex;align-items:center;gap:11px;padding:10px 12px;border:1px solid var(--border);
+           border-radius:9px;background:var(--surface-2)}
+  .sched-i .b{flex:1;min-width:0} .sched-i .b b{font-size:13px;display:block}
+  .sched-i .b span{font-size:11.5px;color:var(--muted)}
+
+  .toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);z-index:200;opacity:0;
+         pointer-events:none;background:var(--text);color:var(--page);padding:10px 16px;border-radius:9px;
+         font:600 13px var(--font);box-shadow:var(--pop);transition:.22s;display:flex;align-items:center;gap:9px}
+  .toast.on{opacity:1;transform:translate(-50%,0)}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+
+<div class="chrome">
+  <div class="brand">Report module <span>· revamp</span></div>
+  <div class="tabs">
+    <a href="reports-home.html">Home</a>
+    <a href="reports-module-revamp.html">List</a>
+    <a href="reports-module-revamp.html">Viewer</a>
+    <a href="reports-custom-revamp.html">Builder</a>
+    <a class="on" href="#">Dashboard</a>
+  </div>
+  <div class="sp"></div>
+  <button class="btn ghost sm" id="theme" title="Toggle theme" aria-label="Toggle theme">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+</div>
+
+<!-- ══════════ dashboard bar ══════════ -->
+<div class="dbar">
+  <div class="picker" id="picker">
+    <button id="pickBtn" aria-haspopup="true" aria-expanded="false">
+      <span class="pi" id="pickIco"></span>
+      <span class="pn"><b id="pickName">—</b><i id="pickKind">—</i></span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--muted)"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <div class="menu" id="pickMenu" role="menu"></div>
+  </div>
+
+  <select class="ctl" id="scope" aria-label="Scope">
+    <option>All managed endpoints (936)</option>
+    <option>Only scanned endpoints (20)</option>
+    <option>Custom group · Servers</option>
+    <option>Custom group · Roaming laptops</option>
+    <option>Remote office · Chennai</option>
+  </select>
+
+  <select class="ctl" id="range" aria-label="Time range">
+    <option>Last 7 days</option>
+    <option selected>Last 30 days</option>
+    <option>Last 90 days</option>
+    <option>This quarter</option>
+  </select>
+
+  <button class="ctl" id="refresh" title="Refresh all widgets">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7M21 3v6h-6"/></svg>
+    <span id="refreshTxt">Updated 4 min ago</span>
+  </button>
+
+  <div class="sp"></div>
+
+  <button class="btn ghost sm" id="galleryBtn">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+    Predefined dashboards
+  </button>
+  <button class="btn ghost sm" id="schedBtn">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+    Schedule
+  </button>
+  <button class="btn ghost sm" id="editBtn">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+    <span id="editTxt">Edit layout</span>
+  </button>
+  <button class="btn primary sm" id="addBtn">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
+    Add widget
+  </button>
+</div>
+
+<div class="page">
+  <div class="chead">
+    <div style="flex:1;min-width:280px">
+      <h1 id="dTitle">—</h1>
+      <p id="dDesc">—</p>
+      <div class="cmeta" id="dMeta"></div>
+    </div>
+    <div id="editActions" style="display:none;gap:8px;padding-top:6px">
+      <button class="btn ghost sm" id="cancelEdit">Discard changes</button>
+      <button class="btn primary sm" id="saveEdit">Save layout</button>
+    </div>
+  </div>
+
+  <div class="note" id="cov">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01"/></svg>
+    <div class="sp"><b>916 of 936 endpoints have never completed an asset scan.</b>
+      Widgets marked <span class="badge warn" style="vertical-align:1px"><i></i>2% coverage</span> read from inventory data, so they describe 20 endpoints — not your estate.</div>
+    <button class="btn ghost sm" id="covDismiss">Dismiss</button>
+  </div>
+
+  <div class="grid" id="grid"></div>
+</div>
+
+<!-- ══════════ widget library ══════════ -->
+<aside class="lib" id="lib" aria-label="Widget library" aria-hidden="true">
+  <div class="lib-h">
+    <div class="row">
+      <h3>Widget library</h3>
+      <button class="ico-b" id="libClose" aria-label="Close widget library">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <p><span id="libCount">0</span> predefined widgets, drawn from every reporting module. Each one is backed by a report you can open or schedule.</p>
+    <div class="search">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="libQ" placeholder="Search widgets — “patch”, “usb”, “bitlocker”…" autocomplete="off" aria-label="Search widgets">
+    </div>
+    <div class="chips" id="libChips"></div>
+  </div>
+  <div class="lib-b" id="libBody"></div>
+</aside>
+
+<!-- ══════════ predefined dashboard gallery ══════════ -->
+<div class="scrim" id="galleryScrim">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="galTitle">
+    <div class="modal-h">
+      <div style="flex:1">
+        <h3 id="galTitle">Predefined dashboards</h3>
+        <p>Vendor-shipped dashboards, one per module area. Open one read-only, or duplicate it to get an editable copy you own.</p>
+      </div>
+      <button class="ico-b" data-close="galleryScrim" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-b"><div class="ggrid" id="galGrid"></div></div>
+  </div>
+</div>
+
+<!-- ══════════ schedule ══════════ -->
+<div class="scrim" id="schedScrim">
+  <div class="modal sm" role="dialog" aria-modal="true" aria-labelledby="schTitle">
+    <div class="modal-h">
+      <div style="flex:1">
+        <h3 id="schTitle">Schedule this dashboard</h3>
+        <p id="schSub">—</p>
+      </div>
+      <button class="ico-b" data-close="schedScrim" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-b">
+      <div id="schExisting"></div>
+
+      <div class="fld">
+        <label for="schName">Scheduler name <span class="req">*</span></label>
+        <input type="text" id="schName" placeholder="e.g. Weekly security posture — CISO">
+      </div>
+
+      <div class="frow">
+        <div class="fld">
+          <label for="schFreq">Frequency</label>
+          <select id="schFreq">
+            <option>Daily</option><option selected>Weekly</option><option>Monthly</option><option>Once</option>
+          </select>
+        </div>
+        <div class="fld">
+          <label for="schTime">Time</label>
+          <input type="time" id="schTime" value="07:00">
+        </div>
+      </div>
+
+      <div class="fld">
+        <label>Formats</label>
+        <div class="opts" id="schFmt">
+          <button class="opt on" data-f="PDF">PDF</button>
+          <button class="opt" data-f="XLSX">XLSX</button>
+          <button class="opt" data-f="CSV">CSV</button>
+          <button class="opt" data-f="PNG">PNG snapshot</button>
+        </div>
+        <div class="hint">A dashboard renders to PDF or PNG as laid out; XLSX and CSV export each widget's underlying report as a sheet.</div>
+      </div>
+
+      <div class="fld">
+        <label for="schTo">To <span class="req">*</span></label>
+        <input type="text" id="schTo" placeholder="ciso@acme.com, security@acme.com">
+        <div class="hint">Comma-separated. Delivery uses the configured mail server — <a href="#" style="color:var(--violet)">check mail settings</a>.</div>
+      </div>
+
+      <div class="fld">
+        <label for="schSubj">Subject <span class="req">*</span></label>
+        <input type="text" id="schSubj" placeholder="Endpoint security posture — week of {{date}}">
+      </div>
+
+      <div class="fld">
+        <label>Delivery options</label>
+        <label class="cbx" style="margin-bottom:8px">
+          <input type="checkbox" id="schEmpty" checked>
+          <span>Send even when no data is available</span>
+        </label>
+        <label class="cbx">
+          <input type="checkbox" id="schPublish">
+          <span>If the export exceeds 5 MB, publish it on the server and email the URL instead of attaching it</span>
+        </label>
+      </div>
+
+      <div class="fld" style="margin-bottom:0">
+        <label class="cbx">
+          <input type="checkbox" id="schConsent">
+          <span>I confirm these recipients are authorised to receive endpoint data that may include user names, device identifiers and IP addresses.</span>
+        </label>
+      </div>
+    </div>
+    <div class="modal-f">
+      <span class="sp" style="font-size:11.5px;color:var(--faint)" id="schWhy">Name, recipients, subject and consent are required.</span>
+      <button class="btn ghost" data-close="schedScrim">Cancel</button>
+      <button class="btn primary" id="schSave" disabled>Schedule</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ save as ══════════ -->
+<div class="scrim" id="saveScrim">
+  <div class="modal sm" role="dialog" aria-modal="true" aria-labelledby="saveTitle">
+    <div class="modal-h">
+      <div style="flex:1">
+        <h3 id="saveTitle">Save as a new dashboard</h3>
+        <p id="saveSub">Predefined dashboards are read-only. Your edits are saved as a copy you own.</p>
+      </div>
+      <button class="ico-b" data-close="saveScrim" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-b">
+      <div class="fld"><label for="saveName">Name <span class="req">*</span></label>
+        <input type="text" id="saveName" placeholder="Dashboard name"></div>
+      <div class="fld" style="margin-bottom:0"><label for="saveDesc">Description</label>
+        <input type="text" id="saveDesc" placeholder="What question does this dashboard answer?"></div>
+    </div>
+    <div class="modal-f">
+      <button class="btn ghost" data-close="saveScrim">Cancel</button>
+      <button class="btn primary" id="saveGo">Save copy</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const $ = s => document.querySelector(s);
+const PAL = ['var(--violet)','#8b5cf6','#0ea5e9','#f59e0b','#14b8a6','#ec4899','#64748b'];
+const SEVC = ['var(--sev4)','var(--sev3)','var(--sev2)','var(--sev1)'];
+
+/* ═══════════════════════════════════════════════════════════════
+   Icons — one per reporting module, so a widget's origin is
+   readable at a glance both in the library and on the canvas.
+   ═══════════════════════════════════════════════════════════════ */
+const I = {
+  patch:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 6v6c0 5 3.4 9.4 8 10 4.6-.6 8-5 8-10V6z"/><path d="m9 12 2 2 4-4"/></svg>',
+  shield:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 6v6c0 5 3.4 9.4 8 10 4.6-.6 8-5 8-10V6z"/><path d="M12 8v4M12 16h.01"/></svg>',
+  box:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>',
+  pc:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>',
+  lock:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg>',
+  usb:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="20" r="2"/><path d="M12 18V7M9 10 12 7l3 3M8 14h8"/></svg>',
+  bug:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="6" width="8" height="13" rx="4"/><path d="M8 11H4M20 11h-4M8 16H4M20 16h-4M9 6 7.5 3.5M15 6l1.5-2.5"/></svg>',
+  phone:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 19h2"/></svg>',
+  user:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
+  web:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 9h20M6 6.5h.01M9 6.5h.01"/></svg>',
+  app:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
+  power:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v10M18.4 6.6a9 9 0 1 1-12.8 0"/></svg>',
+  file:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>',
+};
+const MOD_ICO = {
+  'Threats & Patches':I.patch,'Vulnerability':I.shield,'Inventory':I.box,'Endpoint health':I.pc,
+  'BitLocker':I.lock,'Device Control & USB':I.usb,'DLP':I.file,'Malware Protection':I.bug,
+  'MDM':I.phone,'Active Directory':I.user,'Browser':I.web,'Application Control':I.app,'Power Management':I.power,
+};
+const VIZ_ICO = {
+  kpi:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 18V9M10 18V4M16 18v-6M22 18H2"/></svg>',
+  donut:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="M12 3v5.5"/></svg>',
+  hbar:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h14M4 12h9M4 18h5"/></svg>',
+  bar:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="4" height="9"/><rect x="10" y="5" width="4" height="14"/><rect x="16" y="13" width="4" height="6"/></svg>',
+  line:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l5-6 4 3 6-8"/><path d="M3 21h18"/></svg>',
+  stack:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="9" width="18" height="6" rx="2"/><path d="M9 9v6M15 9v6"/></svg>',
+  table:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14h18M10 4v16"/></svg>',
+  gauge:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 18a8 8 0 1 1 16 0"/><path d="m12 18 4-6"/></svg>',
+  list:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg>',
+  heat:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
+};
+
+/* ═══════════════════════════════════════════════════════════════
+   THE WIDGET CATALOGUE — predefined widgets from every module.
+   Figures follow the same demo estate the rest of the module uses:
+   936 managed endpoints, 20 of them scanned, 109 open
+   vulnerabilities split 19 / 63 / 22 / 5 across four severities.
+   `cov:1` marks a widget whose source is inventory data, and so
+   only describes the 20 scanned endpoints — surfaced on the card
+   rather than left for the reader to discover.
+   ═══════════════════════════════════════════════════════════════ */
+const CAT = [
+/* ── Threats & Patches ────────────────────────────────────── */
+{id:'p-compliance',m:'Threats & Patches',t:'Patch compliance',src:'System Compliance Report',viz:'gauge',s:3,
+ d:{v:62,cap:'580 of 936 endpoints fully patched'}},
+{id:'p-missing-sev',m:'Threats & Patches',t:'Missing patches by severity',src:'Missing Patches',viz:'stack',s:3,
+ d:{parts:[['Critical',148,SEVC[0]],['Important',309,SEVC[1]],['Moderate',96,SEVC[2]],['Low',37,SEVC[3]]]}},
+{id:'p-trend',m:'Threats & Patches',t:'Patch deployment trend',src:'Patch Deployment Report',viz:'line',s:6,
+ d:{labels:['W1','W2','W3','W4','W5','W6','W7','W8'],series:[112,168,141,203,187,244,231,289],unit:'patches deployed'}},
+{id:'p-top-missing',m:'Threats & Patches',t:'Top missing patches',src:'Missing Patches',viz:'hbar',s:4,
+ d:{rows:[['KB5034441 · Win10 22H2',214],['Chrome 121.0.6167',186],['KB5034122 · Win11',158],['Adobe Reader 24.1',131],['7-Zip 23.01',94]],unit:'endpoints'}},
+{id:'p-reboot',m:'Threats & Patches',t:'Awaiting reboot',src:'Systems requiring reboot',viz:'kpi',s:3,
+ d:{v:41,u:'endpoints',cap:'Patches applied but not yet effective',delta:{d:'up',v:'+12 this week'},tone:'warn'}},
+{id:'p-failed',m:'Threats & Patches',t:'Failed deployments',src:'Patch Deployment Failed Systems',viz:'kpi',s:3,
+ d:{v:9,u:'endpoints',cap:'Last attempt failed on 6 distinct patches',delta:{d:'down',v:'−4 vs last week'},tone:'bad'}},
+{id:'p-approval',m:'Threats & Patches',t:'Patches awaiting approval',src:'Missing patches awaiting approval',viz:'kpi',s:3,
+ d:{v:27,u:'patches',cap:'Blocking 312 endpoints from compliance',tone:'warn'}},
+{id:'p-scan-age',m:'Threats & Patches',t:'Scan freshness',src:'Scan Report',viz:'heat',s:4,
+ d:{cells:42,seed:3,cap:'Daily scan coverage, last 6 weeks'}},
+
+/* ── Vulnerability ────────────────────────────────────────── */
+{id:'v-severity',m:'Vulnerability',t:'Open vulnerabilities',src:'Vulnerabilities',viz:'donut',s:3,
+ d:{parts:[['Critical',19,SEVC[0]],['Important',63,SEVC[1]],['Moderate',22,SEVC[2]],['Low',5,SEVC[3]]],center:'109'}},
+{id:'v-zeroday',m:'Vulnerability',t:'Zero-day exposure',src:'Zero Day Vulnerability Report',viz:'list',s:4,
+ d:{items:[['CVE-2024-21412 · SmartScreen bypass',SEVC[0],'42 endpoints'],
+           ['CVE-2024-21351 · Defender bypass',SEVC[0],'38 endpoints'],
+           ['CVE-2024-21338 · AppLocker EoP',SEVC[1],'26 endpoints'],
+           ['CVE-2023-36884 · Office RCE',SEVC[1],'11 endpoints']]}},
+{id:'v-trend',m:'Vulnerability',t:'Vulnerability trend',src:'Detected CVE Summary',viz:'line',s:6,
+ d:{labels:['Mar','Apr','May','Jun','Jul','Aug'],series:[142,131,158,127,118,109],unit:'open CVEs'}},
+{id:'v-affected',m:'Vulnerability',t:'Most affected endpoints',src:'Systems Affected by Vulnerabilities',viz:'hbar',s:4,
+ d:{rows:[['WS-CHN-0142',23],['SRV-DC-02',19],['WS-BLR-0088',17],['WS-CHN-0231',14],['LAP-ROAM-11',12]],unit:'CVEs'}},
+{id:'v-eol',m:'Vulnerability',t:'End-of-life software',src:'End of Life Software',viz:'hbar',s:4,cov:1,
+ d:{rows:[['Windows 7 SP1',6],['Java 8 u202',5],['Python 2.7',3],['Flash Player',2],['Windows Server 2008 R2',1]],unit:'endpoints'}},
+{id:'v-misconfig',m:'Vulnerability',t:'System misconfigurations',src:'System Misconfigurations',viz:'kpi',s:3,
+ d:{v:37,u:'findings',cap:'Firewall, share and account policy deviations',delta:{d:'up',v:'+6 since scan'},tone:'warn'}},
+{id:'v-port',m:'Vulnerability',t:'Risky open ports',src:'Port Audit',viz:'hbar',s:4,
+ d:{rows:[['3389 · RDP',14],['445 · SMB',11],['23 · Telnet',4],['21 · FTP',3],['5900 · VNC',2]],unit:'endpoints'}},
+
+/* ── Endpoint health ──────────────────────────────────────── */
+{id:'h-coverage',m:'Endpoint health',t:'Inventory coverage',src:'Managed Systems',viz:'gauge',s:3,
+ d:{v:2,cap:'20 of 936 endpoints have scan data',tone:'bad'}},
+{id:'h-agent',m:'Endpoint health',t:'Agent live status',src:'Systems with No Agent Contact',viz:'donut',s:3,
+ d:{parts:[['Live',742,'var(--ok)'],['Unreachable 24h+',163,'var(--warn)'],['Never contacted',31,'var(--err)']],center:'936'}},
+{id:'h-av',m:'Endpoint health',t:'Antivirus status',src:'Systems with Misconfigured Antivirus Software',viz:'donut',s:3,cov:1,
+ d:{parts:[['Protected',14,'var(--ok)'],['Out of date',4,'var(--warn)'],['Disabled',2,'var(--err)']],center:'20'}},
+{id:'h-uptime',m:'Power Management',t:'Uptime by endpoint',src:'System Uptime Report',viz:'bar',s:4,cov:1,
+ d:{rows:[['<1d',3],['1–7d',6],['7–30d',7],['30–90d',3],['90d+',1]],unit:'endpoints'}},
+{id:'h-firewall',m:'Endpoint health',t:'Firewall off',src:'Firewall Details',viz:'kpi',s:3,cov:1,
+ d:{v:3,u:'of 20 scanned',cap:'Host firewall disabled or not reporting',tone:'bad'}},
+
+/* ── BitLocker ────────────────────────────────────────────── */
+{id:'b-encryption',m:'BitLocker',t:'Disk encryption status',src:'BitLocker Details',viz:'donut',s:3,cov:1,
+ d:{parts:[['Encrypted',11,'var(--ok)'],['Not encrypted',7,'var(--err)'],['Suspended',2,'var(--warn)']],center:'20'}},
+{id:'b-tpm',m:'BitLocker',t:'TPM unavailable',src:'TPM Availability Status Report',viz:'kpi',s:3,cov:1,
+ d:{v:5,u:'endpoints',cap:'Cannot enforce BitLocker without TPM 2.0',tone:'warn'}},
+
+/* ── Device Control & USB ─────────────────────────────────── */
+{id:'d-usb-trend',m:'Device Control & USB',t:'USB usage trend',src:'USB Usage Report',viz:'line',s:6,
+ d:{labels:['Wk1','Wk2','Wk3','Wk4'],series:[38,52,44,61],unit:'device connections'}},
+{id:'d-blocked',m:'Device Control & USB',t:'Blocked device types',src:'Device Audit',viz:'hbar',s:4,
+ d:{rows:[['USB mass storage',48],['Portable device (MTP)',17],['Bluetooth',9],['CD/DVD',4],['Imaging',2]],unit:'blocks'}},
+{id:'d-unauth',m:'Device Control & USB',t:'Unauthorised devices',src:'Unauthorized Devices',viz:'kpi',s:3,
+ d:{v:12,u:'devices',cap:'Connected outside policy in the last 30 days',delta:{d:'up',v:'+3'},tone:'bad'}},
+{id:'d-shadow',m:'Device Control & USB',t:'Recent file transfers',src:'File Shadowing',viz:'table',s:6,
+ d:{cols:['File','Endpoint','Size'],rows:[
+   ['Q3-pricing.xlsx','WS-CHN-0142','2.4 MB'],['customer-list.csv','WS-BLR-0088','880 KB'],
+   ['design-spec.pdf','LAP-ROAM-11','5.1 MB'],['payroll-aug.xlsx','WS-CHN-0231','1.2 MB']]}},
+
+/* ── DLP ──────────────────────────────────────────────────── */
+{id:'dl-incidents',m:'DLP',t:'DLP incidents',src:'Endpoint Activity Report',viz:'bar',s:4,
+ d:{rows:[['Mon',7],['Tue',12],['Wed',9],['Thu',15],['Fri',22],['Sat',3],['Sun',1]],unit:'incidents'}},
+{id:'dl-justify',m:'DLP',t:'Top justifications',src:'Justification Summary',viz:'hbar',s:4,
+ d:{rows:[['Business need',34],['Customer request',18],['Approved by manager',11],['No reason given',7]],unit:'events'}},
+{id:'dl-false',m:'DLP',t:'False positives',src:'Data Rules False Positives',viz:'kpi',s:3,
+ d:{v:23,u:'flagged',cap:'Rules tuning would cut alert volume by ~18%',tone:'warn'}},
+
+/* ── Malware Protection ───────────────────────────────────── */
+{id:'m-incidents',m:'Malware Protection',t:'Malware incidents',src:'Incidents Report',viz:'line',s:6,
+ d:{labels:['W1','W2','W3','W4','W5','W6'],series:[4,9,6,14,8,5],unit:'incidents'}},
+{id:'m-alerts',m:'Malware Protection',t:'Alerts by severity',src:'Alerts Report',viz:'stack',s:3,
+ d:{parts:[['Critical',6,SEVC[0]],['High',14,SEVC[1]],['Medium',21,SEVC[2]],['Low',9,SEVC[3]]]}},
+{id:'m-notscanned',m:'Malware Protection',t:'Not scanned in 7 days',src:'Device Not Scanned (7 days)',viz:'kpi',s:3,
+ d:{v:118,u:'endpoints',cap:'Malware definitions may also be stale',tone:'bad'}},
+
+/* ── Inventory ────────────────────────────────────────────── */
+{id:'i-os',m:'Inventory',t:'Operating systems',src:'Computers by OS',viz:'hbar',s:4,cov:1,
+ d:{rows:[['Windows 10',5],['Mac OS X',3],['Ubuntu',2],['Windows Server 2012 R2',2],['Others',8]],unit:'endpoints'}},
+{id:'i-disk',m:'Inventory',t:'Disk space remaining',src:'Computers by Disk Usage Summary',viz:'bar',s:4,cov:1,
+ d:{rows:[['<5%',2],['5–15%',4],['15–30%',5],['30–60%',6],['>60%',3]],unit:'endpoints'}},
+{id:'i-age',m:'Inventory',t:'Hardware age',src:'Computers By Age',viz:'bar',s:4,cov:1,
+ d:{rows:[['<1y',3],['1–2y',5],['2–3y',4],['3–5y',6],['5y+',2]],unit:'endpoints'}},
+{id:'i-mfr',m:'Inventory',t:'By manufacturer',src:'Computers By Manufacturer',viz:'donut',s:3,cov:1,
+ d:{parts:[['Dell',8,PAL[0]],['Lenovo',5,PAL[1]],['Apple',3,PAL[2]],['HP',3,PAL[3]],['Other',1,PAL[6]]],center:'20'}},
+{id:'i-software',m:'Inventory',t:'Prohibited software',src:'Prohibited Software',viz:'table',s:6,cov:1,
+ d:{cols:['Software','Endpoints','Action'],rows:[
+   ['uTorrent 3.6','4','Auto-uninstall'],['TeamViewer 15 (personal)','3','Flagged'],
+   ['Wireshark 4.2','2','Approved · IT'],['CCleaner 6.2','2','Auto-uninstall']]}},
+{id:'i-unmanaged',m:'Inventory',t:'Unmanaged endpoints',src:'Unmanaged Computers',viz:'kpi',s:3,
+ d:{v:64,u:'discovered',cap:'On the network with no agent installed',delta:{d:'up',v:'+9 this month'},tone:'bad'}},
+{id:'i-warranty',m:'Inventory',t:'Warranty expiring',src:'Soon to expire Warranty',viz:'kpi',s:3,cov:1,
+ d:{v:7,u:'endpoints',cap:'Within the next 90 days',tone:'warn'}},
+{id:'i-license',m:'Inventory',t:'License compliance',src:'License Compliance',viz:'stack',s:3,cov:1,
+ d:{parts:[['Under-licensed',3,'var(--err)'],['Compliant',22,'var(--ok)'],['Over-licensed',8,'var(--sev1)']]}},
+{id:'i-cert',m:'Inventory',t:'Certificates expiring',src:'Soon to expire certificates',viz:'kpi',s:3,cov:1,
+ d:{v:11,u:'certificates',cap:'Expiring within 60 days across 6 endpoints',tone:'warn'}},
+
+/* ── MDM ──────────────────────────────────────────────────── */
+{id:'md-platform',m:'MDM',t:'Devices by platform',src:'Devices by Model',viz:'donut',s:3,
+ d:{parts:[['iOS',86,PAL[0]],['Android',62,PAL[1]],['iPadOS',24,PAL[2]],['macOS',12,PAL[3]]],center:'184'}},
+{id:'md-compliance',m:'MDM',t:'MDM compliance',src:'Device Attestation',viz:'gauge',s:3,
+ d:{v:88,cap:'162 of 184 enrolled devices compliant'}},
+{id:'md-risk',m:'MDM',t:'Rooted / jailbroken',src:'Rooted Devices',viz:'kpi',s:3,
+ d:{v:4,u:'devices',cap:'Corporate data should be wiped from these',tone:'bad'}},
+{id:'md-blocklist',m:'MDM',t:'Blocklisted apps',src:'Devices with Blocklisted Apps',viz:'hbar',s:4,
+ d:{rows:[['TikTok',18],['WhatsApp (personal)',11],['Telegram',7],['Dropbox',5]],unit:'devices'}},
+
+/* ── Active Directory ─────────────────────────────────────── */
+{id:'a-logon-fail',m:'Active Directory',t:'Failed logons',src:'Last Logon Failed User Accounts',viz:'line',s:6,
+ d:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],series:[23,31,28,47,38,6,4],unit:'failed attempts'}},
+{id:'a-inactive',m:'Active Directory',t:'Inactive accounts',src:'Inactive User Accounts',viz:'kpi',s:3,
+ d:{v:47,u:'accounts',cap:'No logon in 90 days, still enabled',tone:'warn'}},
+{id:'a-privileged',m:'Active Directory',t:'Privileged accounts',src:'Domain Admin User Accounts',viz:'hbar',s:4,
+ d:{rows:[['Domain Admins',8],['Enterprise Admins',3],['Schema Admins',2],['Backup Operators',6]],unit:'members'}},
+{id:'a-pwd',m:'Active Directory',t:'Password expiry',src:'Soon-to-Expire User Passwords',viz:'bar',s:4,
+ d:{rows:[['Expired',12],['<7d',19],['7–14d',24],['14–30d',31],['Never expires',18]],unit:'accounts'}},
+{id:'a-logged-on',m:'Active Directory',t:'Currently logged on',src:'Currently Logged on Users',viz:'kpi',s:3,
+ d:{v:318,u:'users',cap:'Across 296 endpoints right now',tone:'ok'}},
+
+/* ── Browser / Application Control ────────────────────────── */
+{id:'br-ext',m:'Browser',t:'Harmful extensions',src:'Recently installed potentially harmful extensions',viz:'table',s:6,
+ d:{cols:['Extension','Browser','Endpoints'],rows:[
+   ['SearchAssist Pro','Chrome','7'],['PDF Convert Free','Edge','5'],
+   ['Coupon Finder','Chrome','4'],['VPN Unlimited','Firefox','2']]}},
+{id:'ac-blocked',m:'Application Control',t:'Blocklisted app launches',src:'Blocklisted Application Access',viz:'hbar',s:4,
+ d:{rows:[['cmd.exe (non-admin)',34],['powershell.exe',22],['anydesk.exe',14],['python.exe',9]],unit:'attempts'}},
+{id:'ac-elevated',m:'Application Control',t:'Elevated with reason',src:'Applications Elevated with Reason',viz:'kpi',s:3,
+ d:{v:56,u:'elevations',cap:'Self-service privilege grants this month',tone:'ok'}},
+];
+const BY_ID = Object.fromEntries(CAT.map(w=>[w.id,w]));
+const MODULES = [...new Set(CAT.map(w=>w.m))];
+
+/* ═══════════════════════════════════════════════════════════════
+   Predefined dashboards — one per module area, read-only.
+   Duplicating one produces an editable copy the user owns.
+   ═══════════════════════════════════════════════════════════════ */
+const PREDEF = [
+ {id:'pd-patch',n:'Patch Management — Overview',m:'Threats & Patches',
+  d:'Compliance, missing patches by severity, deployment throughput and what is blocking the rest.',
+  w:['p-compliance','p-missing-sev','p-reboot','p-failed','p-trend','p-top-missing']},
+ {id:'pd-patch-det',n:'Patch Management — Detailed',m:'Threats & Patches',
+  d:'Approval queue, scan freshness and the endpoints furthest behind.',
+  w:['p-approval','p-scan-age','p-top-missing','p-failed','p-trend']},
+ {id:'pd-threat',n:'Threat & Vulnerability',m:'Vulnerability',
+  d:'Open CVEs by severity, zero-day exposure, misconfigurations and risky open ports.',
+  w:['v-severity','v-zeroday','v-misconfig','v-trend','v-affected','v-port']},
+ {id:'pd-malware',n:'Malware Protection',m:'Malware Protection',
+  d:'Incident volume, alert severity mix and endpoints that have missed a scan.',
+  w:['m-incidents','m-alerts','m-notscanned','h-av','v-severity']},
+ {id:'pd-compliance',n:'Compliance — Overview',m:'Vulnerability',
+  d:'Evidence pack for audit: patch compliance, encryption, EOL software and prohibited installs.',
+  w:['p-compliance','b-encryption','v-eol','i-license','i-software']},
+ {id:'pd-health',n:'Endpoint Health',m:'Endpoint health',
+  d:'Agent reachability, inventory coverage, antivirus posture, firewall and uptime.',
+  w:['h-agent','h-coverage','h-av','h-firewall','h-uptime','i-unmanaged']},
+ {id:'pd-hw',n:'Inventory — Hardware',m:'Inventory',
+  d:'Operating systems, manufacturers, hardware age, disk pressure and warranty runway.',
+  w:['i-os','i-mfr','i-age','i-disk','i-warranty','i-cert']},
+ {id:'pd-sw',n:'Inventory — Software & Licensing',m:'Inventory',
+  d:'License position, prohibited software and end-of-life products still in use.',
+  w:['i-license','i-software','v-eol','i-unmanaged']},
+ {id:'pd-usb',n:'Device Control & USB',m:'Device Control & USB',
+  d:'Removable-media activity, blocked device types and shadowed file transfers.',
+  w:['d-usb-trend','d-unauth','d-blocked','d-shadow']},
+ {id:'pd-dlp',n:'Data Loss Prevention',m:'DLP',
+  d:'Incident volume by day, justification patterns and false-positive load.',
+  w:['dl-incidents','dl-justify','dl-false','d-shadow']},
+ {id:'pd-user',n:'User Activity',m:'Active Directory',
+  d:'Logon failures, dormant accounts, privileged group membership and password expiry.',
+  w:['a-logon-fail','a-logged-on','a-inactive','a-privileged','a-pwd']},
+ {id:'pd-mdm',n:'MDM Compliance',m:'MDM',
+  d:'Enrolled devices by platform, attestation posture and blocklisted app spread.',
+  w:['md-platform','md-compliance','md-risk','md-blocklist']},
+ {id:'pd-zt',n:'Zero Trust Readiness',m:'Endpoint health',
+  d:'Cross-module posture: agent reach, encryption, privilege, patch and unmanaged devices.',
+  w:['h-agent','b-encryption','a-privileged','p-compliance','i-unmanaged','ac-elevated']},
+];
+
+/* user-owned dashboards (seeded, then persisted to localStorage) */
+const SEED_MINE = [
+ {id:'my-posture',n:'Security posture — weekly',
+  d:'What I take into the Monday security call: coverage first, then exposure, then what moved.',
+  w:[{i:'h-coverage',s:3},{i:'p-compliance',s:3},{i:'v-severity',s:3},{i:'p-reboot',s:3},
+     {i:'p-trend',s:6},{i:'v-zeroday',s:6},{i:'h-agent',s:3},{i:'m-notscanned',s:3},{i:'i-unmanaged',s:3},{i:'d-unauth',s:3}],
+  sched:[{n:'Weekly posture — CISO',f:'Weekly · Mon 07:00',to:'ciso@acme.com, security@acme.com',fmt:'PDF'}]},
+ {id:'my-audit',n:'Q3 compliance evidence',
+  d:'Frozen set of widgets the auditors asked for. Do not reshuffle without telling Compliance.',
+  w:[{i:'p-compliance',s:4},{i:'b-encryption',s:4},{i:'i-license',s:4},{i:'v-eol',s:6},{i:'i-software',s:6}],
+  sched:[{n:'Audit pack — monthly',f:'Monthly · 1st 06:00',to:'audit@acme.com',fmt:'PDF, XLSX'}]},
+];
+
+const LS = 'ec_dashboards_v1';
+let MINE, current, editing = false, snapshot = null;
+
+function load(){
+  try{
+    const raw = localStorage.getItem(LS);
+    MINE = raw ? JSON.parse(raw) : structuredClone(SEED_MINE);
+  }catch(e){ MINE = structuredClone(SEED_MINE); }
+  if(!Array.isArray(MINE) || !MINE.length) MINE = structuredClone(SEED_MINE);
+}
+function persist(){ try{ localStorage.setItem(LS, JSON.stringify(MINE)); }catch(e){} }
+
+/* A predefined dashboard is opened as a read-only view object; a
+   user dashboard is opened by reference so edits land on the real
+   record. `ro` is what every write path checks. */
+function openDash(id){
+  const mine = MINE.find(d=>d.id===id);
+  if(mine){ current = mine; }
+  else {
+    const p = PREDEF.find(d=>d.id===id) || PREDEF[0];
+    current = {id:p.id, n:p.n, d:p.d, m:p.m, ro:true, w:p.w.map(i=>({i, s:BY_ID[i].s})), sched:[]};
+  }
+  if(editing) exitEdit(false);
+  render();
+}
+
+/* ── the canvas ───────────────────────────────────────────── */
+function render(){
+  $('#dTitle').textContent = current.n;
+  $('#dDesc').textContent = current.d;
+  /* your own dashboards are renamed in place — a canvas you can build
+     but not name is a dead end */
+  [['#dTitle','n','Untitled dashboard'],['#dDesc','d','']].forEach(([sel,key,fallback])=>{
+    const el = $(sel);
+    el.contentEditable = current.ro ? 'false' : 'true';
+    el.title = current.ro ? '' : 'Click to rename';
+    el.onblur = () => {
+      const v = el.textContent.trim();
+      current[key] = v || fallback || current[key];
+      el.textContent = current[key];
+      persist(); renderPicker(); $('#pickName').textContent = current.n;
+    };
+    el.onkeydown = e => { if(e.key==='Enter'){ e.preventDefault(); el.blur(); } };
+  });
+  $('#pickName').textContent = current.n;
+  $('#pickKind').textContent = current.ro ? 'Predefined · read-only' : 'My dashboard';
+  $('#pickIco').innerHTML = current.ro ? (MOD_ICO[current.m] || I.pc) : I.app;
+
+  const mods = [...new Set(current.w.map(x=>BY_ID[x.i].m))];
+  const sched = current.sched || [];
+  $('#dMeta').innerHTML = [
+    current.ro ? '<span class="badge pre"><i></i>Predefined</span>' : '',
+    `<span>${current.w.length} widget${current.w.length===1?'':'s'}</span><span class="dot"></span>`,
+    `<span>${mods.length} module${mods.length===1?'':'s'}</span><span class="dot"></span>`,
+    sched.length
+      ? `<span class="badge ok"><i></i>${esc(sched[0].f)}</span>`
+      : `<span class="badge"><i></i>Not scheduled</span>`,
+    '<span class="dot"></span><span>Auto-refresh every 15 min</span>',
+  ].join('');
+
+  /* the coverage warning is only honest where it applies — show it
+     when this canvas actually reads inventory data */
+  const cov = $('#cov');
+  if(cov) cov.style.display = current.w.some(x=>BY_ID[x.i].cov) ? '' : 'none';
+
+  const grid = $('#grid');
+  if(!current.w.length){
+    grid.innerHTML = `<div class="empty"><b>This dashboard has no widgets yet.</b>
+      Pick from ${CAT.length} predefined widgets across ${MODULES.length} modules, or start from a predefined dashboard.
+      <div style="margin-top:14px;display:flex;gap:8px;justify-content:center">
+        <button class="btn primary sm" onclick="openLib()">Add a widget</button>
+        <button class="btn ghost sm" onclick="openGallery()">Browse predefined dashboards</button>
+      </div></div>`;
+    return;
+  }
+  grid.innerHTML = current.w.map((x,idx)=>card(BY_ID[x.i], x.s, idx)).join('') +
+    `<button class="addtile" onclick="openLib()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      Add widget</button>`;
+  wire();
+  if(document.getElementById('libBody').childElementCount) renderLib();
+}
+
+function card(w, span, idx){
+  return `<section class="w" style="--s:${span}" data-idx="${idx}" ${editing?'draggable="true"':''} aria-label="${esc(w.t)}">
+    <div class="w-h">
+      <div class="tt"><b>${esc(w.t)}</b><small>${esc(w.m)} · ${esc(w.src)}</small></div>
+      <div class="wmenu">
+        <div class="spanctl" role="group" aria-label="Widget width">
+          ${[3,4,6,12].map(s=>`<button data-span="${s}" data-idx="${idx}" class="${span===s?'on':''}"
+             title="${{3:'Quarter',4:'Third',6:'Half',12:'Full'}[s]} width">${{3:'¼',4:'⅓',6:'½',12:'1'}[s]}</button>`).join('')}
+        </div>
+        <button class="ico-b" title="Open the report behind this widget" data-open="${w.id}">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6M10 14 21 3"/></svg>
+        </button>
+        <button class="ico-b del" title="Remove from dashboard" data-rm="${idx}">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="w-b">${viz(w)}</div>
+    <div class="w-f">
+      ${w.cov?'<span class="badge warn"><i></i>2% coverage</span>':''}
+      <a href="reports-module-revamp.html" data-src="${esc(w.src)}">${esc(w.src)} →</a>
+    </div>
+  </section>`;
+}
+
+/* ── viz renderers ────────────────────────────────────────────
+   Deliberately HTML/flex where the shape allows it (bars, tables,
+   stacks, lists) so widgets stay crisp at any column width; SVG
+   only where geometry demands it (donut, gauge, line).
+   ─────────────────────────────────────────────────────────── */
+function viz(w){
+  const d = w.d;
+  switch(w.viz){
+
+  case 'kpi': {
+    const tone = {ok:'var(--ok)',bad:'var(--err)',warn:'var(--warn)'}[d.tone] || 'var(--text)';
+    const dl = d.delta ? `<span class="delta ${d.delta.d}">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        ${d.delta.d==='up'?'<path d="M12 19V5M5 12l7-7 7 7"/>':'<path d="M12 5v14M5 12l7 7 7-7"/>'}</svg>${esc(d.delta.v)}</span>` : '';
+    return `<div class="kpi"><div class="v" style="color:${tone}">${d.v}<small>${esc(d.u)}</small></div>
+      <div class="cap">${esc(d.cap)}</div>${dl}</div>`;
+  }
+
+  case 'donut': {
+    const tot = d.parts.reduce((a,p)=>a+p[1],0);
+    const R = 34, C = 2*Math.PI*R; let off = 0;
+    const rings = d.parts.map(p=>{
+      const len = p[1]/tot*C;
+      const s = `<circle cx="44" cy="44" r="${R}" fill="none" stroke="${p[2]}" stroke-width="15"
+                 stroke-dasharray="${len-1.5} ${C-len+1.5}" stroke-dashoffset="${-off}"
+                 transform="rotate(-90 44 44)"><title>${esc(p[0])}: ${p[1]}</title></circle>`;
+      off += len; return s;
+    }).join('');
+    return `<div class="donut">
+      <svg width="88" height="88" viewBox="0 0 88 88" role="img" aria-label="${esc(w.t)}">
+        ${rings}<text class="dc" x="44" y="44" text-anchor="middle" dominant-baseline="central"
+          fill="currentColor">${esc(d.center)}</text></svg>
+      <div class="leg">${d.parts.map(p=>
+        `<div><i style="background:${p[2]}"></i><span>${esc(p[0])}</span><b>${p[1]}</b></div>`).join('')}</div></div>`;
+  }
+
+  case 'stack': {
+    const tot = d.parts.reduce((a,p)=>a+p[1],0);
+    return `<div><div class="stack" role="img" aria-label="${esc(w.t)}">${d.parts.map(p=>
+        `<span style="width:${p[1]/tot*100}%;background:${p[2]}" title="${esc(p[0])}: ${p[1]}"></span>`).join('')}</div>
+      <div class="leg">${d.parts.map(p=>
+        `<div><i style="background:${p[2]}"></i><span>${esc(p[0])}</span><b>${p[1]}</b></div>`).join('')}</div></div>`;
+  }
+
+  case 'hbar': {
+    const max = Math.max(...d.rows.map(r=>r[1]));
+    return d.rows.map((r,i)=>`<a class="hb" href="reports-module-revamp.html" title="${esc(r[0])}: ${r[1]} ${esc(d.unit)}">
+        <span class="l">${esc(r[0])}</span>
+        <span class="t"><i style="width:${Math.max(r[1]/max*100,2)}%;background:${PAL[i%PAL.length]}"></i></span>
+        <span class="v">${r[1]}</span></a>`).join('');
+  }
+
+  case 'bar': {
+    const max = Math.max(...d.rows.map(r=>r[1]));
+    return `<div><div class="vbars">${d.rows.map((r,i)=>
+        `<div class="c" title="${esc(r[0])}: ${r[1]} ${esc(d.unit)}">
+           <i style="height:${Math.max(r[1]/max*100,3)}%;background:${PAL[i%PAL.length]}"></i></div>`).join('')}</div>
+      <div class="vlabs">${d.rows.map(r=>`<span>${esc(r[0])}</span>`).join('')}</div></div>`;
+  }
+
+  case 'line': {
+    const max = Math.max(...d.series), min = Math.min(...d.series);
+    const pad = (max-min)*0.25 || 1, hi = max+pad, lo = Math.max(0, min-pad);
+    const pt = (v,i)=>[i/(d.series.length-1)*100, 100-(v-lo)/(hi-lo)*100];
+    const path = d.series.map((v,i)=>{const [x,y]=pt(v,i); return `${i?'L':'M'}${x.toFixed(2)},${y.toFixed(2)}`;}).join(' ');
+    const area = `${path} L100,100 L0,100 Z`;
+    const last = pt(d.series[d.series.length-1], d.series.length-1);
+    return `<div class="line-wrap">
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="${esc(w.t)}">
+        <path d="${area}" fill="var(--violet)" opacity=".10"/>
+        <path d="${path}" fill="none" stroke="var(--violet)" stroke-width="2"
+              vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round"/>
+        <circle cx="${last[0]}" cy="${last[1]}" r="3" fill="var(--violet)" vector-effect="non-scaling-stroke"/>
+      </svg>
+      <div class="xlabs">${d.labels.map(l=>`<span>${esc(l)}</span>`).join('')}</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:6px">
+        <b style="color:var(--text)">${d.series[d.series.length-1]}</b> ${esc(d.unit)} in the latest period</div></div>`;
+  }
+
+  case 'gauge': {
+    /* radius must match the chord exactly — an undersized r makes the
+       renderer scale it up, the dash pattern then repeats and paints a
+       second cap at the far end. */
+    const R = 48, C = Math.PI*R, on = d.v/100*C;
+    const arc = `M12,58 A${R},${R} 0 0 1 108,58`;
+    const col = d.tone==='bad' ? 'var(--err)' : d.v>=80 ? 'var(--ok)' : d.v>=50 ? 'var(--warn)' : 'var(--err)';
+    return `<div class="gauge">
+      <svg width="132" height="72" viewBox="0 0 120 66" role="img" aria-label="${esc(w.t)}: ${d.v}%">
+        <path d="${arc}" fill="none" stroke="var(--surface-2)" stroke-width="12" stroke-linecap="round"/>
+        <path d="${arc}" fill="none" stroke="${col}" stroke-width="12" stroke-linecap="round"
+              stroke-dasharray="${on} ${C*2}"/>
+      </svg>
+      <div class="gv" style="color:${col}">${d.v}%</div>
+      <div class="gc">${esc(d.cap)}</div></div>`;
+  }
+
+  case 'table':
+    return `<table class="wt"><thead><tr>${d.cols.map((c,i)=>
+        `<th${i?' class="num"':''} style="${i?'text-align:right':''}">${esc(c)}</th>`).join('')}</tr></thead>
+      <tbody>${d.rows.map(r=>`<tr>${r.map((c,i)=>
+        `<td${i?' class="num"':''} title="${esc(c)}">${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+
+  case 'list':
+    return `<div class="lst">${d.items.map(it=>`<div class="r">
+        <span class="sv" style="background:${it[1]}"></span>
+        <span class="b"><b title="${esc(it[0])}">${esc(it[0])}</b></span>
+        <span class="n">${esc(it[2])}</span></div>`).join('')}</div>`;
+
+  case 'heat': {
+    /* deterministic pseudo-random so the grid is stable across renders */
+    let s = d.seed;
+    const cells = Array.from({length:d.cells},()=>{ s=(s*1103515245+12345)%2147483648; return s/2147483648; });
+    return `<div><div class="heat">${cells.map(v=>{
+        const o = v<.15 ? 0 : v;
+        return `<i style="background:${o?`color-mix(in srgb, var(--violet) ${Math.round(o*100)}%, var(--surface-2))`:'var(--surface-2)'}"></i>`;
+      }).join('')}</div>
+      <div style="font-size:11.5px;color:var(--muted);margin-top:9px">${esc(d.cap)} — 6 days with no scan at all.</div></div>`;
+  }
+
+  default: return '';
+  }
+}
+
+/* ── canvas interactions ──────────────────────────────────── */
+function wire(){
+  document.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{
+    if(guard()) return;
+    const i = +b.dataset.rm, nm = BY_ID[current.w[i].i].t;
+    current.w.splice(i,1); commit(); toast(`Removed “${nm}”`);
+  });
+  document.querySelectorAll('[data-span]').forEach(b=>b.onclick=()=>{
+    if(guard()) return;
+    current.w[+b.dataset.idx].s = +b.dataset.span; commit();
+  });
+  document.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{
+    toast(`Opening “${BY_ID[b.dataset.open].src}” in the report viewer`);
+  });
+
+  if(!editing) return;
+  let from = null;
+  document.querySelectorAll('.w').forEach(el=>{
+    el.ondragstart = e => { from = +el.dataset.idx; el.classList.add('drag'); e.dataTransfer.effectAllowed='move'; };
+    el.ondragend   = () => { el.classList.remove('drag'); document.querySelectorAll('.w').forEach(x=>x.classList.remove('over')); };
+    el.ondragover  = e => { e.preventDefault(); if(+el.dataset.idx!==from) el.classList.add('over'); };
+    el.ondragleave = () => el.classList.remove('over');
+    el.ondrop      = e => {
+      e.preventDefault();
+      const to = +el.dataset.idx;
+      if(from===null || to===from) return;
+      const [m] = current.w.splice(from,1); current.w.splice(to,0,m);
+      from = null; commit();
+    };
+  });
+}
+
+/* Predefined dashboards are read-only: the first edit offers a copy
+   rather than silently forking or silently failing. */
+function guard(){
+  if(!current.ro) return false;
+  $('#saveName').value = current.n.replace(/ — .*/,'') + ' (my copy)';
+  $('#saveDesc').value = current.d;
+  $('#saveSub').textContent = `“${current.n}” is predefined and read-only. Save an editable copy to keep your changes.`;
+  show('saveScrim'); $('#saveName').focus();
+  return true;
+}
+/* while editing, changes stay in memory so "Discard changes" can
+   really discard them — only Save (or an edit made outside edit
+   mode) reaches storage. */
+function commit(){ if(!current.ro && !editing) persist(); render(); }
+
+/* ── edit mode ────────────────────────────────────────────── */
+function enterEdit(){
+  if(guard()) return;
+  editing = true; snapshot = JSON.parse(JSON.stringify(current.w));
+  document.body.classList.add('edit');
+  $('#editTxt').textContent = 'Editing';
+  $('#editActions').style.display = 'flex';
+  render();
+}
+function exitEdit(save){
+  if(!save && snapshot) current.w = snapshot;
+  editing = false; snapshot = null;
+  document.body.classList.remove('edit');
+  $('#editTxt').textContent = 'Edit layout';
+  $('#editActions').style.display = 'none';
+  if(save) persist();
+  render();
+}
+$('#editBtn').onclick = () => editing ? exitEdit(true) : enterEdit();
+$('#saveEdit').onclick = () => { exitEdit(true); toast('Layout saved'); };
+$('#cancelEdit').onclick = () => { exitEdit(false); toast('Changes discarded'); };
+
+/* ── dashboard picker ─────────────────────────────────────── */
+function renderPicker(){
+  $('#pickMenu').innerHTML =
+    `<div class="menu-g">My dashboards <span class="sp" style="flex:1"></span></div>` +
+    MINE.map(d=>`<button class="mi ${current.id===d.id?'cur':''}" data-d="${d.id}">
+        <span class="gi">${I.app}</span>
+        <span style="flex:1;min-width:0"><b>${esc(d.n)}</b><small>${d.w.length} widgets${d.sched&&d.sched.length?' · scheduled':''}</small></span>
+        ${current.id===d.id?'<span class="tick"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m20 6-11 11-5-5"/></svg></span>':''}
+      </button>`).join('') +
+    `<div class="menu-g">Predefined · ${PREDEF.length}</div>` +
+    PREDEF.map(d=>`<button class="mi ${current.id===d.id?'cur':''}" data-d="${d.id}">
+        <span class="gi">${MOD_ICO[d.m]||I.pc}</span>
+        <span style="flex:1;min-width:0"><b>${esc(d.n)}</b><small>${d.m} · ${d.w.length} widgets</small></span>
+      </button>`).join('') +
+    `<div class="menu-g" style="border-top:1px solid var(--border);margin-top:5px;padding-top:10px">Create</div>` +
+    `<button class="mi" data-new="1"><span class="gi">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
+      </span><span><b>Blank dashboard</b><small>Start from an empty canvas</small></span></button>`;
+
+  $('#pickMenu').querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{ closeMenu(); openDash(b.dataset.d); });
+  $('#pickMenu').querySelector('[data-new]').onclick = () => {
+    closeMenu();
+    const d = {id:'my-'+Date.now(), n:'Untitled dashboard', d:'Add widgets from the library to describe what you need to watch.', w:[], sched:[]};
+    MINE.unshift(d); persist(); openDash(d.id); renderPicker(); openLib();
+  };
+}
+function closeMenu(){ $('#pickMenu').classList.remove('on'); $('#pickBtn').setAttribute('aria-expanded','false'); }
+$('#pickBtn').onclick = e => {
+  e.stopPropagation();
+  const on = $('#pickMenu').classList.toggle('on');
+  $('#pickBtn').setAttribute('aria-expanded', String(on));
+};
+document.addEventListener('click', e => { if(!e.target.closest('#picker')) closeMenu(); });
+
+/* ── widget library ───────────────────────────────────────── */
+let libQ = '', libViz = 'all';
+function openLib(){ $('#lib').classList.add('on'); $('#lib').setAttribute('aria-hidden','false'); renderLib(); $('#libQ').focus(); }
+function closeLib(){ $('#lib').classList.remove('on'); $('#lib').setAttribute('aria-hidden','true'); }
+$('#addBtn').onclick = openLib;
+$('#libClose').onclick = closeLib;
+
+$('#libChips').innerHTML = [['all','All'],['kpi','KPI'],['donut','Donut'],['bar','Bar'],['hbar','Ranked'],
+  ['line','Trend'],['stack','Stacked'],['gauge','Gauge'],['table','Table'],['list','List']]
+  .map(([k,l])=>`<button class="chip ${k==='all'?'on':''}" data-v="${k}">${l}</button>`).join('');
+$('#libChips').querySelectorAll('.chip').forEach(c=>c.onclick=()=>{
+  libViz = c.dataset.v;
+  $('#libChips').querySelectorAll('.chip').forEach(x=>x.classList.toggle('on', x===c));
+  renderLib();
+});
+$('#libQ').oninput = e => { libQ = e.target.value.toLowerCase().trim(); renderLib(); };
+$('#libCount').textContent = CAT.length;
+
+function renderLib(){
+  const on = new Set(current.w.map(x=>x.i));
+  const hits = CAT.filter(w =>
+    (libViz==='all' || w.viz===libViz) &&
+    (!libQ || (w.t+' '+w.m+' '+w.src).toLowerCase().includes(libQ)));
+  const body = $('#libBody');
+  if(!hits.length){
+    body.innerHTML = `<div class="lib-none">No widget matches “${esc(libQ)}”.<br>
+      <span style="font-size:12px">Try a module name, or build a custom widget from a report.</span></div>`;
+    return;
+  }
+  body.innerHTML = MODULES.filter(m=>hits.some(w=>w.m===m)).map(m=>{
+    const list = hits.filter(w=>w.m===m);
+    return `<div class="lgrp">${esc(m)} <em>${list.length}</em></div>` + list.map(w=>`
+      <div class="li ${on.has(w.id)?'in':''}">
+        <span class="vz">${VIZ_ICO[w.viz]}</span>
+        <span class="nm"><b>${esc(w.t)}</b><small>${esc(w.src)}${w.cov?' · 2% coverage':''}</small></span>
+        <span class="add">${on.has(w.id)
+          ? `<button class="btn ghost xs" data-rmid="${w.id}">Added ✓</button>`
+          : `<button class="btn ghost xs" data-addid="${w.id}">Add</button>`}</span>
+      </div>`).join('');
+  }).join('');
+
+  body.querySelectorAll('[data-addid]').forEach(b=>b.onclick=()=>{
+    if(guard()) return;
+    const w = BY_ID[b.dataset.addid];
+    current.w.push({i:w.id, s:w.s}); commit(); toast(`Added “${w.t}”`);
+  });
+  body.querySelectorAll('[data-rmid]').forEach(b=>b.onclick=()=>{
+    if(guard()) return;
+    current.w = current.w.filter(x=>x.i!==b.dataset.rmid); commit();
+  });
+}
+
+/* ── predefined dashboard gallery ─────────────────────────── */
+function openGallery(){
+  $('#galGrid').innerHTML = PREDEF.map(p=>{
+    /* the preview shows the dashboard's actual shape mix, so two
+       cards never look alike unless they really are alike */
+    const cols = p.w.slice(0,4).map((id,i)=>{
+      const c = PAL[i%PAL.length];
+      return `<i style="background:color-mix(in srgb, ${c} 14%, transparent);color:${c}">${VIZ_ICO[BY_ID[id].viz]}</i>`;
+    }).join('');
+    return `<div class="gcard">
+      <div class="gprev" aria-hidden="true">${cols}</div>
+      <div class="gb">
+        <b>${esc(p.n)}</b>
+        <p>${esc(p.d)}</p>
+        <div style="margin-top:9px"><span class="badge">${esc(p.m)}</span></div>
+        <div class="ga"><span style="font-size:11.5px;color:var(--faint)">${p.w.length} widgets</span>
+          <span class="sp"></span>
+          <button class="btn ghost xs" data-dup="${p.id}">Duplicate</button>
+          <button class="btn primary xs" data-open="${p.id}">Open</button></div>
+      </div></div>`;
+  }).join('');
+  $('#galGrid').querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{
+    hide('galleryScrim'); openDash(b.dataset.open); renderPicker();
+  });
+  $('#galGrid').querySelectorAll('[data-dup]').forEach(b=>b.onclick=()=>{
+    const p = PREDEF.find(x=>x.id===b.dataset.dup);
+    const copy = {id:'my-'+Date.now(), n:p.n+' (my copy)', d:p.d, w:p.w.map(i=>({i,s:BY_ID[i].s})), sched:[]};
+    MINE.unshift(copy); persist(); hide('galleryScrim'); openDash(copy.id); renderPicker();
+    toast(`Copied “${p.n}” — this one is yours to edit`);
+  });
+  show('galleryScrim');
+}
+$('#galleryBtn').onclick = openGallery;
+
+/* ── save-as ──────────────────────────────────────────────── */
+$('#saveGo').onclick = () => {
+  const n = $('#saveName').value.trim();
+  if(!n){ $('#saveName').focus(); return; }
+  const copy = {id:'my-'+Date.now(), n, d:$('#saveDesc').value.trim() || current.d,
+                w:JSON.parse(JSON.stringify(current.w)), sched:[]};
+  MINE.unshift(copy); persist(); hide('saveScrim'); openDash(copy.id); renderPicker();
+  toast('Saved — you can edit this copy freely');
+};
+
+/* ── schedule ─────────────────────────────────────────────── */
+const fmts = new Set(['PDF']);
+function openSched(){
+  $('#schSub').textContent = `“${current.n}” · ${current.w.length} widgets will be rendered and delivered.`;
+  const list = current.sched || [];
+  $('#schExisting').innerHTML = list.length ? `
+    <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px">EXISTING SCHEDULES</div>
+    <div class="sched-list">${list.map((s,i)=>`
+      <div class="sched-i">
+        <span class="badge ok"><i></i>Active</span>
+        <span class="b"><b>${esc(s.n)}</b><span>${esc(s.f)} · ${esc(s.fmt)} · to ${esc(s.to)}</span></span>
+        <button class="btn ghost xs" data-pause="${i}">Pause</button>
+        <button class="btn danger xs" data-del="${i}">Delete</button>
+      </div>`).join('')}</div>` : '';
+  $('#schExisting').querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{
+    current.sched.splice(+b.dataset.del,1); persist(); openSched(); render(); toast('Schedule deleted');
+  });
+  $('#schExisting').querySelectorAll('[data-pause]').forEach(b=>b.onclick=()=>toast('Schedule paused'));
+  $('#schName').value = $('#schName').value || `${current.n} — scheduled`;
+  $('#schSubj').value = $('#schSubj').value || `${current.n} — {{date}}`;
+  validate(); show('schedScrim');
+}
+$('#schedBtn').onclick = openSched;
+
+$('#schFmt').querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+  const f = b.dataset.f;
+  if(fmts.has(f) && fmts.size>1) fmts.delete(f); else fmts.add(f);
+  b.classList.toggle('on', fmts.has(f));
+  validate();
+});
+/* SR-7 — the primary action stays disabled until name, recipients,
+   subject and explicit consent are all present. */
+function validate(){
+  const miss = [];
+  if(!$('#schName').value.trim()) miss.push('a name');
+  if(!$('#schTo').value.trim())   miss.push('recipients');
+  if(!$('#schSubj').value.trim()) miss.push('a subject');
+  if(!$('#schConsent').checked)   miss.push('consent');
+  $('#schSave').disabled = miss.length > 0;
+  $('#schWhy').textContent = miss.length
+    ? `Still needs ${miss.join(', ').replace(/, ([^,]*)$/,' and $1')}.`
+    : `Delivers as ${[...fmts].join(' + ')} to ${$('#schTo').value.split(',').filter(x=>x.trim()).length} recipient(s).`;
+}
+['schName','schTo','schSubj','schConsent'].forEach(id=>{
+  const el = document.getElementById(id);
+  el.addEventListener(id==='schConsent'?'change':'input', validate);
+});
+$('#schSave').onclick = () => {
+  if(current.ro){ hide('schedScrim'); guard(); return; }
+  const f = $('#schFreq').value, t = $('#schTime').value;
+  (current.sched = current.sched || []).push({
+    n:$('#schName').value.trim(),
+    f:`${f} · ${f==='Weekly'?'Mon ':f==='Monthly'?'1st ':''}${t}`,
+    to:$('#schTo').value.trim(), fmt:[...fmts].join(', ')});
+  persist(); hide('schedScrim'); render();
+  toast(`Scheduled — first delivery ${f==='Daily'?'tomorrow':'next Monday'} at ${t}`);
+};
+
+/* ── scrim plumbing, toast, misc ──────────────────────────── */
+/* keep the canvas still while a dialog is up — a scrim that lets the
+   page scroll behind it reads as a broken overlay */
+function lock(){ document.body.style.overflow = 'hidden'; }
+function unlock(){ if(!document.querySelector('.scrim.on')) document.body.style.overflow = ''; }
+function show(id){ document.getElementById(id).classList.add('on'); lock(); }
+function hide(id){ document.getElementById(id).classList.remove('on'); unlock(); }
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>hide(b.dataset.close));
+document.querySelectorAll('.scrim').forEach(s=>s.onclick=e=>{ if(e.target===s) hide(s.id); });
+document.addEventListener('keydown', e=>{
+  if(e.key!=='Escape') return;
+  document.querySelectorAll('.scrim.on').forEach(s=>hide(s.id));
+  closeLib(); closeMenu();
+});
+
+let tt;
+function toast(msg){
+  const el = $('#toast');
+  el.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m20 6-11 11-5-5"/></svg>${esc(msg)}`;
+  el.classList.add('on'); clearTimeout(tt); tt = setTimeout(()=>el.classList.remove('on'), 2600);
+}
+
+$('#covDismiss').onclick = () => $('#cov').remove();
+$('#refresh').onclick = () => {
+  $('#refreshTxt').textContent = 'Refreshing…';
+  setTimeout(()=>{ $('#refreshTxt').textContent = 'Updated just now'; toast('All widgets refreshed'); }, 700);
+};
+$('#scope').onchange = e => toast(`Scope: ${e.target.value}`);
+$('#range').onchange = e => toast(`Range: ${e.target.value}`);
+$('#theme').onclick = () => {
+  const c = document.documentElement.getAttribute('data-theme');
+  const dark = c ? c==='dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  document.documentElement.setAttribute('data-theme', dark?'light':'dark');
+};
+
+load();
+current = MINE[0];
+renderPicker();
+render();
+</script>

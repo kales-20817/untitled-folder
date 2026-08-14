@@ -1,0 +1,1037 @@
+<title>Report module revamp · Endpoint Central</title>
+<style>
+  :root {
+    --violet: #2563eb; --violet-hov: #1d4ed8; --violet-soft: rgba(37,99,235,.08);
+    --surface: #fff; --surface-2: #f4f6fb; --page: #f7f9fc;
+    --border: rgba(37,99,235,.13); --border-soft: rgba(37,99,235,.07);
+    --text: #15181e; --muted: #64748b; --faint: #94a3b8;
+    --ok: #16a34a; --ok-bg: rgba(34,197,94,.12);
+    --warn: #a16207; --warn-bg: rgba(234,179,8,.13);
+    --err: #dc2626; --err-bg: rgba(239,68,68,.11);
+    --c1:#2563eb; --c2:#8b5cf6; --c3:#0ea5e9; --c4:#f59e0b; --c5:#14b8a6; --c6:#ec4899;
+    --shadow: 0 2px 12px rgba(37,99,235,.06); --pop: 0 10px 34px rgba(16,25,42,.14);
+    --r: 12px; --font: 'Zoho Puvi', ui-sans-serif, system-ui, 'Segoe UI', Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --violet:#3b82f6; --violet-hov:#60a5fa; --violet-soft:rgba(59,130,246,.14);
+    --surface:#12131a; --surface-2:#1a1c25; --page:#0a0a0c;
+    --border:rgba(255,255,255,.10); --border-soft:rgba(255,255,255,.06);
+    --text:rgba(255,255,255,.92); --muted:rgba(255,255,255,.50); --faint:rgba(255,255,255,.34);
+    --ok:#22c55e; --ok-bg:rgba(34,197,94,.15); --warn:#eab308; --warn-bg:rgba(234,179,8,.15);
+    --err:#f87171; --err-bg:rgba(239,68,68,.14);
+    --shadow:none; --pop:0 10px 34px rgba(0,0,0,.55);
+  }}
+  :root[data-theme="dark"] {
+    --violet:#3b82f6; --violet-hov:#60a5fa; --violet-soft:rgba(59,130,246,.14);
+    --surface:#12131a; --surface-2:#1a1c25; --page:#0a0a0c;
+    --border:rgba(255,255,255,.10); --border-soft:rgba(255,255,255,.06);
+    --text:rgba(255,255,255,.92); --muted:rgba(255,255,255,.50); --faint:rgba(255,255,255,.34);
+    --ok:#22c55e; --ok-bg:rgba(34,197,94,.15); --warn:#eab308; --warn-bg:rgba(234,179,8,.15);
+    --err:#f87171; --err-bg:rgba(239,68,68,.14);
+    --shadow:none; --pop:0 10px 34px rgba(0,0,0,.55);
+  }
+
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--page); color:var(--text); font:14px/1.5 var(--font); -webkit-font-smoothing:antialiased; }
+  button, input, select { font-family:inherit; }
+
+  /* prototype chrome */
+  .chrome { position:sticky; top:0; z-index:60; display:flex; align-items:center; gap:14px;
+            padding:9px 20px; background:var(--surface); border-bottom:1px solid var(--border); }
+  .chrome .brand { font-weight:700; font-size:13px; letter-spacing:-.01em; }
+  .chrome .brand span { color:var(--muted); font-weight:500; }
+  .tabs { display:flex; gap:2px; background:var(--surface-2); padding:3px; border-radius:9px; }
+  .tabs button { padding:6px 14px; border:none; background:none; border-radius:7px; cursor:pointer;
+                 font:600 13px var(--font); color:var(--muted); }
+  .tabs button.on { background:var(--surface); color:var(--violet); box-shadow:var(--shadow); }
+  .chrome .sp { flex:1; }
+
+  .page { max-width:1340px; margin:0 auto; padding:26px clamp(14px,3vw,30px) 70px; }
+  .screen { display:none; } .screen.on { display:block; }
+
+  /* buttons */
+  .btn { padding:8px 15px; border-radius:8px; font:600 13.5px/1 var(--font); cursor:pointer;
+         display:inline-flex; align-items:center; gap:7px; border:1px solid transparent; transition:.15s; white-space:nowrap; }
+  .btn.primary { background:var(--violet); color:#fff; }
+  .btn.primary:hover { background:var(--violet-hov); }
+  .btn.primary:disabled { opacity:.45; cursor:not-allowed; }
+  .btn.ghost { background:var(--surface); color:var(--text); border-color:var(--border); }
+  .btn.ghost:hover { background:var(--surface-2); border-color:var(--violet); }
+  .btn.danger { background:var(--surface); color:var(--err); border-color:var(--border); }
+  .btn.danger:hover { border-color:var(--err); background:var(--err-bg); }
+  .btn.sm { padding:6px 11px; font-size:12.5px; }
+
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); box-shadow:var(--shadow); }
+
+  /* ── page header ── */
+  .ph { display:flex; align-items:flex-start; gap:18px; margin-bottom:18px; flex-wrap:wrap; }
+  .ph-main { flex:1; min-width:250px; }
+  .crumb { font-size:12.5px; color:var(--muted); margin-bottom:5px; }
+  .crumb a { color:inherit; text-decoration:none; } .crumb a:hover { color:var(--violet); text-decoration:underline; }
+  h1 { font-size:21px; font-weight:700; letter-spacing:-.01em; margin:0 0 4px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .pill { font-size:12.5px; font-weight:600; color:var(--muted); background:var(--surface-2);
+          border:1px solid var(--border); padding:1px 9px; border-radius:999px; }
+  .sub { font-size:13.5px; color:var(--muted); margin:0; max-width:74ch; }
+  .ph-act { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+
+  /* ── health strip ── */
+  .health { display:flex; align-items:center; gap:11px; padding:11px 14px; margin-bottom:15px;
+            background:var(--err-bg); border:1px solid color-mix(in srgb,var(--err) 28%,transparent);
+            border-radius:10px; font-size:13.5px; }
+  .health svg { color:var(--err); flex-shrink:0; } .health .sp { flex:1; }
+  .health button { background:none; border:none; color:var(--err); font:600 13px var(--font); cursor:pointer; text-decoration:underline; padding:0; }
+
+  /* ── toolbar / table ── */
+  .toolbar { display:flex; align-items:center; gap:9px; padding:11px 13px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  .search { flex:1; max-width:290px; min-width:180px; display:flex; align-items:center; gap:8px; padding:8px 11px;
+            background:var(--surface-2); border:1px solid var(--border); border-radius:8px; }
+  .search:focus-within { border-color:var(--violet); box-shadow:0 0 0 3px var(--violet-soft); }
+  .search svg { color:var(--muted); flex-shrink:0; }
+  .search input { background:none; border:none; outline:none; color:var(--text); font-size:14px; width:100%; }
+  .fbtn { padding:8px 11px; border-radius:8px; border:1px solid var(--border); background:var(--surface);
+          color:var(--muted); font:500 13px var(--font); cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
+  .fbtn:hover { color:var(--text); border-color:var(--violet); }
+  .fbtn.on { color:var(--violet); border-color:var(--violet); background:var(--violet-soft); font-weight:600; }
+  .filter { position:relative; } .filter.open .chev { transform:rotate(180deg); } .chev { transition:.15s; }
+  .dd { position:absolute; top:calc(100% + 6px); left:0; z-index:40; min-width:210px; background:var(--surface);
+        border:1px solid var(--border); border-radius:9px; box-shadow:var(--pop); padding:4px 0; display:none; }
+  .filter.open .dd { display:block; }
+  .dd label { display:flex; align-items:center; gap:9px; padding:8px 12px; font-size:13px; cursor:pointer; }
+  .dd label:hover { background:var(--violet-soft); }
+  .dd input { accent-color:var(--violet); width:15px; height:15px; }
+  .dd .tail { margin-left:auto; color:var(--muted); font-size:12px; font-variant-numeric:tabular-nums; }
+  .sp { flex:1; }
+  .seg { display:inline-flex; border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+  .seg button { padding:7px 11px; background:var(--surface); border:none; cursor:pointer; color:var(--muted);
+                display:flex; align-items:center; gap:6px; font:600 12.5px var(--font); }
+  .seg button + button { border-left:1px solid var(--border); }
+  .seg button.on { background:var(--violet-soft); color:var(--violet); }
+
+  table { width:100%; border-collapse:collapse; }
+  th { text-align:left; padding:10px 15px; font-size:11.5px; font-weight:700; color:var(--muted);
+       text-transform:uppercase; letter-spacing:.05em; background:var(--surface-2);
+       border-bottom:1px solid var(--border); white-space:nowrap; }
+  th.sortable { cursor:pointer; user-select:none; } th.sortable:hover { color:var(--text); }
+  .si { display:inline-block; margin-left:4px; vertical-align:middle; opacity:.3; }
+  th.sorted .si { opacity:1; color:var(--violet); }
+  td { padding:11px 15px; border-bottom:1px solid var(--border-soft); font-size:14px; vertical-align:middle; }
+  tbody tr:last-child td { border-bottom:none; }
+  tbody tr:hover td { background:var(--violet-soft); }
+  tbody tr.sel td { background:var(--violet-soft); }
+  .ck { width:15px; height:15px; accent-color:var(--violet); cursor:pointer; }
+  .ck-cell { width:40px; padding-right:0 !important; }
+  table.compact td { padding:6px 15px; } table.compact .rdesc { display:none; }
+
+  .rname { display:flex; flex-direction:column; gap:1px; }
+  .link { color:var(--text); text-decoration:none; font-weight:600; cursor:pointer; }
+  .link:hover { color:var(--violet); text-decoration:underline; }
+  .rdesc { font-size:12.5px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:44ch; }
+
+  .type { display:inline-flex; align-items:center; gap:8px; font-size:13px; color:var(--muted); white-space:nowrap; }
+  .glyph { width:26px; height:26px; border-radius:7px; display:grid; place-items:center;
+           background:var(--surface-2); border:1px solid var(--border); flex-shrink:0; }
+  .type[data-t=Pie] .glyph{color:#8b5cf6}.type[data-t=Bar] .glyph{color:#0ea5e9}
+  .type[data-t=Funnel] .glyph{color:#f59e0b}.type[data-t=Table] .glyph{color:var(--muted)}
+  .owner { display:inline-flex; align-items:center; gap:8px; white-space:nowrap; font-size:13.5px; }
+  .av { width:24px; height:24px; border-radius:50%; display:grid; place-items:center; font-size:10.5px;
+        font-weight:700; color:#fff; flex-shrink:0; }
+  .when { font-size:13.5px; color:var(--muted); white-space:nowrap; font-variant-numeric:tabular-nums; }
+  .badge { display:inline-flex; align-items:center; gap:5px; padding:2px 9px; border-radius:999px;
+           font-size:12px; font-weight:600; white-space:nowrap; }
+  .badge .dot { width:6px; height:6px; border-radius:50%; background:currentColor; }
+  .badge.ok{background:var(--ok-bg);color:var(--ok)} .badge.bad{background:var(--err-bg);color:var(--err)}
+  .badge.warn{background:var(--warn-bg);color:var(--warn)}
+  .acts { display:flex; gap:2px; justify-content:flex-end; opacity:0; transition:.12s; }
+  tr:hover .acts, tr:focus-within .acts { opacity:1; }
+  .ic { width:29px; height:29px; border-radius:7px; border:1px solid transparent; background:none;
+        color:var(--muted); cursor:pointer; display:grid; place-items:center; }
+  .ic:hover { background:var(--surface-2); border-color:var(--border); color:var(--text); }
+  .ic.danger:hover { color:var(--err); border-color:color-mix(in srgb,var(--err) 30%,transparent); }
+  .bulk { display:none; align-items:center; gap:12px; padding:10px 15px; background:var(--violet-soft);
+          border-bottom:1px solid var(--border); font-size:13.5px; }
+  .bulk.on { display:flex; }
+  .foot { display:flex; align-items:center; justify-content:space-between; padding:11px 15px;
+          border-top:1px solid var(--border); font-size:13px; color:var(--muted); }
+
+  /* ── generic states ── */
+  .state { display:flex; flex-direction:column; align-items:center; text-align:center; padding:52px 30px; }
+  .state svg.art { width:74px; height:74px; margin-bottom:15px; color:var(--faint); }
+  .state h3 { font-size:16.5px; font-weight:600; margin:0 0 6px; }
+  .state p { font-size:13.5px; color:var(--muted); margin:0 0 18px; max-width:48ch; }
+  .state .row { display:flex; gap:9px; flex-wrap:wrap; justify-content:center; }
+  .state.err svg.art { color:var(--err); }
+  .code { font:12px ui-monospace,'SF Mono',Menlo,monospace; background:var(--surface-2); border:1px solid var(--border);
+          padding:2px 7px; border-radius:6px; color:var(--muted); }
+
+  /* skeleton */
+  @keyframes sh { 0%{background-position:-380px 0} 100%{background-position:380px 0} }
+  .sk { border-radius:7px; background:linear-gradient(90deg,var(--surface-2) 25%,var(--border-soft) 50%,var(--surface-2) 75%);
+        background-size:760px 100%; animation:sh 1.3s infinite linear; }
+
+  /* ── VIEWER ── */
+  .vhead { display:flex; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:14px; }
+  .backb { width:32px; height:32px; border-radius:8px; border:1px solid var(--border); background:var(--surface);
+           color:var(--muted); cursor:pointer; display:grid; place-items:center; flex-shrink:0; }
+  .backb:hover { color:var(--violet); border-color:var(--violet); }
+  .meta { display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 0; }
+  .chip { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px;
+          background:var(--surface-2); border:1px solid var(--border); font-size:12.5px; color:var(--muted); }
+  .chip b { color:var(--text); font-weight:600; }
+  .chip .k { color:var(--faint); font-size:11px; text-transform:uppercase; letter-spacing:.04em; font-weight:700; }
+  .vbody { min-height:400px; }
+  .vtoolbar { display:flex; align-items:center; gap:9px; padding:11px 14px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  .chartwrap { padding:26px 22px; }
+  .axis-lab { font-size:11.5px; fill:var(--muted); }
+  .grid-l { stroke:var(--border); stroke-width:1; }
+  .bar { transition:opacity .15s; cursor:pointer; } .bar:hover { opacity:.78; }
+  .legend { display:flex; gap:14px; flex-wrap:wrap; justify-content:center; margin-top:16px; font-size:12.5px; color:var(--muted); }
+  .legend i { width:10px; height:10px; border-radius:3px; display:inline-block; margin-right:6px; vertical-align:-1px; }
+
+  /* ── BUILDER ── */
+  .build { display:grid; grid-template-columns:352px 1fr; gap:16px; align-items:start; }
+  @media (max-width:940px){ .build { grid-template-columns:1fr; } }
+  .panel { padding:0; overflow:hidden; }
+  .panel-h { padding:13px 15px; border-bottom:1px solid var(--border); font-weight:700; font-size:13.5px;
+             display:flex; align-items:center; justify-content:space-between; }
+  .panel-b { padding:15px; }
+  .fld { margin-bottom:15px; } .fld:last-child { margin-bottom:0; }
+  .fld label { display:block; font-size:12.5px; font-weight:600; margin-bottom:6px; }
+  .fld label .req { color:var(--err); }
+  .inp { width:100%; padding:9px 11px; border-radius:8px; border:1px solid var(--border);
+         background:var(--surface); color:var(--text); font-size:13.5px; outline:none; }
+  .inp:focus { border-color:var(--violet); box-shadow:0 0 0 3px var(--violet-soft); }
+  .inp.bad { border-color:var(--err); }
+  .hint { font-size:12px; color:var(--muted); margin-top:5px; }
+  .hint.bad { color:var(--err); }
+  .ctypes { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; }
+  .ctype { padding:10px 4px 8px; border:1px solid var(--border); border-radius:9px; background:var(--surface);
+           cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:5px;
+           font:600 11.5px var(--font); color:var(--muted); }
+  .ctype:hover { border-color:var(--violet); color:var(--text); }
+  .ctype.on { border-color:var(--violet); background:var(--violet-soft); color:var(--violet); }
+  .slot { display:flex; align-items:center; gap:9px; padding:9px 11px; border-radius:8px;
+          border:1px dashed var(--border); background:var(--surface-2); cursor:pointer; font-size:13.5px; color:var(--muted); }
+  .slot:hover { border-color:var(--violet); color:var(--violet); }
+  .slot.filled { border-style:solid; background:var(--surface); color:var(--text); justify-content:space-between; }
+  .slot .tag { display:inline-flex; align-items:center; gap:7px; font-weight:600; }
+  .dtype { width:19px; height:19px; border-radius:5px; display:grid; place-items:center; font-size:9px;
+           font-weight:800; flex-shrink:0; letter-spacing:-.02em; }
+  .dtype.str{background:rgba(37,99,235,.14);color:var(--c1)} .dtype.num{background:rgba(20,184,166,.16);color:#0d9488}
+  .dtype.date{background:rgba(245,158,11,.16);color:#b45309}
+  .agg { padding:4px 8px; border-radius:6px; border:1px solid var(--border); background:var(--surface-2);
+         font-size:12px; color:var(--muted); cursor:pointer; }
+  .xbtn { background:none; border:none; color:var(--faint); cursor:pointer; padding:2px; display:grid; }
+  .xbtn:hover { color:var(--err); }
+  .btabs { display:flex; gap:2px; border-bottom:1px solid var(--border); padding:0 15px; }
+  .btabs button { padding:10px 12px; border:none; background:none; cursor:pointer; font:600 13px var(--font);
+                  color:var(--muted); border-bottom:2px solid transparent; margin-bottom:-1px; }
+  .btabs button.on { color:var(--violet); border-bottom-color:var(--violet); }
+  .valid { margin-top:14px; padding:10px 12px; border-radius:9px; font-size:12.5px; display:flex; gap:8px; align-items:flex-start; }
+  .valid.bad { background:var(--warn-bg); color:var(--warn); }
+  .valid.good { background:var(--ok-bg); color:var(--ok); }
+  .valid svg { flex-shrink:0; margin-top:1px; }
+  .crit { display:flex; gap:7px; align-items:center; margin-bottom:8px; flex-wrap:wrap; }
+  .crit select, .crit input { padding:7px 9px; border-radius:7px; border:1px solid var(--border);
+                              background:var(--surface); color:var(--text); font-size:12.5px; outline:none; }
+  .crit select:focus, .crit input:focus { border-color:var(--violet); }
+
+  /* column picker modal */
+  .scrim { position:fixed; inset:0; background:rgba(10,12,20,.44); z-index:80; display:none;
+           align-items:center; justify-content:center; padding:20px; }
+  .scrim.on { display:flex; }
+  .modal { width:min(560px,100%); max-height:min(620px,88vh); background:var(--surface); border-radius:14px;
+           box-shadow:var(--pop); display:flex; flex-direction:column; overflow:hidden; border:1px solid var(--border); }
+  .modal-h { padding:15px 17px; border-bottom:1px solid var(--border); }
+  .modal-h h3 { margin:0 0 3px; font-size:15.5px; font-weight:700; }
+  .modal-h p { margin:0; font-size:12.5px; color:var(--muted); }
+  .modal-b { overflow-y:auto; flex:1; padding:6px 0; }
+  .modal-f { padding:12px 17px; border-top:1px solid var(--border); display:flex; gap:8px; justify-content:flex-end; align-items:center; }
+  .grp { padding:9px 17px 5px; font-size:11px; font-weight:700; color:var(--faint);
+         text-transform:uppercase; letter-spacing:.05em; }
+  .copt { display:flex; align-items:center; gap:10px; padding:8px 17px; cursor:pointer; font-size:13.5px; }
+  .copt:hover { background:var(--violet-soft); }
+  .copt.off { opacity:.4; cursor:not-allowed; }
+  .copt.off:hover { background:none; }
+  .copt .nm { flex:1; }
+  .copt .why { font-size:11.5px; color:var(--faint); }
+  .copt.pick { background:var(--violet-soft); }
+  .copt.pick .nm { font-weight:600; color:var(--violet); }
+  .sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }
+</style>
+
+<div class="chrome">
+  <div class="brand">Report module <span>· revamp</span></div>
+  <div class="tabs">
+    <button class="on" data-s="list">List</button>
+    <button data-s="view">Viewer</button>
+    <button data-s="build">Builder</button>
+  </div>
+  <div class="sp"></div>
+  <button class="btn ghost sm" id="theme" title="Toggle theme">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+</div>
+
+<!-- ══════════════ SCREEN 1 · LIST ══════════════ -->
+<div class="screen on page" id="s-list">
+  <header class="ph">
+    <div class="ph-main">
+      <nav class="crumb"><a href="#">Reports</a> › <a href="#">User-defined</a> › Custom Reports</nav>
+      <h1>Custom Reports <span class="pill" id="cnt">0</span></h1>
+      <p class="sub">Reports built from inventory, patch and deployment data. Open one to view it, or schedule it to arrive by email.</p>
+    </div>
+    <div class="ph-act">
+      <button class="btn ghost"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Export</button>
+      <button class="btn primary" onclick="go('build')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>New Custom Report</button>
+    </div>
+  </header>
+
+  <div class="health" id="health">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01"/></svg>
+    <div><b><span id="brokeN">0</span> reports are failing.</b> Their data query no longer resolves — most likely a column removed from the sub-module.</div>
+    <div class="sp"></div>
+    <button id="showBroke">Show only these</button>
+  </div>
+
+  <div class="card">
+    <div class="toolbar">
+      <div class="search">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="q" type="search" placeholder="Search reports…" aria-label="Search reports">
+      </div>
+      <div class="filter" data-f="type"><button class="fbtn">Type<svg class="chev" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg></button><div class="dd"></div></div>
+      <div class="filter" data-f="owner"><button class="fbtn">Owner<svg class="chev" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg></button><div class="dd"></div></div>
+      <div class="filter" data-f="health"><button class="fbtn">Health<svg class="chev" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg></button><div class="dd"></div></div>
+      <button class="fbtn" id="clr" style="display:none">Clear all</button>
+      <div class="sp"></div>
+      <div class="seg">
+        <button id="dcomfy" class="on" title="Comfortable"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+        <button id="dcompact" title="Compact"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4h18M3 8h18M3 12h18M3 16h18M3 20h18"/></svg></button>
+      </div>
+    </div>
+
+    <div class="bulk" id="bulk">
+      <b><span id="bn">0</span> selected</b><div class="sp"></div>
+      <button class="btn ghost sm">Schedule</button><button class="btn ghost sm">Export</button><button class="btn danger sm">Delete</button>
+    </div>
+
+    <div style="overflow-x:auto" id="tscroll">
+      <table id="tbl">
+        <thead><tr>
+          <th class="ck-cell"><input type="checkbox" class="ck" id="all" aria-label="Select all"></th>
+          <th class="sortable" data-k="name">Report<svg class="si" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6-6 6 6"/></svg></th>
+          <th class="sortable" data-k="type">Type<svg class="si" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6-6 6 6"/></svg></th>
+          <th class="sortable" data-k="owner">Owner<svg class="si" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6-6 6 6"/></svg></th>
+          <th class="sortable sorted" data-k="ts">Modified<svg class="si" style="transform:rotate(180deg)" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6-6 6 6"/></svg></th>
+          <th class="sortable" data-k="health">Health<svg class="si" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6-6 6 6"/></svg></th>
+          <th style="text-align:right">Actions</th>
+        </tr></thead>
+        <tbody id="tb"></tbody>
+      </table>
+    </div>
+
+    <div class="state" id="lempty" style="display:none">
+      <svg class="art" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <h3>No reports match those filters</h3>
+      <p>Try a different search term, or clear the filters to see all <span id="esN">0</span> reports.</p>
+      <div class="row"><button class="btn ghost" onclick="clearAll()">Clear filters</button></div>
+    </div>
+
+    <div class="foot"><div id="fl">—</div><div>Synced just now</div></div>
+  </div>
+</div>
+
+<!-- ══════════════ SCREEN 2 · VIEWER ══════════════ -->
+<div class="screen page" id="s-view">
+  <div class="vhead">
+    <button class="backb" onclick="go('list')" title="Back to list">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <div class="ph-main">
+      <nav class="crumb"><a href="#" onclick="go('list');return false">Custom Reports</a> › <span id="vcrumb">—</span></nav>
+      <h1><span id="vname">—</span> <span class="badge" id="vhealth"></span></h1>
+      <!-- these were completely invisible in the current build -->
+      <div class="meta" id="vmeta"></div>
+    </div>
+    <div class="ph-act">
+      <button class="btn ghost" id="vrefresh"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>Run now</button>
+      <button class="btn ghost" onclick="go('build')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>Edit</button>
+      <button class="btn ghost">Save as new</button>
+      <button class="btn ghost"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Schedule</button>
+      <button class="btn danger"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg></button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="vtoolbar">
+      <div class="seg">
+        <button class="on" id="vchart"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>Chart</button>
+        <button id="vtable"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Data</button>
+      </div>
+      <div class="sp"></div>
+      <span class="when" id="vgen">—</span>
+      <button class="btn ghost sm"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Export CSV</button>
+    </div>
+    <div class="vbody" id="vbody"></div>
+  </div>
+
+  <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; align-items:center">
+    <span style="font-size:12.5px;color:var(--muted)">Demo the states:</span>
+    <button class="btn ghost sm" onclick="viewState('loading')">Loading</button>
+    <button class="btn ghost sm" onclick="viewState('data')">Data</button>
+    <button class="btn ghost sm" onclick="viewState('empty')">No rows</button>
+    <button class="btn ghost sm" onclick="viewState('error')">Failed</button>
+  </div>
+</div>
+
+<!-- ══════════════ SCREEN 3 · BUILDER ══════════════ -->
+<div class="screen page" id="s-build">
+  <div class="vhead">
+    <button class="backb" onclick="go('list')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg></button>
+    <div class="ph-main">
+      <nav class="crumb"><a href="#" onclick="go('list');return false">Custom Reports</a> › New report</nav>
+      <h1>Build a report</h1>
+      <p class="sub">The preview updates as you go — no separate preview step.</p>
+    </div>
+    <div class="ph-act">
+      <button class="btn ghost" onclick="go('list')">Cancel</button>
+      <button class="btn primary" id="save" disabled>Save report</button>
+    </div>
+  </div>
+
+  <div class="build">
+    <div class="card panel">
+      <div class="btabs">
+        <button class="on" data-bt="setup">Setup</button>
+        <button data-bt="filter">Filter <span class="pill" id="critN" style="font-size:11px">0</span></button>
+      </div>
+
+      <div class="panel-b" id="bt-setup">
+        <div class="fld">
+          <label for="rname">Report name <span class="req">*</span></label>
+          <input class="inp" id="rname" placeholder="e.g. Endpoints by custom group" autocomplete="off">
+          <div class="hint" id="nameHint">Shown in the report list and on scheduled emails.</div>
+        </div>
+        <div class="fld">
+          <label for="rdesc">Description</label>
+          <input class="inp" id="rdesc" placeholder="What question does this answer?" autocomplete="off">
+        </div>
+        <div class="fld">
+          <label for="submod">Data source</label>
+          <select class="inp" id="submod">
+            <option>Computer</option><option>Software</option><option>Patch</option>
+            <option>Hardware</option><option>User</option><option>Deployment</option>
+          </select>
+        </div>
+        <div class="fld">
+          <label>Output</label>
+          <div class="seg" style="width:100%">
+            <button id="oTable" style="flex:1;justify-content:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Table</button>
+            <button id="oChart" class="on" style="flex:1;justify-content:center"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>Chart</button>
+          </div>
+        </div>
+
+        <div id="chartCfg">
+          <div class="fld">
+            <label>Chart type</label>
+            <div class="ctypes" id="ctypes"></div>
+          </div>
+          <div class="fld">
+            <label>X-axis — what to group by <span class="req">*</span></label>
+            <div class="slot" id="slotX" data-axis="x"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Choose a column</div>
+          </div>
+          <div class="fld">
+            <label>Y-axis — what to measure <span class="req">*</span></label>
+            <div class="slot" id="slotY" data-axis="y"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Choose a column</div>
+          </div>
+        </div>
+
+        <div id="tableCfg" style="display:none">
+          <div class="fld">
+            <label>Columns <span class="req">*</span></label>
+            <div id="colList"></div>
+            <div class="slot" id="slotC" data-axis="c" style="margin-top:7px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Add column</div>
+          </div>
+        </div>
+
+        <div class="valid" id="valid"></div>
+      </div>
+
+      <div class="panel-b" id="bt-filter" style="display:none">
+        <div id="crits"></div>
+        <button class="btn ghost sm" id="addCrit" style="margin-top:4px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Add condition
+        </button>
+        <div class="hint" style="margin-top:12px">Conditions are combined with AND. Rows must match all of them.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="vtoolbar">
+        <b style="font-size:13.5px">Live preview</b>
+        <span class="chip" id="pvCount">—</span>
+        <div class="sp"></div>
+        <span class="when" id="pvNote">updates as you type</span>
+      </div>
+      <div id="pv" style="min-height:400px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- column picker -->
+<div class="scrim" id="scrim">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="pkTitle">
+    <div class="modal-h">
+      <h3 id="pkTitle">Select a column</h3>
+      <p id="pkSub">—</p>
+      <div class="search" style="max-width:none;margin-top:11px">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="pkQ" placeholder="Search columns…" autocomplete="off">
+      </div>
+    </div>
+    <div class="modal-b" id="pkList"></div>
+    <div class="modal-f">
+      <span class="hint" id="pkHint" style="margin:0 auto 0 0"></span>
+      <button class="btn ghost" onclick="closePicker()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   Data. Report rows are the real ones from
+   GET /dcapi/reports/customReports. The definition schema mirrors
+   GET /dcapi/reports/customReports/v2/:id — componentType, subModule,
+   chartMeta{chartType,xAxis,yAxis,aggregation}, criteria[].
+   `health` is derived from whether /:id/data actually returns rows,
+   NOT from reportStatus — on the live demo 18903 says "Active" while
+   its data call 404s.
+   ═══════════════════════════════════════════════════════════════ */
+const OWN = { demo:{n:'Demo Admin',c:'#2563eb'}, admin_en_us:{n:'Admin (en-US)',c:'#8b5cf6'} };
+const T = s => new Date(s).getTime();
+
+const ROWS = [
+ {id:19213,name:'Agent Version Details',desc:'Installed agent build per managed endpoint',type:'Table',owner:'demo',ts:T('2025-11-25T17:03'),health:'ok'},
+ {id:19212,name:'Count of Computers by Remote Office',desc:'Endpoint distribution across remote offices',type:'Bar',owner:'demo',ts:T('2025-11-25T06:50'),health:'ok'},
+ {id:19211,name:'OS Platform',desc:'Platform split across the managed estate',type:'Pie',owner:'demo',ts:T('2025-11-25T06:45'),health:'ok'},
+ {id:19210,name:'Computer and Software installed',desc:'Per-machine installed software inventory',type:'Table',owner:'demo',ts:T('2025-11-25T06:40'),health:'ok'},
+ {id:19209,name:'Warranty Summary',desc:'Warranty expiry windows by manufacturer',type:'Table',owner:'demo',ts:T('2025-11-25T06:38'),health:'ok'},
+ {id:19208,name:'Software Summary',desc:'Licensed and unlicensed software totals',type:'Table',owner:'demo',ts:T('2025-11-25T06:27'),health:'ok'},
+ {id:19207,name:'Count of Computer by Operating System',desc:'Endpoints grouped by OS version',type:'Pie',owner:'demo',ts:T('2025-11-25T06:23'),health:'ok'},
+ {id:19206,name:'Agent Live Status',desc:'Live, unreachable and stale agents',type:'Bar',owner:'demo',ts:T('2025-11-25T06:16'),health:'ok'},
+ {id:19203,name:'Computer Power Consumption and its Cost',desc:'Estimated kWh and spend per endpoint',type:'Bar',owner:'demo',ts:T('2025-11-25T05:45'),health:'ok'},
+ {id:19202,name:'Computer and its Total Co2 Emission',desc:'Carbon estimate derived from power draw',type:'Pie',owner:'demo',ts:T('2025-11-25T05:44'),health:'bad'},
+ {id:19201,name:'Total Power Consumption by each computer',desc:'Aggregate kWh per endpoint',type:'Bar',owner:'demo',ts:T('2025-11-25T05:33'),health:'bad'},
+ {id:18905,name:'Computer details table',desc:'Full hardware and OS detail per machine',type:'Table',owner:'demo',ts:T('2025-11-25T03:11'),health:'ok'},
+ {id:18904,name:'Count of Computers by its Location',desc:'Endpoints grouped by site',type:'Pie',owner:'demo',ts:T('2025-11-25T03:08'),health:'ok'},
+ {id:18903,name:'Count of Computers by Custom Group',desc:'Membership counts per custom group',type:'Funnel',owner:'demo',ts:T('2025-11-25T03:02'),health:'bad'},
+ {id:18902,name:'Computer count by Hardware Manufacturer Contribution',desc:'Share of estate by OEM',type:'Bar',owner:'demo',ts:T('2025-11-25T02:57'),health:'ok'},
+ {id:18901,name:'Count of computers by Manufacturer',desc:'Endpoint totals per manufacturer',type:'Bar',owner:'demo',ts:T('2025-11-25T02:56'),health:'ok'},
+ {id:18601,name:'Windows 11 Eligibility',desc:'Upgrade readiness via formula column',type:'Table',owner:'demo',ts:T('2025-09-10T02:49'),health:'ok'},
+ {id:18302,name:'Count of Software based on Computer',desc:'Install counts per application',type:'Pie',owner:'demo',ts:T('2025-09-10T01:25'),health:'ok'},
+ {id:18301,name:'User login with respect to Computer and its Service pack',desc:'Logon history joined with patch level',type:'Table',owner:'demo',ts:T('2025-09-10T01:20'),health:'ok'},
+ {id:15333,name:'SoftwareVersion',desc:'Version spread for tracked applications',type:'Table',owner:'admin_en_us',ts:T('2024-04-25T04:41'),health:'ok'},
+ {id:15322,name:'JJReport',desc:'',type:'Table',owner:'admin_en_us',ts:T('2024-04-25T04:41'),health:'stale'},
+ {id:15320,name:'ITG',desc:'',type:'Table',owner:'admin_en_us',ts:T('2024-04-25T04:41'),health:'stale'},
+ {id:15318,name:'Amara',desc:'',type:'Table',owner:'admin_en_us',ts:T('2024-04-25T04:41'),health:'stale'},
+ {id:15315,name:'Windows',desc:'Windows-only endpoint listing',type:'Table',owner:'admin_en_us',ts:T('2024-04-25T04:41'),health:'ok'},
+ {id:15301,name:'Visio',desc:'Machines with Visio installed',type:'Table',owner:'admin_en_us',ts:T('2024-04-25T05:12'),health:'ok'},
+ {id:11204,name:'Monitor Report',desc:'Attached display inventory',type:'Table',owner:'admin_en_us',ts:T('2021-01-29T08:14'),health:'stale'},
+];
+
+const HEALTH = { ok:{cls:'ok',t:'Healthy'}, bad:{cls:'bad',t:'Failing'}, stale:{cls:'warn',t:'Never run'} };
+
+/* Column catalogue, typed — the current picker shows names only, so you
+   can't tell what's valid for a Y-axis until the report fails. */
+const COLS = [
+  {g:'Computer', n:'Computer Name',        t:'str'},
+  {g:'Computer', n:'Domain Name',          t:'str'},
+  {g:'Computer', n:'Device Model',         t:'str'},
+  {g:'Computer', n:'Computer Manufacturer',t:'str'},
+  {g:'Computer', n:'Service Tag',          t:'str'},
+  {g:'Computer', n:'Computer Type',        t:'str'},
+  {g:'Computer', n:'Remote Office',        t:'str'},
+  {g:'Computer', n:'Computer Location',    t:'str'},
+  {g:'Computer', n:'Custom Group Name',    t:'str'},
+  {g:'Operating System', n:'OS Name',      t:'str'},
+  {g:'Operating System', n:'OS Version',   t:'str'},
+  {g:'Operating System', n:'Service Pack', t:'str'},
+  {g:'Hardware', n:'RAM (GB)',             t:'num'},
+  {g:'Hardware', n:'Disk Size (GB)',       t:'num'},
+  {g:'Hardware', n:'CPU Cores',            t:'num'},
+  {g:'Hardware', n:'Power Draw (W)',       t:'num'},
+  {g:'Agent',    n:'Agent Version',        t:'str'},
+  {g:'Agent',    n:'Last Contact',         t:'date'},
+  {g:'Agent',    n:'Installed On',         t:'date'},
+];
+const TYPE_LABEL = { str:'Text', num:'Number', date:'Date' };
+const AGGS = ['COUNT','SUM','AVG','MIN','MAX'];
+
+/* Sample result set for the viewer + preview. */
+const SAMPLE = [
+  ['All Workstations', 412], ['Servers – Prod', 186], ['Finance Dept', 143],
+  ['Engineering', 97], ['Remote / VPN', 64], ['Kiosks', 34],
+];
+
+const NOW = T('2026-08-12T12:00');
+const rel = ts => { const d = Math.floor((NOW-ts)/864e5);
+  if (d<1) return 'Today'; if (d<2) return 'Yesterday'; if (d<30) return d+' days ago';
+  if (d<365) return Math.floor(d/30)+' mo ago'; const y=Math.floor(d/365); return y+(y===1?' yr ago':' yrs ago'); };
+const abs = ts => new Date(ts).toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'});
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+const GLYPH = {
+  Pie:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>',
+  Bar:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>',
+  Funnel:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>',
+  Table:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>',
+};
+
+/* ── screen switch ── */
+function go(s) {
+  document.querySelectorAll('.screen').forEach(x => x.classList.remove('on'));
+  document.getElementById('s-'+s).classList.add('on');
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.s === s));
+  window.scrollTo(0,0);
+}
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => go(b.dataset.s));
+document.getElementById('theme').onclick = () => {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const dark = cur ? cur === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
+  if (document.getElementById('s-view').classList.contains('on')) viewState(VSTATE);
+  if (document.getElementById('s-build').classList.contains('on')) preview();
+};
+
+/* ══════════ LIST ══════════ */
+let S = { q:'', type:new Set(), owner:new Set(), health:new Set(), sort:'ts', dir:-1, sel:new Set() };
+
+const vis = () => ROWS.filter(r =>
+    (!S.q || (r.name+' '+r.desc).toLowerCase().includes(S.q)) &&
+    (!S.type.size   || S.type.has(r.type)) &&
+    (!S.owner.size  || S.owner.has(r.owner)) &&
+    (!S.health.size || S.health.has(r.health))
+  ).sort((a,b) => {
+    const k = S.sort;
+    const va = k==='owner' ? OWN[a.owner].n : k==='health' ? HEALTH[a.health].t : a[k];
+    const vb = k==='owner' ? OWN[b.owner].n : k==='health' ? HEALTH[b.health].t : b[k];
+    return (va>vb?1:va<vb?-1:0)*S.dir;
+  });
+
+function renderList() {
+  const rows = vis();
+  document.getElementById('tb').innerHTML = rows.map(r => {
+    const o = OWN[r.owner], h = HEALTH[r.health];
+    const ini = o.n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    return `<tr data-id="${r.id}" class="${S.sel.has(r.id)?'sel':''}">
+      <td class="ck-cell"><input type="checkbox" class="ck rc" ${S.sel.has(r.id)?'checked':''} aria-label="Select ${esc(r.name)}"></td>
+      <td><div class="rname"><a class="link" onclick="openReport(${r.id});return false" href="#">${esc(r.name)}</a>
+        ${r.desc ? `<span class="rdesc">${esc(r.desc)}</span>` : ''}</div></td>
+      <td><span class="type" data-t="${r.type}"><span class="glyph">${GLYPH[r.type]}</span>${r.type}</span></td>
+      <td><span class="owner"><span class="av" style="background:${o.c}">${ini}</span>${esc(o.n)}</span></td>
+      <td><span class="when" title="${abs(r.ts)}">${rel(r.ts)}</span></td>
+      <td><span class="badge ${h.cls}"><span class="dot"></span>${h.t}</span></td>
+      <td><div class="acts">
+        ${r.health==='bad'?`<button class="ic danger" title="Diagnose" onclick="openReport(${r.id})"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></button>`:''}
+        <button class="ic" title="Run now"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 3 14 9-14 9V3z"/></svg></button>
+        <button class="ic" title="Schedule"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></button>
+        <button class="ic" title="Edit" onclick="go('build')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+        <button class="ic danger" title="Delete"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg></button>
+      </div></td></tr>`;
+  }).join('');
+
+  const broke = ROWS.filter(r=>r.health==='bad').length;
+  document.getElementById('brokeN').textContent = broke;
+  document.getElementById('health').style.display = broke ? 'flex' : 'none';
+  document.getElementById('lempty').style.display = rows.length ? 'none' : 'flex';
+  document.getElementById('tscroll').style.display = rows.length ? '' : 'none';
+  document.getElementById('fl').textContent = `Showing ${rows.length} of ${ROWS.length}`;
+  document.getElementById('cnt').textContent = ROWS.length;
+  document.getElementById('esN').textContent = ROWS.length;
+  document.getElementById('bulk').classList.toggle('on', S.sel.size>0);
+  document.getElementById('bn').textContent = S.sel.size;
+  document.getElementById('clr').style.display =
+    (S.q||S.type.size||S.owner.size||S.health.size) ? '' : 'none';
+
+  document.querySelectorAll('.rc').forEach(cb => cb.onchange = e => {
+    const id = +e.target.closest('tr').dataset.id;
+    e.target.checked ? S.sel.add(id) : S.sel.delete(id);
+    renderList();
+  });
+}
+
+function buildFilters() {
+  const defs = {
+    type:  [...new Set(ROWS.map(r=>r.type))].map(v=>[v,v]),
+    owner: Object.keys(OWN).map(k=>[k,OWN[k].n]),
+    health:Object.keys(HEALTH).map(k=>[k,HEALTH[k].t]),
+  };
+  for (const [key,opts] of Object.entries(defs)) {
+    const w = document.querySelector(`.filter[data-f="${key}"]`);
+    w.querySelector('.dd').innerHTML = opts.map(([v,l]) =>
+      `<label><input type="checkbox" value="${v}"><span>${l}</span><span class="tail">${ROWS.filter(r=>r[key]===v).length}</span></label>`).join('');
+    const btn = w.querySelector('.fbtn'), base = key[0].toUpperCase()+key.slice(1);
+    btn.onclick = e => { e.stopPropagation();
+      document.querySelectorAll('.filter').forEach(f=>f!==w&&f.classList.remove('open'));
+      w.classList.toggle('open'); };
+    w.querySelectorAll('input').forEach(cb => cb.onchange = () => {
+      cb.checked ? S[key].add(cb.value) : S[key].delete(cb.value);
+      btn.classList.toggle('on', S[key].size>0);
+      btn.firstChild.textContent = S[key].size ? `${base} · ${S[key].size} ` : base;
+      renderList();
+    });
+  }
+  document.addEventListener('click', () => document.querySelectorAll('.filter').forEach(f=>f.classList.remove('open')));
+  document.querySelectorAll('.dd').forEach(d => d.onclick = e => e.stopPropagation());
+}
+
+function clearAll() {
+  S.q=''; S.type.clear(); S.owner.clear(); S.health.clear();
+  document.getElementById('q').value='';
+  document.querySelectorAll('.dd input').forEach(cb=>cb.checked=false);
+  document.querySelectorAll('.filter').forEach(w => {
+    const b = w.querySelector('.fbtn'); b.classList.remove('on');
+    b.firstChild.textContent = w.dataset.f[0].toUpperCase()+w.dataset.f.slice(1);
+  });
+  renderList();
+}
+document.getElementById('q').oninput = e => { S.q = e.target.value.toLowerCase().trim(); renderList(); };
+document.getElementById('clr').onclick = clearAll;
+document.getElementById('all').onchange = e => { S.sel = e.target.checked ? new Set(vis().map(r=>r.id)) : new Set(); renderList(); };
+document.getElementById('showBroke').onclick = () => {
+  clearAll(); S.health.add('bad');
+  const w = document.querySelector('.filter[data-f="health"]');
+  w.querySelector('input[value="bad"]').checked = true;
+  w.querySelector('.fbtn').classList.add('on');
+  renderList();
+};
+document.querySelectorAll('#tbl th.sortable').forEach(th => th.onclick = () => {
+  const k = th.dataset.k;
+  S.dir = S.sort===k ? -S.dir : (k==='ts' ? -1 : 1); S.sort = k;
+  document.querySelectorAll('#tbl th.sortable').forEach(x=>{x.classList.remove('sorted'); x.querySelector('.si').style.transform='';});
+  th.classList.add('sorted'); th.querySelector('.si').style.transform = S.dir<0?'rotate(180deg)':'';
+  renderList();
+});
+document.getElementById('dcompact').onclick = () => { tbl.classList.add('compact'); dcompact.classList.add('on'); dcomfy.classList.remove('on'); };
+document.getElementById('dcomfy').onclick  = () => { tbl.classList.remove('compact'); dcomfy.classList.add('on'); dcompact.classList.remove('on'); };
+
+/* ══════════ VIEWER ══════════ */
+let CUR = ROWS.find(r=>r.id===18903), VSTATE = 'data';
+
+function openReport(id) {
+  CUR = ROWS.find(r=>r.id===id) || CUR;
+  go('view');
+  document.getElementById('vname').textContent = CUR.name;
+  document.getElementById('vcrumb').textContent = CUR.name;
+  const h = HEALTH[CUR.health];
+  document.getElementById('vhealth').className = 'badge '+h.cls;
+  document.getElementById('vhealth').innerHTML = `<span class="dot"></span>${h.t}`;
+  const o = OWN[CUR.owner];
+  /* The current viewer shows only "Created by / Updated on". The actual
+     definition — group-by, measure, source — is invisible until you hit Edit. */
+  document.getElementById('vmeta').innerHTML = `
+    <span class="chip"><span class="k">Source</span><b>Computer</b></span>
+    <span class="chip"><span class="k">Group by</span><b>Custom Group Name</b></span>
+    <span class="chip"><span class="k">Measure</span><b>Computer Name (Count)</b></span>
+    <span class="chip"><span class="k">Chart</span><b>${CUR.type}</b></span>
+    <span class="chip"><span class="k">Owner</span><b>${esc(o.n)}</b></span>
+    <span class="chip"><span class="k">Edited</span><b>${rel(CUR.ts)}</b></span>`;
+  viewState(CUR.health === 'bad' ? 'error' : CUR.health === 'stale' ? 'empty' : 'data');
+}
+
+document.getElementById('vrefresh').onclick = () => {
+  viewState('loading');
+  setTimeout(() => viewState(CUR.health==='bad' ? 'error' : CUR.health==='stale' ? 'empty' : 'data'), 900);
+};
+let vmode = 'chart';
+document.getElementById('vchart').onclick = () => { vmode='chart'; vchart.classList.add('on'); vtable.classList.remove('on'); if(VSTATE==='data') viewState('data'); };
+document.getElementById('vtable').onclick = () => { vmode='table'; vtable.classList.add('on'); vchart.classList.remove('on'); if(VSTATE==='data') viewState('data'); };
+
+function viewState(s) {
+  VSTATE = s;
+  const b = document.getElementById('vbody');
+  const gen = document.getElementById('vgen');
+  if (s === 'loading') {
+    gen.textContent = 'Running…';
+    b.innerHTML = `<div class="chartwrap">
+      <div class="sk" style="height:20px;width:230px;margin-bottom:22px"></div>
+      <div style="display:flex;align-items:flex-end;gap:18px;height:230px">
+        ${[70,52,88,40,62,30].map(h=>`<div class="sk" style="flex:1;height:${h}%"></div>`).join('')}
+      </div>
+      <div class="sk" style="height:13px;width:100%;margin-top:20px"></div></div>`;
+    return;
+  }
+  if (s === 'error') {
+    gen.textContent = 'Last attempt failed';
+    /* The live build renders a blank card here — no message at all. */
+    b.innerHTML = `<div class="state err">
+      <svg class="art" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01"/></svg>
+      <h3>This report couldn't run</h3>
+      <p>The grouping column <b>Custom Group Name</b> is no longer available on the <b>Computer</b> data source. It was most likely removed or renamed, so the query can't resolve.</p>
+      <div class="row">
+        <button class="btn primary" onclick="go('build')">Fix in builder</button>
+        <button class="btn ghost" onclick="document.getElementById('vrefresh').click()">Try again</button>
+      </div>
+      <p style="margin-top:20px;font-size:12px">Reference <span class="code">GET /dcapi/reports/customReports/${CUR.id}/data → 404</span></p>
+    </div>`;
+    return;
+  }
+  if (s === 'empty') {
+    gen.textContent = 'Ran ' + rel(CUR.ts);
+    b.innerHTML = `<div class="state">
+      <svg class="art" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+      <h3>No rows matched</h3>
+      <p>The report ran successfully but returned nothing. Its filter conditions may be too narrow for the current estate.</p>
+      <div class="row">
+        <button class="btn primary" onclick="go('build')">Adjust filters</button>
+        <button class="btn ghost" onclick="document.getElementById('vrefresh').click()">Run again</button>
+      </div></div>`;
+    return;
+  }
+  gen.textContent = 'Ran just now · ' + SAMPLE.length + ' groups';
+  b.innerHTML = vmode === 'chart' ? chartHTML(SAMPLE, CUR.type) : dataTableHTML(SAMPLE);
+}
+
+/* Inline SVG charts — no external chart lib. */
+function chartHTML(data, kind, xLab, yLab) {
+  xLab = xLab || 'Custom Group Name'; yLab = yLab || 'Computer Name (Count)';
+  const pal = ['var(--c1)','var(--c2)','var(--c3)','var(--c4)','var(--c5)','var(--c6)'];
+  const max = Math.max(...data.map(d=>d[1])), total = data.reduce((a,d)=>a+d[1],0);
+  let svg = '';
+
+  if (kind === 'Bar') {
+    const W=760, H=300, pad=44, bw=(W-pad-14)/data.length;
+    svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Bar chart">
+      ${[0,.25,.5,.75,1].map(t=>{const y=H-38-t*(H-72);
+        return `<line class="grid-l" x1="${pad}" y1="${y}" x2="${W-8}" y2="${y}"/>
+                <text class="axis-lab" x="${pad-8}" y="${y+4}" text-anchor="end">${Math.round(max*t)}</text>`;}).join('')}
+      ${data.map((d,i)=>{const h=(d[1]/max)*(H-72), x=pad+i*bw+bw*.18, y=H-38-h;
+        return `<rect class="bar" x="${x}" y="${y}" width="${bw*.64}" height="${h}" rx="4" fill="${pal[i%6]}"><title>${esc(d[0])}: ${d[1]}</title></rect>
+                <text class="axis-lab" x="${x+bw*.32}" y="${y-7}" text-anchor="middle" font-weight="700">${d[1]}</text>
+                <text class="axis-lab" x="${x+bw*.32}" y="${H-20}" text-anchor="middle">${esc(d[0].length>13?d[0].slice(0,12)+'…':d[0])}</text>`;}).join('')}
+    </svg>`;
+  } else if (kind === 'Pie') {
+    const cx=150, cy=150, r=118; let a0=-Math.PI/2;
+    svg = `<svg viewBox="0 0 300 300" width="100%" style="max-width:340px;margin:0 auto;display:block" role="img" aria-label="Pie chart">
+      ${data.map((d,i)=>{const a=d[1]/total*Math.PI*2, a1=a0+a;
+        const x0=cx+r*Math.cos(a0), y0=cy+r*Math.sin(a0), x1=cx+r*Math.cos(a1), y1=cy+r*Math.sin(a1);
+        const p=`M${cx},${cy} L${x0},${y0} A${r},${r} 0 ${a>Math.PI?1:0},1 ${x1},${y1} Z`; a0=a1;
+        return `<path class="bar" d="${p}" fill="${pal[i%6]}"><title>${esc(d[0])}: ${d[1]} (${Math.round(d[1]/total*100)}%)</title></path>`;}).join('')}
+      <circle cx="${cx}" cy="${cy}" r="58" fill="var(--surface)"/>
+      <text x="${cx}" y="${cy-4}" text-anchor="middle" font-size="26" font-weight="700" fill="var(--text)">${total}</text>
+      <text x="${cx}" y="${cy+16}" text-anchor="middle" font-size="11.5" fill="var(--muted)">computers</text>
+    </svg>`;
+  } else { /* Funnel + Table fallback */
+    const W=680, rowH=42, gap=7;
+    svg = `<svg viewBox="0 0 ${W} ${data.length*(rowH+gap)}" width="100%" role="img" aria-label="Funnel chart">
+      ${data.map((d,i)=>{const w=(d[1]/max)*(W-190), y=i*(rowH+gap);
+        return `<text class="axis-lab" x="0" y="${y+rowH/2+4}" font-weight="600">${esc(d[0].length>20?d[0].slice(0,19)+'…':d[0])}</text>
+                <rect class="bar" x="152" y="${y}" width="${Math.max(w,3)}" height="${rowH}" rx="6" fill="${pal[i%6]}"><title>${esc(d[0])}: ${d[1]}</title></rect>
+                <text class="axis-lab" x="${152+Math.max(w,3)+9}" y="${y+rowH/2+4}" font-weight="700" fill="var(--text)">${d[1]}</text>`;}).join('')}
+    </svg>`;
+  }
+
+  return `<div class="chartwrap">${svg}
+    <div class="legend">${data.map((d,i)=>`<span><i style="background:${pal[i%6]}"></i>${esc(d[0])}</span>`).join('')}</div>
+    <div style="text-align:center;margin-top:14px;font-size:12.5px;color:var(--muted)">
+      ${esc(xLab)}  ·  ${esc(yLab)}</div></div>`;
+}
+
+/* Seeing the numbers behind the chart is impossible in the current build. */
+function dataTableHTML(data) {
+  const total = data.reduce((a,d)=>a+d[1],0);
+  return `<div style="overflow-x:auto"><table>
+    <thead><tr><th>Custom Group Name</th><th style="text-align:right">Computer Name (Count)</th><th style="text-align:right">Share</th></tr></thead>
+    <tbody>${data.map(d=>`<tr><td>${esc(d[0])}</td>
+      <td style="text-align:right;font-variant-numeric:tabular-nums">${d[1]}</td>
+      <td style="text-align:right;color:var(--muted);font-variant-numeric:tabular-nums">${(d[1]/total*100).toFixed(1)}%</td></tr>`).join('')}
+    </tbody>
+    <tfoot><tr><td style="font-weight:700;border-top:1px solid var(--border)">Total</td>
+      <td style="text-align:right;font-weight:700;border-top:1px solid var(--border);font-variant-numeric:tabular-nums">${total}</td>
+      <td style="border-top:1px solid var(--border)"></td></tr></tfoot>
+  </table></div>`;
+}
+
+/* ══════════ BUILDER ══════════ */
+let B = { name:'', desc:'', mode:'chart', chart:'Bar', x:null, y:null, agg:'COUNT', cols:[], crits:[], touched:false };
+
+const CTYPES = [['Bar','Bar'],['Pie','Pie'],['Funnel','Funnel'],['Line','Line']];
+document.getElementById('ctypes').innerHTML = CTYPES.map(([k,l])=>
+  `<button class="ctype ${k==='Bar'?'on':''}" data-c="${k}">${GLYPH[k]||GLYPH.Bar}${l}</button>`).join('');
+document.querySelectorAll('.ctype').forEach(b => b.onclick = () => {
+  B.chart = b.dataset.c;
+  document.querySelectorAll('.ctype').forEach(x=>x.classList.toggle('on', x===b));
+  preview();
+});
+
+document.querySelectorAll('.btabs button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.btabs button').forEach(x=>x.classList.toggle('on',x===b));
+  document.getElementById('bt-setup').style.display  = b.dataset.bt==='setup'  ? '' : 'none';
+  document.getElementById('bt-filter').style.display = b.dataset.bt==='filter' ? '' : 'none';
+});
+
+document.getElementById('oTable').onclick = () => { B.mode='table'; oTable.classList.add('on'); oChart.classList.remove('on');
+  chartCfg.style.display='none'; tableCfg.style.display=''; preview(); };
+document.getElementById('oChart').onclick = () => { B.mode='chart'; oChart.classList.add('on'); oTable.classList.remove('on');
+  chartCfg.style.display=''; tableCfg.style.display='none'; preview(); };
+
+document.getElementById('rname').oninput = e => { B.name = e.target.value.trim(); B.touched = true; preview(); };
+document.getElementById('rdesc').oninput = e => { B.desc = e.target.value.trim(); preview(); };
+document.getElementById('submod').onchange = preview;
+
+/* Column picker — types shown, and columns invalid for the slot are
+   disabled with the reason, instead of failing silently after save. */
+let pkAxis = null;
+function openPicker(axis) {
+  pkAxis = axis;
+  const t = { x:'X-axis — group by', y:'Y-axis — measure', c:'Add a column' }[axis];
+  const sub = { x:'Text and date columns can group rows.',
+                y:'Only numeric columns can be measured — or use COUNT on any column.',
+                c:'Pick a column to show in the table.' }[axis];
+  document.getElementById('pkTitle').textContent = t;
+  document.getElementById('pkSub').textContent = sub;
+  document.getElementById('pkQ').value = '';
+  document.getElementById('scrim').classList.add('on');
+  renderPicker('');
+  document.getElementById('pkQ').focus();
+}
+function closePicker(){ document.getElementById('scrim').classList.remove('on'); }
+document.getElementById('scrim').onclick = e => { if (e.target.id === 'scrim') closePicker(); };
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePicker(); });
+document.getElementById('pkQ').oninput = e => renderPicker(e.target.value.toLowerCase().trim());
+
+const okFor = (col, axis) => axis === 'y' ? (col.t === 'num' || B.agg === 'COUNT') : true;
+
+function renderPicker(q) {
+  const list = COLS.filter(c => !q || c.n.toLowerCase().includes(q));
+  const groups = [...new Set(list.map(c=>c.g))];
+  const cur = pkAxis==='x' ? B.x : pkAxis==='y' ? B.y : null;
+  document.getElementById('pkList').innerHTML = groups.length ? groups.map(g =>
+    `<div class="grp">${g}</div>` + list.filter(c=>c.g===g).map(c => {
+      const ok = okFor(c, pkAxis);
+      return `<div class="copt ${ok?'':'off'} ${cur&&cur.n===c.n?'pick':''}" data-n="${esc(c.n)}">
+        <span class="dtype ${c.t}">${c.t==='str'?'AB':c.t==='num'?'12':'📅'}</span>
+        <span class="nm">${esc(c.n)}</span>
+        <span class="why">${ok ? TYPE_LABEL[c.t] : 'not measurable'}</span></div>`;
+    }).join('')).join('')
+    : `<div style="padding:34px;text-align:center;color:var(--muted);font-size:13.5px">No columns match “${esc(q)}”</div>`;
+
+  document.getElementById('pkHint').textContent =
+    pkAxis === 'y' && B.agg !== 'COUNT' ? 'Switch aggregation to COUNT to use text columns.' : '';
+
+  document.querySelectorAll('.copt:not(.off)').forEach(el => el.onclick = () => {
+    const col = COLS.find(c => c.n === el.dataset.n);
+    if (pkAxis === 'x') B.x = col;
+    else if (pkAxis === 'y') B.y = col;
+    else if (!B.cols.some(c=>c.n===col.n)) B.cols.push(col);
+    closePicker(); syncSlots(); preview();
+  });
+}
+document.querySelectorAll('.slot').forEach(s => s.onclick = e => {
+  if (e.target.closest('.xbtn') || e.target.closest('.agg')) return;
+  openPicker(s.dataset.axis);
+});
+
+function syncSlots() {
+  const paint = (el, col, axis) => {
+    if (!col) { el.className = 'slot';
+      el.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Choose a column`;
+      return; }
+    el.className = 'slot filled';
+    el.innerHTML = `<span class="tag"><span class="dtype ${col.t}">${col.t==='str'?'AB':col.t==='num'?'12':'📅'}</span>${esc(col.n)}</span>
+      <span style="display:flex;gap:6px;align-items:center">
+      ${axis==='y' ? `<select class="agg">${AGGS.map(a=>`<option ${a===B.agg?'selected':''}>${a}</option>`).join('')}</select>` : ''}
+      <button class="xbtn" title="Remove"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 6 6 18M6 6l12 12"/></svg></button></span>`;
+    el.querySelector('.xbtn').onclick = ev => { ev.stopPropagation();
+      if (axis==='x') B.x=null; else B.y=null; syncSlots(); preview(); };
+    const sel = el.querySelector('.agg');
+    if (sel) sel.onchange = ev => { ev.stopPropagation(); B.agg = sel.value; preview(); };
+  };
+  paint(document.getElementById('slotX'), B.x, 'x');
+  paint(document.getElementById('slotY'), B.y, 'y');
+
+  document.getElementById('colList').innerHTML = B.cols.map((c,i)=>
+    `<div class="slot filled" style="margin-bottom:6px">
+       <span class="tag"><span class="dtype ${c.t}">${c.t==='str'?'AB':c.t==='num'?'12':'📅'}</span>${esc(c.n)}</span>
+       <button class="xbtn" data-i="${i}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>`).join('');
+  document.querySelectorAll('#colList .xbtn').forEach(b => b.onclick = () => { B.cols.splice(+b.dataset.i,1); syncSlots(); preview(); });
+}
+
+/* Filter builder */
+const OPS = ['is','is not','contains','starts with','>','<'];
+function renderCrits() {
+  document.getElementById('crits').innerHTML = B.crits.map((c,i)=>`
+    <div class="crit">
+      ${i ? '<span style="font-size:11.5px;font-weight:700;color:var(--muted)">AND</span>' : '<span style="width:30px"></span>'}
+      <select data-i="${i}" data-k="col">${COLS.map(x=>`<option ${x.n===c.col?'selected':''}>${x.n}</option>`).join('')}</select>
+      <select data-i="${i}" data-k="op">${OPS.map(o=>`<option ${o===c.op?'selected':''}>${o}</option>`).join('')}</select>
+      <input data-i="${i}" data-k="val" value="${esc(c.val)}" placeholder="value" style="flex:1;min-width:70px">
+      <button class="xbtn" data-del="${i}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>`).join('');
+  document.querySelectorAll('#crits select, #crits input').forEach(el => el.onchange = el.oninput = () => {
+    B.crits[+el.dataset.i][el.dataset.k] = el.value; preview();
+  });
+  document.querySelectorAll('#crits [data-del]').forEach(b => b.onclick = () => { B.crits.splice(+b.dataset.del,1); renderCrits(); preview(); });
+  document.getElementById('critN').textContent = B.crits.length;
+}
+document.getElementById('addCrit').onclick = () => { B.crits.push({col:COLS[0].n,op:'is',val:''}); renderCrits(); preview(); };
+
+/* Validation — the current builder lets you Save an empty "Untitled38". */
+function problems() {
+  const p = [];
+  if (!B.name) p.push('Give the report a name');
+  if (B.mode === 'chart') {
+    if (!B.x) p.push('Pick an X-axis column to group by');
+    if (!B.y) p.push('Pick a Y-axis column to measure');
+  } else if (!B.cols.length) p.push('Add at least one column');
+  return p;
+}
+
+function preview() {
+  const p = problems();
+  const v = document.getElementById('valid');
+  const okIcon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg>';
+  const wIcon  = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>';
+  v.className = 'valid ' + (p.length ? 'bad' : 'good');
+  v.innerHTML = p.length
+    ? `${wIcon}<div><b>Before you can save:</b><ul style="margin:5px 0 0;padding-left:17px">${p.map(x=>`<li>${x}</li>`).join('')}</ul></div>`
+    : `${okIcon}<div>Ready to save.</div>`;
+  document.getElementById('save').disabled = p.length > 0;
+
+  const nm = document.getElementById('rname');
+  nm.classList.toggle('bad', B.touched && !B.name);
+  document.getElementById('nameHint').className = 'hint' + (B.touched && !B.name ? ' bad' : '');
+  document.getElementById('nameHint').textContent = B.touched && !B.name
+    ? 'A name is required.' : 'Shown in the report list and on scheduled emails.';
+
+  const pv = document.getElementById('pv');
+  const cnt = document.getElementById('pvCount');
+
+  if (p.length) {
+    cnt.textContent = 'not configured';
+    pv.innerHTML = `<div class="state">
+      <svg class="art" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+      <h3>Preview appears as you configure</h3>
+      <p>${esc(p[0])} — the preview will fill in automatically.</p></div>`;
+    return;
+  }
+
+  /* Derive plausible preview rows from the chosen grouping column. */
+  const seed = { 'Custom Group Name':SAMPLE,
+    'Remote Office':[['HQ – Chennai',288],['Austin',171],['Berlin',122],['Singapore',84],['Remote',61]],
+    'OS Name':[['Windows 11',402],['Windows 10',287],['Windows Server 2022',96],['Ubuntu',54],['macOS',41]],
+    'Computer Manufacturer':[['Dell',344],['Lenovo',241],['HP',158],['Apple',63],['ASUS',29]],
+  }[B.x.n] || SAMPLE;
+
+  cnt.textContent = seed.length + ' rows';
+  document.getElementById('pvNote').textContent = 'updated just now';
+  pv.innerHTML = B.mode === 'chart'
+    ? chartHTML(seed, B.chart === 'Line' ? 'Bar' : B.chart, B.x.n, `${B.y.n} (${B.agg})`)
+    : `<div style="overflow-x:auto"><table><thead><tr>${B.cols.map(c=>`<th>${esc(c.n)}</th>`).join('')}</tr></thead>
+       <tbody>${seed.map(r=>`<tr>${B.cols.map((c,i)=>`<td>${i===0?esc(r[0]):(c.t==='num'?r[1]:'—')}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+}
+
+/* init */
+buildFilters(); renderList(); syncSlots(); renderCrits(); preview();
+openReport(18903); go('list');
+</script>
