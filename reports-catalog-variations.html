@@ -1,0 +1,845 @@
+<title>User Reports, Five Ways</title>
+<style>
+  :root{
+    /* accent + neutrals inherited from the existing Reports explorations */
+    --violet:#2563eb; --violet-hov:#1d4ed8; --violet-soft:rgba(37,99,235,.08);
+    --surface:#fff; --surface-2:#f4f6fb; --surface-3:#eef2fa; --page:#f7f9fc;
+    --border:rgba(37,99,235,.13); --border-soft:rgba(37,99,235,.07);
+    --text:#15181e; --muted:#64748b; --faint:#94a3b8;
+    --ok:#16a34a; --ok-bg:rgba(34,197,94,.12);
+    --warn:#a16207; --warn-bg:rgba(234,179,8,.13); --warn-line:rgba(234,179,8,.42);
+    --err:#dc2626; --err-bg:rgba(239,68,68,.10); --err-line:rgba(239,68,68,.32);
+    --shadow:0 2px 12px rgba(37,99,235,.06); --pop:0 12px 34px rgba(16,25,42,.14);
+    --r:12px; --font:'Zoho Puvi',ui-sans-serif,system-ui,'Segoe UI',Roboto,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --violet:#3b82f6; --violet-hov:#60a5fa; --violet-soft:rgba(59,130,246,.14);
+    --surface:#12131a; --surface-2:#1a1c25; --surface-3:#22242f; --page:#0a0a0c;
+    --border:rgba(255,255,255,.10); --border-soft:rgba(255,255,255,.06);
+    --text:rgba(255,255,255,.92); --muted:rgba(255,255,255,.52); --faint:rgba(255,255,255,.36);
+    --ok:#22c55e; --ok-bg:rgba(34,197,94,.15);
+    --warn:#eab308; --warn-bg:rgba(234,179,8,.13); --warn-line:rgba(234,179,8,.34);
+    --err:#f87171; --err-bg:rgba(239,68,68,.13); --err-line:rgba(239,68,68,.32);
+    --shadow:none; --pop:0 12px 34px rgba(0,0,0,.55);
+  }}
+  :root[data-theme="dark"]{
+    --violet:#3b82f6; --violet-hov:#60a5fa; --violet-soft:rgba(59,130,246,.14);
+    --surface:#12131a; --surface-2:#1a1c25; --surface-3:#22242f; --page:#0a0a0c;
+    --border:rgba(255,255,255,.10); --border-soft:rgba(255,255,255,.06);
+    --text:rgba(255,255,255,.92); --muted:rgba(255,255,255,.52); --faint:rgba(255,255,255,.36);
+    --ok:#22c55e; --ok-bg:rgba(34,197,94,.15);
+    --warn:#eab308; --warn-bg:rgba(234,179,8,.13); --warn-line:rgba(234,179,8,.34);
+    --err:#f87171; --err-bg:rgba(239,68,68,.13); --err-line:rgba(239,68,68,.32);
+    --shadow:none; --pop:0 12px 34px rgba(0,0,0,.55);
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--page);color:var(--text);font:14px/1.5 var(--font);-webkit-font-smoothing:antialiased}
+  button,input,select{font-family:inherit}
+  :focus-visible{outline:2px solid var(--violet);outline-offset:2px;border-radius:6px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  .num{font-variant-numeric:tabular-nums}
+
+  /* ══ switcher / pitch chrome ══ */
+  .pitch{position:sticky;top:0;z-index:80;background:var(--surface);border-bottom:1px solid var(--border)}
+  .pitch-in{display:flex;align-items:center;gap:14px;padding:10px 18px;flex-wrap:wrap}
+  .pitch-t{font-weight:700;font-size:13px;letter-spacing:-.01em}
+  .pitch-t span{color:var(--muted);font-weight:500}
+  .vtabs{display:flex;gap:3px;background:var(--surface-2);padding:3px;border-radius:9px;flex-wrap:wrap}
+  .vtabs button{padding:6px 12px;border:none;border-radius:7px;background:none;cursor:pointer;
+                font:600 12.5px var(--font);color:var(--muted);transition:.14s;white-space:nowrap}
+  .vtabs button:hover{color:var(--text)}
+  .vtabs button.on{background:var(--surface);color:var(--violet);box-shadow:var(--shadow)}
+  .why{display:flex;gap:20px;padding:9px 18px 11px;border-top:1px solid var(--border-soft);
+       background:var(--surface-2);flex-wrap:wrap;font-size:12.5px;line-height:1.45}
+  .why div{max-width:47ch}
+  .why b{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);
+         display:block;margin-bottom:2px;font-weight:700}
+  .why .fix b{color:var(--violet)}
+
+  /* ══ shared app frame ══ */
+  .app{display:flex;min-height:calc(100vh - 96px)}
+  .rail{width:62px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);
+        padding:12px 0;display:flex;flex-direction:column;gap:2px;align-items:center}
+  .rail a{width:50px;padding:8px 2px;border-radius:9px;display:grid;justify-items:center;gap:4px;
+          text-decoration:none;color:var(--muted);font:600 8.5px/1.25 var(--font);text-align:center}
+  .rail a:hover{background:var(--surface-2);color:var(--text)}
+  .rail a.on{background:var(--violet-soft);color:var(--violet)}
+  .work{flex:1;min-width:0;display:flex;flex-direction:column}
+  .topbar{display:flex;align-items:center;gap:12px;padding:11px 20px;background:var(--surface);
+          border-bottom:1px solid var(--border)}
+  .crumb{font-size:12.5px;color:var(--muted)}
+  .crumb b{color:var(--text);font-weight:600}
+  .sp{flex:1}
+  .avatar{width:26px;height:26px;border-radius:50%;background:var(--violet);color:#fff;
+          display:grid;place-items:center;font:700 11px var(--font)}
+
+  h1{font-size:20px;font-weight:700;letter-spacing:-.016em;margin:0}
+  .sub{font-size:12.5px;color:var(--muted);margin:3px 0 0}
+
+  .btn{padding:7px 13px;border-radius:8px;font:600 12.5px/1 var(--font);cursor:pointer;
+       display:inline-flex;align-items:center;gap:6px;border:1px solid transparent;transition:.14s;white-space:nowrap}
+  .btn.primary{background:var(--violet);color:#fff}
+  .btn.primary:hover{background:var(--violet-hov)}
+  .btn.ghost{background:var(--surface);color:var(--text);border-color:var(--border)}
+  .btn.ghost:hover{background:var(--surface-2);border-color:var(--violet)}
+  .btn.quiet{background:none;color:var(--muted);border-color:transparent}
+  .btn.quiet:hover{background:var(--surface-2);color:var(--text)}
+
+  .search{display:flex;align-items:center;gap:9px;padding:8px 12px;background:var(--surface);
+          border:1px solid var(--border);border-radius:9px;min-width:0}
+  .search:focus-within{border-color:var(--violet);box-shadow:0 0 0 3px var(--violet-soft)}
+  .search svg{color:var(--faint);flex-shrink:0}
+  .search input{flex:1;min-width:0;border:none;background:none;outline:none;color:var(--text);font-size:13px}
+  .search input::placeholder{color:var(--faint)}
+  .kbd{font:600 10.5px var(--font);color:var(--muted);background:var(--surface-2);
+       border:1px solid var(--border);border-radius:5px;padding:2px 5px}
+
+  /* type badge */
+  .tb{display:inline-flex;align-items:center;gap:4px;font:600 10.5px/1 var(--font);
+      padding:4px 7px;border-radius:5px;letter-spacing:.02em;white-space:nowrap}
+  .tb.table{background:var(--violet-soft);color:var(--violet)}
+  .tb.chart{background:var(--ok-bg);color:var(--ok)}
+  .tb.kpi{background:var(--warn-bg);color:var(--warn)}
+  .ti{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;flex-shrink:0}
+  .ti.table{background:var(--violet-soft);color:var(--violet)}
+  .ti.chart{background:var(--ok-bg);color:var(--ok)}
+  .ti.kpi{background:var(--warn-bg);color:var(--warn)}
+
+  .tone-ok{color:var(--ok)} .tone-warn{color:var(--warn)} .tone-err{color:var(--err)}
+  .dot{width:6px;height:6px;border-radius:50%;display:inline-block;flex-shrink:0}
+  .dot.warn{background:var(--warn)} .dot.err{background:var(--err)} .dot.ok{background:var(--ok)}
+  .chip{display:inline-flex;align-items:center;gap:5px;font:600 11px var(--font);padding:3px 8px;
+        border-radius:999px;background:var(--surface-2);border:1px solid var(--border);color:var(--muted)}
+  .chip.warn{background:var(--warn-bg);border-color:var(--warn-line);color:var(--warn)}
+  .chip.err{background:var(--err-bg);border-color:var(--err-line);color:var(--err)}
+
+  /* category rail (shared by V1/V2/V5) */
+  .cats{width:214px;flex-shrink:0;border-right:1px solid var(--border);background:var(--surface);
+        padding:14px 10px;overflow-y:auto}
+  .cats .lbl{font:700 10px var(--font);letter-spacing:.08em;text-transform:uppercase;color:var(--faint);
+             padding:8px 8px 5px}
+  .cats a{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:7px;text-decoration:none;
+          color:var(--text);font-size:12.5px;transition:.13s}
+  .cats a:hover{background:var(--surface-2)}
+  .cats a.on{background:var(--violet-soft);color:var(--violet);font-weight:600}
+  .cats a .c{margin-left:auto;font-size:11px;color:var(--faint);font-variant-numeric:tabular-nums}
+  .cats a.on .c{color:var(--violet)}
+
+  .view{display:none}
+  .view.on{display:block}
+
+  /* ══ V1 · dense catalogue ══ */
+  .v1-head{display:flex;align-items:flex-end;gap:14px;padding:18px 22px 0;flex-wrap:wrap}
+  .v1-bar{display:flex;align-items:center;gap:10px;padding:14px 22px 12px;flex-wrap:wrap}
+  .v1-bar .search{width:290px}
+  .segs{display:flex;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:2px}
+  .segs button{border:none;background:none;padding:5px 10px;border-radius:6px;cursor:pointer;
+               font:600 11.5px var(--font);color:var(--muted)}
+  .segs button.on{background:var(--surface);color:var(--text);box-shadow:var(--shadow)}
+  .v1-wrap{padding:0 22px 40px;overflow-x:auto}
+  table.cat{width:100%;min-width:900px;border-collapse:collapse;background:var(--surface);
+            border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
+  table.cat th{text-align:left;font:700 10.5px var(--font);letter-spacing:.06em;text-transform:uppercase;
+               color:var(--faint);padding:9px 14px;border-bottom:1px solid var(--border);background:var(--surface-2)}
+  table.cat th.r,table.cat td.r{text-align:right}
+  table.cat tr.grp td{padding:8px 14px;background:var(--surface-2);border-top:1px solid var(--border);
+                      border-bottom:1px solid var(--border-soft);font:700 11.5px var(--font);color:var(--muted)}
+  table.cat tr.grp td span{color:var(--faint);font-weight:600;margin-left:7px}
+  table.cat td{padding:9px 14px;border-bottom:1px solid var(--border-soft);font-size:13px;vertical-align:middle;white-space:nowrap}
+  table.cat td:first-child{white-space:normal}
+  table.cat col.c-rec{width:94px} table.cat col.c-sig{width:128px}
+  table.cat col.c-last{width:104px} table.cat col.c-sch{width:136px} table.cat col.c-act{width:132px}
+  table.cat tbody tr.row:hover{background:var(--violet-soft)}
+  table.cat tbody tr.row:hover .acts{opacity:1}
+  .nm{display:flex;align-items:center;gap:10px;min-width:0}
+  .nm .txt{min-width:0;display:flex;flex-direction:column;gap:1px}
+  .nm .t{display:block;font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .nm .d{display:block;font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pin{color:var(--violet);flex-shrink:0}
+  .acts{display:flex;gap:4px;justify-content:flex-end;opacity:0;transition:.14s}
+  .stale{color:var(--faint)}
+
+  /* ══ V2 · split preview ══ */
+  .v2{display:flex;min-height:0;flex:1}
+  .v2-list{width:322px;flex-shrink:0;border-right:1px solid var(--border);background:var(--surface);
+           display:flex;flex-direction:column}
+  .v2-list .top{padding:13px 14px;border-bottom:1px solid var(--border)}
+  .v2-scroll{overflow-y:auto;max-height:760px;padding:6px 0}
+  .v2-g{padding:10px 15px 4px;font:700 10px var(--font);letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+  .v2-i{display:flex;align-items:center;gap:9px;padding:8px 14px;cursor:pointer;border-left:2px solid transparent}
+  .v2-i:hover{background:var(--surface-2)}
+  .v2-i.on{background:var(--violet-soft);border-left-color:var(--violet)}
+  .v2-i .t{font-size:12.5px;font-weight:500;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .v2-i.on .t{font-weight:600;color:var(--violet)}
+  .v2-pane{flex:1;min-width:0;padding:20px 24px 40px;overflow-x:auto}
+  .v2-ph{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap}
+  .v2-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:1px;margin:18px 0 20px;
+           background:var(--border);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+  .v2-meta div{background:var(--surface);padding:11px 13px}
+  .v2-meta .k{font:700 9.5px var(--font);letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:4px}
+  .v2-meta .v{font-size:13px;font-weight:600}
+  .prev{border:1px solid var(--border);border-radius:var(--r);background:var(--surface);
+        box-shadow:var(--shadow);overflow:hidden}
+  .prev-h{display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid var(--border);
+          background:var(--surface-2);font:600 11.5px var(--font);color:var(--muted)}
+  .prev-b{padding:0;overflow-x:auto}
+  table.mini{width:100%;border-collapse:collapse;font-size:12.5px;min-width:520px}
+  table.mini th{text-align:left;padding:8px 14px;font:700 10.5px var(--font);letter-spacing:.05em;
+                text-transform:uppercase;color:var(--faint);border-bottom:1px solid var(--border)}
+  table.mini td{padding:8px 14px;border-bottom:1px solid var(--border-soft);white-space:nowrap}
+  table.mini tr:last-child td{border-bottom:none}
+  .prev-f{display:flex;align-items:center;gap:10px;padding:10px 14px;border-top:1px solid var(--border);
+          font-size:11.5px;color:var(--muted);background:var(--surface-2)}
+  .bars{display:flex;align-items:flex-end;gap:14px;height:168px;padding:20px 22px}
+  .bars .b{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:7px;height:100%}
+  .bars .b i{display:block;width:100%;max-width:54px;border-radius:5px 5px 2px 2px;background:var(--violet);opacity:.85}
+  .bars .b em{font:600 10.5px var(--font);color:var(--muted);font-style:normal;text-align:center}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:12px;padding:16px}
+  .kpis div{border:1px solid var(--border);border-radius:9px;padding:13px;background:var(--surface-2)}
+  .kpis .v{font-size:24px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+  .kpis .k{font-size:11.5px;color:var(--muted);margin-top:3px}
+
+  /* ══ V3 · signal cards ══ */
+  .v3-head{padding:18px 22px 0;display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap}
+  .v3-bar{display:flex;align-items:center;gap:10px;padding:14px 22px 4px;flex-wrap:wrap}
+  .v3-bar .search{width:270px}
+  .v3-body{padding:8px 22px 44px}
+  .v3-sec{margin-top:22px}
+  .v3-sh{display:flex;align-items:center;gap:9px;margin-bottom:11px}
+  .v3-sh h2{font-size:13.5px;font-weight:700;margin:0;letter-spacing:-.005em}
+  .v3-sh .n{font:600 11px var(--font);color:var(--muted);background:var(--surface-2);
+            border:1px solid var(--border);padding:1px 8px;border-radius:999px}
+  .v3-sh hr{flex:1;border:none;border-top:1px solid var(--border-soft)}
+  .grid3{display:grid;grid-template-columns:repeat(auto-fill,minmax(288px,1fr));gap:12px}
+  .sc{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+      padding:14px 15px 12px;box-shadow:var(--shadow);cursor:pointer;transition:.15s;overflow:hidden}
+  .sc:hover{border-color:var(--violet);transform:translateY(-1px);box-shadow:var(--pop)}
+  .sc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:transparent}
+  .sc.warn::before{background:var(--warn)} .sc.err::before{background:var(--err)} .sc.ok::before{background:var(--ok)}
+  .sc-t{display:flex;align-items:flex-start;gap:9px;margin-bottom:12px}
+  .sc-t .t{font-size:13px;font-weight:600;line-height:1.35;flex:1}
+  .sc-v{display:flex;align-items:flex-end;gap:10px}
+  .sc-v .big{font-size:27px;font-weight:700;letter-spacing:-.025em;line-height:1}
+  .sc-v .unit{font-size:11.5px;color:var(--muted);margin-bottom:3px}
+  .sc-v .spark{margin-left:auto;margin-bottom:2px}
+  .sc-d{font-size:11.5px;color:var(--muted);margin-top:7px;display:flex;align-items:center;gap:6px}
+  .sc-f{display:flex;align-items:center;gap:8px;margin-top:11px;padding-top:10px;
+        border-top:1px solid var(--border-soft);font-size:11px;color:var(--faint)}
+  .sc-f .sp{flex:1}
+  .sc.empty{border-style:dashed;box-shadow:none}
+  .sc.empty .sc-v{color:var(--faint)}
+
+  /* ══ V4 · launcher ══ */
+  .v4{padding:44px 22px 60px;max-width:760px;margin:0 auto}
+  .v4 .hero{text-align:center;margin-bottom:26px}
+  .v4 .hero h1{font-size:26px;margin-bottom:6px}
+  .v4 .hero p{font-size:13.5px;color:var(--muted);margin:0}
+  .v4-omni{position:relative}
+  .v4-omni .search{padding:13px 16px;border-radius:11px;box-shadow:var(--shadow)}
+  .v4-omni .search input{font-size:15.5px}
+  .v4-res{margin-top:8px;background:var(--surface);border:1px solid var(--border);border-radius:11px;
+          box-shadow:var(--pop);padding:5px 0;display:none;max-height:330px;overflow-y:auto}
+  .v4-res.on{display:block}
+  .v4-r{display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer}
+  .v4-r:hover{background:var(--violet-soft)}
+  .v4-r .t{flex:1;font-size:13px;font-weight:500}
+  .v4-r .g{font-size:11px;color:var(--muted)}
+  .v4-none{padding:20px;text-align:center;color:var(--muted);font-size:13px}
+  .v4-sec{margin-top:28px}
+  .v4-sh{display:flex;align-items:center;gap:8px;margin-bottom:10px;font:700 10.5px var(--font);
+         letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+  .v4-sh .sp{flex:1}
+  .v4-sh button{border:none;background:none;color:var(--violet);font:600 11.5px var(--font);cursor:pointer;
+                letter-spacing:0;text-transform:none;padding:0}
+  .v4-sh button:hover{text-decoration:underline}
+  .pins{display:grid;grid-template-columns:repeat(auto-fill,minmax(212px,1fr));gap:10px}
+  .pin-c{display:flex;align-items:center;gap:10px;padding:12px 13px;background:var(--surface);
+         border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:.14s;box-shadow:var(--shadow)}
+  .pin-c:hover{border-color:var(--violet)}
+  .pin-c .t{font-size:12.5px;font-weight:600;line-height:1.3}
+  .pin-c .v{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .rows{background:var(--surface);border:1px solid var(--border);border-radius:11px;overflow:hidden;box-shadow:var(--shadow)}
+  .rw{display:flex;align-items:center;gap:11px;padding:10px 14px;border-bottom:1px solid var(--border-soft);cursor:pointer}
+  .rw:last-child{border-bottom:none}
+  .rw:hover{background:var(--surface-2)}
+  .rw .t{flex:1;font-size:12.5px;font-weight:500}
+  .rw .m{font-size:11.5px;color:var(--muted);white-space:nowrap}
+  .acc{border:1px solid var(--border);border-radius:11px;background:var(--surface);overflow:hidden}
+  .acc details{border-bottom:1px solid var(--border-soft)}
+  .acc details:last-child{border-bottom:none}
+  .acc summary{padding:10px 14px;cursor:pointer;font-size:12.5px;font-weight:600;display:flex;
+               align-items:center;gap:8px;list-style:none}
+  .acc summary::-webkit-details-marker{display:none}
+  .acc summary::after{content:'';margin-left:auto;width:6px;height:6px;border-right:1.6px solid var(--faint);
+                      border-bottom:1.6px solid var(--faint);transform:rotate(45deg);transition:.15s}
+  .acc details[open] summary::after{transform:rotate(-135deg)}
+  .acc summary:hover{background:var(--surface-2)}
+  .acc .in{padding:2px 0 8px}
+  .acc .in a{display:flex;align-items:center;gap:9px;padding:6px 14px 6px 34px;text-decoration:none;
+             color:var(--text);font-size:12.5px}
+  .acc .in a:hover{background:var(--surface-2)}
+  .acc .in a .m{margin-left:auto;font-size:11px;color:var(--faint)}
+
+  /* ══ V5 · working set ══ */
+  .v5-head{padding:18px 20px 0}
+  .facets{display:flex;align-items:center;gap:8px;padding:13px 20px;flex-wrap:wrap;
+          border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:20}
+  .facets .search{width:250px}
+  .facets .grp{display:flex;align-items:center;gap:6px}
+  .facets .grp>span{font:700 9.5px var(--font);letter-spacing:.07em;text-transform:uppercase;color:var(--faint)}
+  .fc{border:1px solid var(--border);background:var(--surface);color:var(--muted);border-radius:999px;
+      padding:4px 10px;font:600 11.5px var(--font);cursor:pointer;transition:.13s}
+  .fc:hover{border-color:var(--violet);color:var(--text)}
+  .fc.on{background:var(--violet);border-color:var(--violet);color:#fff}
+  .v5-body{padding:14px 20px 40px}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(392px,1fr));gap:8px}
+  .wr{display:flex;align-items:center;gap:11px;padding:10px 12px;background:var(--surface);
+      border:1px solid var(--border);border-radius:10px;transition:.13s;cursor:pointer;
+      text-decoration:none;color:inherit}
+  .wr:hover{border-color:var(--violet);background:var(--violet-soft)}
+  .wr .body{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+  .wr .t{display:block;font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .wr .m{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:7px}
+  .wr .val{flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:1px;min-width:66px}
+  .wr .val .v{display:block;font-size:14px;font-weight:700;letter-spacing:-.015em;line-height:1.2}
+  .wr .val .k{display:block;font-size:10px;color:var(--faint);line-height:1.2}
+  .v5-gh{display:flex;align-items:center;gap:9px;margin:20px 0 10px}
+  .v5-gh h2{font-size:12.5px;font-weight:700;margin:0}
+  .v5-gh hr{flex:1;border:none;border-top:1px solid var(--border-soft)}
+  .v5-empty{padding:34px;text-align:center;color:var(--muted);font-size:13px;
+            border:1px dashed var(--border);border-radius:var(--r)}
+</style>
+
+<div class="pitch">
+  <div class="pitch-in">
+    <div class="pitch-t">User Reports, five ways<span> · predefined report catalogue, revamped</span></div>
+    <div class="sp"></div>
+    <div class="vtabs" id="vtabs"></div>
+  </div>
+  <div class="why" id="why"></div>
+</div>
+
+<div class="app">
+  <nav class="rail" id="rail"></nav>
+  <div class="work">
+    <div class="topbar">
+      <div class="crumb">Reports &nbsp;›&nbsp; Predefined Reports &nbsp;›&nbsp; <b>User Reports</b></div>
+      <div class="sp"></div>
+      <div class="avatar">A</div>
+    </div>
+    <div id="views" style="flex:1;display:flex;flex-direction:column;min-width:0"></div>
+  </div>
+</div>
+
+<script>
+/* ═════════ icons ═════════ */
+const svg = (p,s=14) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const I = {
+  home:  p=>svg('<path d="M3 10.5 12 3l9 7.5V21H3z"/>',18),
+  book:  p=>svg('<path d="M4 4h7v16H4zM13 4h7v16h-7z"/>',18),
+  dash:  p=>svg('<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',18),
+  doc:   p=>svg('<path d="M6 2h8l4 4v16H6z"/><path d="M14 2v5h4"/>',18),
+  screen:p=>svg('<rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8"/>',18),
+  code:  p=>svg('<path d="m8 8-4 4 4 4M16 8l4 4-4 4"/>',18),
+  clock: p=>svg('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',18),
+  search:p=>svg('<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',15),
+  play:  p=>svg('<path d="M8 5.5v13l10-6.5z"/>',13),
+  cal:   p=>svg('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',13),
+  dots:  p=>svg('<circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/>',13),
+  star:  p=>svg('<path d="m12 3 2.7 5.7 6.3.9-4.5 4.4 1 6.2-5.5-2.9-5.5 2.9 1-6.2L3 9.6l6.3-.9z" fill="currentColor" stroke="none"/>',12),
+  tableI:p=>svg('<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14.5h18M9 9v11"/>',12),
+  chartI:p=>svg('<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',12),
+  kpiI:  p=>svg('<path d="M4 18a8 8 0 1 1 16 0"/><path d="M12 18l4-5"/>',12),
+  down:  p=>svg('<path d="M12 4v12m0 0 5-5m-5 5-5-5M4 20h16"/>',13),
+  plus:  p=>svg('<path d="M12 5v14M5 12h14"/>',13),
+  filter:p=>svg('<path d="M3 5h18l-7 8v6l-4-2v-4z"/>',13),
+  bolt:  p=>svg('<path d="M13 2 5 14h6l-1 8 8-12h-6z"/>',13),
+  check: p=>svg('<path d="m4.5 12.5 5 5 10-11"/>',15),
+};
+const TICON = {table:I.tableI(),chart:I.chartI(),kpi:I.kpiI()};
+const TNAME = {table:'Table',chart:'Chart',kpi:'KPI'};
+
+/* ═════════ data ═════════
+   Report names are the real User Reports catalogue; values, run times and
+   schedules are representative sample data for the mockup. */
+const GROUPS = ['General Reports','Password Based Reports','Account Status Reports','Privileged User Accounts','Logon Based Reports'];
+const R = [
+ {n:'All User Accounts',d:'Complete list of all AD user accounts',g:0,t:'table',v:12481,u:'accounts',last:'2 hours ago',h:2,sched:'Daily · 06:00',pin:1,tone:'',sp:[12310,12352,12388,12401,12433,12460,12481],cols:['Display name','Logon name','Department','Status','Last logon']},
+ {n:'Recently Created User Accounts',d:'Users created in the past 30 days',g:0,t:'table',v:96,u:'new accounts',last:'1 day ago',h:26,sched:'',pin:0,tone:'',sp:[61,68,74,79,86,91,96],cols:['Display name','Created on','Created by','OU','Enabled']},
+ {n:'Recently Modified User Accounts',d:'Accounts with recent attribute changes',g:0,t:'table',v:412,u:'accounts',last:'3 days ago',h:74,sched:'',pin:0,tone:'',sp:[380,392,401,396,405,409,412],cols:['Display name','Attribute','Modified on','Modified by']},
+ {n:'User Accounts without Logon Scripts',d:'Accounts missing an assigned logon script',g:0,t:'chart',v:1204,u:'accounts',last:'1 week ago',h:170,sched:'',pin:0,tone:'',sp:[1188,1191,1195,1199,1200,1202,1204],cols:['OU','Accounts','Share of OU']},
+ {n:'User Accounts in Multiple Groups',d:'Users belonging to more than one security group',g:0,t:'table',v:8733,u:'accounts',last:'4 days ago',h:98,sched:'',pin:0,tone:'',sp:[8610,8644,8671,8690,8705,8722,8733],cols:['Display name','Groups','Nested groups','Primary group']},
+ {n:'User Accounts that Never Expire',d:'Accounts flagged password-never-expires',g:0,t:'kpi',v:318,u:'accounts',last:'5 days ago',h:122,sched:'',pin:0,tone:'warn',sp:[286,292,299,304,309,314,318],cols:['Never expires','Share of estate','Privileged among them']},
+ {n:'Soon-to-Expire User Passwords',d:'Passwords expiring in the next 14 days',g:1,t:'table',v:264,u:'expiring',last:'6 hours ago',h:6,sched:'Weekly · Mon 08:00',pin:1,tone:'warn',sp:[151,178,196,207,229,248,264],cols:['Display name','Expires on','Days left','Email','Manager']},
+ {n:'Password Expired User Accounts',d:'Accounts whose passwords have already expired',g:1,t:'table',v:89,u:'expired',last:'2 days ago',h:50,sched:'',pin:0,tone:'err',sp:[54,61,66,72,79,84,89],cols:['Display name','Expired on','Days overdue','Last logon']},
+ {n:'Password Never Expiring Users',d:'Users with “Password Never Expires” enabled',g:1,t:'table',v:318,u:'accounts',last:'3 days ago',h:76,sched:'Monthly · 1st 07:00',pin:0,tone:'warn',sp:[286,292,299,304,309,314,318],cols:['Display name','OU','Set on','Set by']},
+ {n:'User Accounts Password that cannot be Changed',d:'Accounts restricted from changing their password',g:1,t:'chart',v:41,u:'accounts',last:'1 week ago',h:180,sched:'',pin:0,tone:'',sp:[44,44,43,43,42,41,41],cols:['OU','Accounts','Restricted since']},
+ {n:'Active User Accounts',d:'All currently active and enabled user accounts',g:2,t:'table',v:11027,u:'active',last:'1 hour ago',h:1,sched:'Daily · 06:00',pin:0,tone:'ok',sp:[10894,10930,10958,10971,10994,11008,11027],cols:['Display name','Logon name','Department','Last logon']},
+ {n:'Inactive User Accounts',d:'No logon activity for 90 or more days',g:2,t:'table',v:1454,u:'inactive',last:'2 hours ago',h:2,sched:'Weekly · Fri 18:00',pin:1,tone:'warn',sp:[1288,1321,1359,1388,1410,1436,1454],cols:['Display name','Last logon','Days idle','OU','Enabled']},
+ {n:'Disabled User Accounts',d:'All disabled user accounts in the directory',g:2,t:'table',v:1003,u:'disabled',last:'5 days ago',h:126,sched:'',pin:0,tone:'',sp:[961,972,980,988,994,999,1003],cols:['Display name','Disabled on','Disabled by','OU']},
+ {n:'Expired / Not Expired User Accounts',d:'Accounts with and without expiration dates',g:2,t:'chart',v:12481,u:'accounts',last:'1 week ago',h:174,sched:'',pin:0,tone:'',sp:[12310,12352,12388,12401,12433,12460,12481],cols:['State','Accounts','Share']},
+ {n:'Domain Admin User Accounts',d:'Users holding Domain Administrator privileges',g:3,t:'table',v:14,u:'admins',last:'3 days ago',h:80,sched:'Weekly · Mon 08:00',pin:1,tone:'err',sp:[9,9,10,11,12,13,14],cols:['Display name','Added on','Added by','MFA','Last logon']},
+ {n:'User Accounts with Dial-in Permissions',d:'Accounts enabled for remote access / VPN dial-in',g:3,t:'table',v:null,u:'',last:'',h:9999,sched:'',pin:0,tone:'',sp:[],cols:['Display name','Dial-in','Callback','Static route']},
+ {n:'Unused User Accounts',d:'Accounts never used after creation',g:4,t:'table',v:342,u:'unused',last:'4 days ago',h:100,sched:'',pin:0,tone:'warn',sp:[311,318,324,330,334,338,342],cols:['Display name','Created on','Days since','Created by']},
+ {n:'Recently Logged On User Accounts',d:'Users with logon activity in the past 7 days',g:4,t:'table',v:9860,u:'accounts',last:'2 hours ago',h:2,sched:'Daily · 06:00',pin:0,tone:'',sp:[9712,9760,9788,9801,9822,9844,9860],cols:['Display name','Last logon','Computer','Domain controller']},
+ {n:'Last Logon Failed User Accounts',d:'Accounts with recent failed authentication attempts',g:4,t:'table',v:71,u:'accounts',last:'1 day ago',h:22,sched:'',pin:0,tone:'err',sp:[38,44,51,58,62,67,71],cols:['Display name','Failures','Last attempt','Source computer']},
+];
+R.forEach((r,i)=>r.i=i);
+
+const CATS = [
+  {lbl:'Yours',items:[['Custom Reports',37],['Scheduled Reports',6]]},
+  {lbl:'Active Directory',items:[['User Reports',19],['Computer Reports',11],['Group Reports',12],['OU Reports',8],['Domain Reports',8],['GPO Reports',18]]},
+  {lbl:'Modules',items:[['Threats & Patches',57],['Inventory',51],['MDM',33],['User Logon',7]]},
+];
+
+const RAIL = [['Home','home'],['Predefined Report','book'],['Predefined Dashboard','dash'],['Custom Report','doc'],['Custom Dashboard','screen'],['Query Report','code'],['Schedule Report','clock']];
+
+const VARIANTS = [
+ {k:'v1',t:'1 · Dense catalogue',fix:'Kills the placeholder thumbnails — every one was identical, so a screen showed 3 reports and told you nothing about them. Rows put ~18 reports and their record counts on one screen.',off:'Least visual of the five. Nothing here previews what a report looks like before you open it.'},
+ {k:'v2',t:'2 · Split preview',fix:'Answers “what will I get?” inside the catalogue: pick a report on the left, see its real columns, chart or KPIs on the right, then run or schedule it. Closes the missing-viewer gap.',off:'Narrow list column truncates long report names, and the layout needs ≥1100px to work.'},
+ {k:'v3',t:'3 · Signal cards',fix:'Replaces the fake thumbnail with the number the report actually returns, plus a 7-run trend and a severity stripe. Turns a filing cabinet into a triage surface.',off:'Requires cached counts per report. Reports that have never run show an honest empty state instead.'},
+ {k:'v4',t:'4 · Launcher',fix:'Admins return to the same 5–6 reports. Search first, pinned and recently run above the fold, the full catalogue tucked into an accordion below.',off:'Poor for discovery — a new admin who does not know the report names has to expand groups to browse.'},
+ {k:'v5',t:'5 · Faceted browse',fix:'Narrow before you scroll: facets cut the catalogue by type, freshness and attention, and each row carries only the report name, its state and the number it returned. Click a row to open it.',off:'The facets partly duplicate the category rail, and with no preview or selection this view can only get you to one report at a time.'},
+];
+
+/* ═════════ helpers ═════════ */
+const fmt = n => n==null ? '—' : n.toLocaleString('en-US');
+const spark = (arr,tone) => {
+  if(!arr||!arr.length) return '';
+  const w=62,h=20,mn=Math.min(...arr),mx=Math.max(...arr),sp=(mx-mn)||1;
+  const pts=arr.map((v,i)=>[i/(arr.length-1)*w, h-2-((v-mn)/sp)*(h-4)]);
+  const line=pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+  const col=tone==='err'?'var(--err)':tone==='warn'?'var(--warn)':tone==='ok'?'var(--ok)':'var(--violet)';
+  const id='g'+Math.random().toString(36).slice(2,8);
+  return `<svg class="spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true">
+    <defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${col}" stop-opacity=".28"/><stop offset="1" stop-color="${col}" stop-opacity="0"/>
+    </linearGradient></defs>
+    <polygon points="0,${h} ${line} ${w},${h}" fill="url(#${id})"/>
+    <polyline points="${line}" fill="none" stroke="${col}" stroke-width="1.5" stroke-linejoin="round"/>
+    <circle cx="${pts[pts.length-1][0].toFixed(1)}" cy="${pts[pts.length-1][1].toFixed(1)}" r="2" fill="${col}"/>
+  </svg>`;
+};
+const delta = r => {
+  if(!r.sp||r.sp.length<2) return '';
+  const a=r.sp[0],b=r.sp[r.sp.length-1],d=b-a;
+  if(!d) return '<span style="color:var(--faint)">no change this week</span>';
+  const up=d>0, bad=(r.tone==='err'||r.tone==='warn')&&up;
+  const cls=bad?'tone-err':up?'':'tone-ok';
+  return `<span class="${cls}">${up?'▲':'▼'} ${fmt(Math.abs(d))}</span> <span style="color:var(--faint)">vs last week</span>`;
+};
+const catRail = () => `<nav class="cats">${CATS.map(c=>`
+  <div class="lbl">${c.lbl}</div>
+  ${c.items.map(([n,k])=>`<a href="#" class="${n==='User Reports'?'on':''}">${n}<span class="c num">${k}</span></a>`).join('')}
+`).join('')}</nav>`;
+
+/* ═════════ V1 · dense catalogue ═════════ */
+function v1(){
+  let rows='';
+  GROUPS.forEach((g,gi)=>{
+    const items=R.filter(r=>r.g===gi);
+    rows+=`<tr class="grp"><td colspan="6">${g}<span class="num">${items.length}</span></td></tr>`;
+    items.forEach(r=>{
+      rows+=`<tr class="row">
+        <td><div class="nm">
+          <span class="ti ${r.t}" title="${TNAME[r.t]}">${TICON[r.t]}</span>
+          <span class="txt"><span class="t">${r.n} ${r.pin?`<span class="pin">${I.star()}</span>`:''}</span><span class="d">${r.d}</span></span>
+        </div></td>
+        <td class="r num" style="font-weight:600">${r.v==null?'<span class="stale">not run</span>':fmt(r.v)}</td>
+        <td>${r.tone?`<span class="chip ${r.tone==='ok'?'':r.tone}"><span class="dot ${r.tone}"></span>${r.tone==='err'?'Needs review':r.tone==='warn'?'Watch':'Healthy'}</span>`:'<span class="stale">—</span>'}</td>
+        <td class="${r.h>168?'stale':''}" style="font-size:12.5px">${r.last||'—'}</td>
+        <td style="font-size:12.5px">${r.sched?`<span style="color:var(--muted)">${r.sched}</span>`:'<span class="stale">Not scheduled</span>'}</td>
+        <td class="r"><div class="acts">
+          <button class="btn ghost" style="padding:5px 9px">${I.play()} Run</button>
+          <button class="btn quiet" style="padding:5px 7px" title="Schedule">${I.cal()}</button>
+          <button class="btn quiet" style="padding:5px 7px" title="More">${I.dots()}</button>
+        </div></td>
+      </tr>`;
+    });
+  });
+  return `<div style="display:flex;flex:1;min-width:0">${catRail()}
+  <div style="flex:1;min-width:0">
+    <div class="v1-head">
+      <div><h1>User Reports</h1><p class="sub">19 predefined reports · 5 groups · ${R.filter(r=>r.sched).length} scheduled · last full refresh 1 hour ago</p></div>
+      <div class="sp"></div>
+      <button class="btn ghost">${I.down()} Export list</button>
+      <button class="btn primary">${I.plus()} New schedule</button>
+    </div>
+    <div class="v1-bar">
+      <div class="search">${I.search()}<input placeholder="Search 19 reports in User Reports…"><span class="kbd">/</span></div>
+      <div class="segs"><button class="on">All types</button><button>Table</button><button>Chart</button><button>KPI</button></div>
+      <button class="btn ghost">${I.filter()} Scheduled only</button>
+      <div class="sp" style="flex:1"></div>
+      <div style="display:flex;align-items:center;gap:8px;white-space:nowrap">
+        <span style="font-size:11.5px;color:var(--faint)">Group by</span>
+        <div class="segs"><button class="on">Category</button><button>Type</button><button>Last run</button></div>
+      </div>
+    </div>
+    <div class="v1-wrap"><table class="cat">
+      <colgroup><col><col class="c-rec"><col class="c-sig"><col class="c-last"><col class="c-sch"><col class="c-act"></colgroup>
+      <thead><tr>
+        <th>Report</th><th class="r">Records</th><th>Signal</th><th>Last run</th><th>Schedule</th><th></th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>
+  </div></div>`;
+}
+
+/* ═════════ V2 · split preview ═════════ */
+function v2(){
+  const list=GROUPS.map((g,gi)=>`<div class="v2-g">${g}</div>`+R.filter(r=>r.g===gi).map(r=>`
+    <div class="v2-i" data-i="${r.i}">
+      <span class="ti ${r.t}">${TICON[r.t]}</span>
+      <span class="t">${r.n}</span>
+      ${r.tone?`<span class="dot ${r.tone}"></span>`:''}
+    </div>`).join('')).join('');
+  return `<div class="v2">
+    <div class="v2-list">
+      <div class="top">
+        <div class="search">${I.search()}<input placeholder="Search User Reports…" id="v2q"></div>
+        <div style="display:flex;align-items:center;gap:7px;margin-top:9px;font-size:11.5px;color:var(--muted)">
+          <span>19 reports</span><span style="color:var(--faint)">·</span><span>${R.filter(r=>r.sched).length} scheduled</span>
+          <div class="sp" style="flex:1"></div>
+          <button class="btn quiet" style="padding:3px 7px;font-size:11px">${I.filter()} Filter</button>
+        </div>
+      </div>
+      <div class="v2-scroll" id="v2list">${list}</div>
+    </div>
+    <div class="v2-pane" id="v2pane"></div>
+  </div>`;
+}
+function v2pane(r){
+  let body='';
+  if(r.v==null){
+    body=`<div class="prev"><div class="prev-h">${I.tableI()} Preview</div>
+      <div style="padding:44px 20px;text-align:center">
+        <div style="font-size:13.5px;font-weight:600;margin-bottom:5px">This report has not been run yet</div>
+        <div style="font-size:12.5px;color:var(--muted);margin-bottom:16px">Run it once to cache a preview and a record count.</div>
+        <button class="btn primary">${I.play()} Run now</button>
+      </div></div>`;
+  } else if(r.t==='chart'){
+    const bars=[['Sales',412],['Engineering',287],['Support',204],['Finance',161],['Contractors',140]];
+    const mx=Math.max(...bars.map(b=>b[1]));
+    body=`<div class="prev"><div class="prev-h">${I.chartI()} Preview · accounts by OU</div>
+      <div class="bars">${bars.map(b=>`<div class="b"><i style="height:${(b[1]/mx*100).toFixed(0)}%"></i><em>${b[0]}<br><span class="num" style="color:var(--faint)">${b[1]}</span></em></div>`).join('')}</div>
+      <div class="prev-f">Top 5 of 22 OUs · ${fmt(r.v)} accounts total<div class="sp" style="flex:1"></div>Switch to table</div></div>`;
+  } else if(r.t==='kpi'){
+    body=`<div class="prev"><div class="prev-h">${I.kpiI()} Preview · summary tiles</div>
+      <div class="kpis">
+        <div><div class="v num tone-warn">318</div><div class="k">Never-expiring accounts</div></div>
+        <div><div class="v num">2.5%</div><div class="k">Share of all accounts</div></div>
+        <div><div class="v num tone-err">6</div><div class="k">Of them privileged</div></div>
+        <div><div class="v num">94%</div><div class="k">Policy compliance</div></div>
+      </div>
+      <div class="prev-f">Computed at last run · 5 days ago<div class="sp" style="flex:1"></div>Add tiles to a dashboard</div></div>`;
+  } else {
+    const sample={
+      'Display name':['Alicia Moreau','Dinesh Raghavan','Karin Ostberg','Tomás Ferreira','Wei Lin'],
+      'Logon name':['amoreau','draghavan','kostberg','tferreira','wlin'],
+      'Department':['Sales','Engineering','Finance','Support','Engineering'],
+      'Status':['Enabled','Enabled','Disabled','Enabled','Enabled'],
+      'Last logon':['17 Aug, 09:14','17 Aug, 08:02','02 May, 16:40','16 Aug, 21:33','17 Aug, 07:58'],
+      'Created on':['12 Aug 2026','09 Aug 2026','04 Aug 2026','29 Jul 2026','24 Jul 2026'],
+      'Created by':['SVC-HRSync','admin','SVC-HRSync','admin','SVC-HRSync'],
+      'OU':['Sales','Engineering','Finance','Support','Engineering'],
+      'Enabled':['Yes','Yes','No','Yes','Yes'],
+      'Expires on':['19 Aug 2026','21 Aug 2026','24 Aug 2026','27 Aug 2026','30 Aug 2026'],
+      'Days left':['2','4','7','10','13'],
+      'Email':['a.moreau@corp','d.rag@corp','k.ost@corp','t.fer@corp','w.lin@corp'],
+      'Manager':['R. Bhatt','S. Kovacs','R. Bhatt','M. Adeyemi','S. Kovacs'],
+    };
+    const cols=r.cols.slice(0,5);
+    body=`<div class="prev"><div class="prev-h">${I.tableI()} Preview · first 5 of ${fmt(r.v)} rows</div>
+      <div class="prev-b"><table class="mini">
+        <thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+        <tbody>${[0,1,2,3,4].map(i=>`<tr>${cols.map(c=>`<td${i===0?' style="font-weight:600"':''}>${(sample[c]||['—','—','—','—','—'])[i]}</td>`).join('')}</tr>`).join('')}</tbody>
+      </table></div>
+      <div class="prev-f">${r.cols.length} columns available<div class="sp" style="flex:1"></div>Open full report</div></div>`;
+  }
+  return `<div class="v2-ph">
+    <div style="min-width:0">
+      <h1 style="font-size:19px">${r.n}</h1>
+      <p class="sub">${r.d}</p>
+    </div>
+    <div class="sp" style="flex:1"></div>
+    <span class="tb ${r.t}">${TICON[r.t]} ${TNAME[r.t]}</span>
+    ${r.tone?`<span class="chip ${r.tone==='ok'?'':r.tone}"><span class="dot ${r.tone}"></span>${r.tone==='err'?'Needs review':r.tone==='warn'?'Watch':'Healthy'}</span>`:''}
+  </div>
+  <div class="v2-meta">
+    <div><div class="k">Records</div><div class="v num">${r.v==null?'Not run':fmt(r.v)}</div></div>
+    <div><div class="k">Last run</div><div class="v">${r.last||'Never'}</div></div>
+    <div><div class="k">Schedule</div><div class="v">${r.sched||'Not scheduled'}</div></div>
+    <div><div class="k">Group</div><div class="v">${GROUPS[r.g]}</div></div>
+    <div><div class="k">Source</div><div class="v">Active Directory</div></div>
+  </div>
+  ${body}
+  <div style="display:flex;gap:9px;margin-top:18px;flex-wrap:wrap">
+    <button class="btn primary">${I.play()} Run report</button>
+    <button class="btn ghost">${I.cal()} Schedule</button>
+    <button class="btn ghost">${I.down()} Export ▾</button>
+    <button class="btn ghost">${I.plus()} Add to dashboard</button>
+    <div class="sp" style="flex:1"></div>
+    <button class="btn quiet">${I.star()} ${r.pin?'Unpin':'Pin'}</button>
+  </div>`;
+}
+
+/* ═════════ V3 · signal cards ═════════ */
+function v3(){
+  const card=r=>{
+    if(r.v==null) return `<div class="sc empty">
+      <div class="sc-t"><span class="ti ${r.t}">${TICON[r.t]}</span><span class="t">${r.n}</span></div>
+      <div class="sc-v"><span class="big">—</span><span class="unit">not run yet</span></div>
+      <div class="sc-d">${r.d}</div>
+      <div class="sc-f">Run once to populate<div class="sp"></div><button class="btn ghost" style="padding:4px 9px;font-size:11px">${I.play()} Run</button></div>
+    </div>`;
+    return `<div class="sc ${r.tone}">
+      <div class="sc-t">
+        <span class="ti ${r.t}">${TICON[r.t]}</span>
+        <span class="t">${r.n}</span>
+        ${r.pin?`<span class="pin">${I.star()}</span>`:''}
+      </div>
+      <div class="sc-v">
+        <span class="big num ${r.tone==='err'?'tone-err':r.tone==='warn'?'tone-warn':''}">${fmt(r.v)}</span>
+        <span class="unit">${r.u}</span>
+        ${spark(r.sp,r.tone)}
+      </div>
+      <div class="sc-d">${delta(r)}</div>
+      <div class="sc-f">
+        ${r.sched?`${I.cal()} ${r.sched}`:`<span style="color:var(--faint)">Not scheduled</span>`}
+        <div class="sp"></div>
+        <span class="${r.h>168?'':''}">${r.last}</span>
+      </div>
+    </div>`;
+  };
+  const attention=R.filter(r=>r.tone==='err'||r.tone==='warn').sort((a,b)=>(a.tone==='err'?0:1)-(b.tone==='err'?0:1));
+  return `<div>
+    <div class="v3-head">
+      <div><h1>User Reports</h1><p class="sub">19 predefined reports · counts cached from each report’s last run</p></div>
+      <div class="sp" style="flex:1"></div>
+      <button class="btn ghost">${I.down()} Export list</button>
+      <button class="btn primary">${I.bolt()} Run all stale</button>
+    </div>
+    <div class="v3-bar">
+      <div class="search">${I.search()}<input placeholder="Search User Reports…"></div>
+      <span style="font-size:11.5px;color:var(--faint)">Sort</span>
+      <div class="segs"><button class="on">Needs attention</button><button>Category</button><button>Recently run</button><button>A–Z</button></div>
+      <div class="sp" style="flex:1"></div>
+      <span class="chip err"><span class="dot err"></span>${R.filter(r=>r.tone==='err').length} need review</span>
+      <span class="chip warn"><span class="dot warn"></span>${R.filter(r=>r.tone==='warn').length} to watch</span>
+    </div>
+    <div class="v3-body">
+      <div class="v3-sec">
+        <div class="v3-sh"><h2>Needs attention</h2><span class="n num">${attention.length}</span><hr>
+          <span style="font-size:11.5px;color:var(--muted)">Moved the wrong way this week · each also listed in its own group below</span></div>
+        <div class="grid3">${attention.map(card).join('')}</div>
+      </div>
+      ${GROUPS.map((g,gi)=>{
+        const items=R.filter(r=>r.g===gi);
+        return `<div class="v3-sec"><div class="v3-sh"><h2>${g}</h2><span class="n num">${items.length}</span><hr></div>
+          <div class="grid3">${items.map(card).join('')}</div></div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+/* ═════════ V4 · launcher ═════════ */
+function v4(){
+  const pins=R.filter(r=>r.pin);
+  const recent=[...R].filter(r=>r.v!=null).sort((a,b)=>a.h-b.h).slice(0,4);
+  const sched=R.filter(r=>r.sched).slice(0,3);
+  return `<div class="v4">
+    <div class="hero">
+      <h1>What do you need to know about your users?</h1>
+      <p>19 predefined User Reports · 266 across the whole catalogue</p>
+    </div>
+    <div class="v4-omni">
+      <div class="search">${I.search()}<input id="v4q" placeholder="Search reports — try “expired”, “admin”, “inactive”…" autocomplete="off"><span class="kbd">⌘K</span></div>
+      <div class="v4-res" id="v4res"></div>
+    </div>
+
+    <div class="v4-sec">
+      <div class="v4-sh">Pinned<div class="sp"></div><button>Edit pins</button></div>
+      <div class="pins">${pins.map(r=>`<div class="pin-c">
+        <span class="ti ${r.t}">${TICON[r.t]}</span>
+        <div><div class="t">${r.n}</div><div class="v"><b class="num ${r.tone==='err'?'tone-err':r.tone==='warn'?'tone-warn':''}">${fmt(r.v)}</b> ${r.u} · ${r.last}</div></div>
+      </div>`).join('')}</div>
+    </div>
+
+    <div class="v4-sec">
+      <div class="v4-sh">Recently run<div class="sp"></div><button>Clear history</button></div>
+      <div class="rows">${recent.map(r=>`<div class="rw">
+        <span class="ti ${r.t}">${TICON[r.t]}</span>
+        <span class="t">${r.n}</span>
+        <span class="m num">${fmt(r.v)} ${r.u}</span>
+        <span class="m" style="color:var(--faint)">${r.last}</span>
+      </div>`).join('')}</div>
+    </div>
+
+    <div class="v4-sec">
+      <div class="v4-sh">Next scheduled deliveries<div class="sp"></div><button>Manage schedules</button></div>
+      <div class="rows">${sched.map(r=>`<div class="rw">
+        <span style="color:var(--muted)">${I.cal()}</span>
+        <span class="t">${r.n}</span>
+        <span class="m">${r.sched}</span>
+        <span class="m" style="color:var(--faint)">to 3 recipients</span>
+      </div>`).join('')}</div>
+    </div>
+
+    <div class="v4-sec">
+      <div class="v4-sh">Browse all User Reports<div class="sp"></div><button>Open full catalogue</button></div>
+      <div class="acc">${GROUPS.map((g,gi)=>{
+        const items=R.filter(r=>r.g===gi);
+        return `<details${gi===0?' open':''}><summary>${g} <span class="num" style="color:var(--faint);font-weight:600">${items.length}</span></summary>
+          <div class="in">${items.map(r=>`<a href="#">
+            <span class="ti ${r.t}">${TICON[r.t]}</span>${r.n}
+            <span class="m num">${r.v==null?'not run':fmt(r.v)}</span></a>`).join('')}</div></details>`;
+      }).join('')}</div>
+    </div>
+  </div>`;
+}
+
+/* ═════════ V5 · working set ═════════ */
+const V5 = {type:'all',fresh:'any',attn:false};
+function v5(){
+  return `<div style="display:flex;flex:1;min-width:0">${catRail()}
+  <div style="flex:1;min-width:0">
+    <div class="v5-head">
+      <div style="display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap">
+        <div><h1>User Reports</h1><p class="sub">Filter the catalogue down to the report you need</p></div>
+        <div class="sp" style="flex:1"></div>
+        <button class="btn ghost">${I.plus()} New custom report</button>
+      </div>
+    </div>
+    <div class="facets" style="margin-top:14px">
+      <div class="search">${I.search()}<input id="v5q" placeholder="Search…"></div>
+      <div class="grp"><span>Type</span>
+        ${['all','table','chart','kpi'].map(t=>`<button class="fc ${t==='all'?'on':''}" data-f="type" data-v="${t}">${t==='all'?'Any':TNAME[t]}</button>`).join('')}</div>
+      <div class="grp"><span>Freshness</span>
+        ${[['any','Any'],['today','Today'],['stale','Stale · 7d+']].map(([v,l])=>`<button class="fc ${v==='any'?'on':''}" data-f="fresh" data-v="${v}">${l}</button>`).join('')}</div>
+      <button class="fc" data-f="attn" data-v="1">Needs attention only</button>
+    </div>
+    <div class="v5-body" id="v5body"></div>
+  </div></div>`;
+}
+function v5rows(){
+  const q=(document.getElementById('v5q')?.value||'').toLowerCase();
+  const hit=R.filter(r=>{
+    if(q && !(r.n+' '+r.d).toLowerCase().includes(q)) return false;
+    if(V5.type!=='all' && r.t!==V5.type) return false;
+    if(V5.fresh==='today' && r.h>24) return false;
+    if(V5.fresh==='stale' && r.h<=168) return false;
+    if(V5.attn && !(r.tone==='err'||r.tone==='warn')) return false;
+    return true;
+  });
+  const head=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;font-size:12px;color:var(--muted)">
+      <span class="num">${hit.length} of 19 reports</span>
+      ${hit.length<19?`<span style="color:var(--faint)">·</span><button class="btn quiet" style="padding:3px 8px;font-size:11.5px" id="v5reset">Clear filters</button>`:''}
+    </div>`;
+  if(!hit.length) return head+`<div class="v5-empty">No report matches these filters. Clear a facet, or <b>create a custom report</b> for this combination.</div>`;
+  const body=GROUPS.map((g,gi)=>{
+    const items=hit.filter(r=>r.g===gi);
+    if(!items.length) return '';
+    return `<div class="v5-gh"><h2>${g}</h2><span class="num" style="font-size:11.5px;color:var(--faint)">${items.length}</span><hr></div>
+      <div class="grid2">${items.map(r=>`
+        <a class="wr" href="#" data-i="${r.i}">
+          <span class="ti ${r.t}">${TICON[r.t]}</span>
+          <span class="body">
+            <span class="t">${r.n}</span>
+            <span class="m">
+              ${r.tone?`<span class="dot ${r.tone}"></span>`:''}
+              ${r.v==null?'Never run':'Last run '+r.last}
+            </span>
+          </span>
+          <span class="val"><span class="v num ${r.tone==='err'?'tone-err':r.tone==='warn'?'tone-warn':''}">${r.v==null?'—':fmt(r.v)}</span><span class="k">${r.u||'not run'}</span></span>
+        </a>`).join('')}</div>`;
+  }).join('');
+  return head+body;
+}
+
+/* ═════════ mount ═════════ */
+document.getElementById('rail').innerHTML = RAIL.map(([n,k])=>
+  `<a href="#" class="${n==='Predefined Report'?'on':''}">${I[k]()}<span>${n}</span></a>`).join('');
+document.getElementById('vtabs').innerHTML = VARIANTS.map((v,i)=>
+  `<button data-v="${v.k}" class="${i===0?'on':''}">${v.t}</button>`).join('');
+document.getElementById('views').innerHTML = VARIANTS.map((v,i)=>
+  `<div class="view ${i===0?'on':''}" id="view-${v.k}" style="flex:1;display:${i===0?'flex':'none'};flex-direction:column"></div>`).join('');
+
+const BUILD = {v1,v2,v3,v4,v5};
+const built = {};
+function show(k){
+  VARIANTS.forEach(v=>{
+    const el=document.getElementById('view-'+v.k);
+    el.style.display = v.k===k?'flex':'none';
+  });
+  document.querySelectorAll('#vtabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===k));
+  const v=VARIANTS.find(x=>x.k===k);
+  document.getElementById('why').innerHTML =
+    `<div class="fix"><b>What it fixes</b>${v.fix}</div><div><b>Trade-off</b>${v.off}</div>`;
+  if(!built[k]){ document.getElementById('view-'+k).innerHTML = BUILD[k](); built[k]=1; wire(k); }
+}
+document.getElementById('vtabs').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(b) show(b.dataset.v);
+});
+
+function wire(k){
+  const root=document.getElementById('view-'+k);
+  if(k==='v2'){
+    const pane=root.querySelector('#v2pane');
+    const pick=i=>{
+      root.querySelectorAll('.v2-i').forEach(el=>el.classList.toggle('on',+el.dataset.i===i));
+      pane.innerHTML=v2pane(R[i]);
+    };
+    root.querySelector('#v2list').addEventListener('click',e=>{
+      const it=e.target.closest('.v2-i'); if(it) pick(+it.dataset.i);
+    });
+    root.querySelector('#v2q').addEventListener('input',e=>{
+      const q=e.target.value.toLowerCase();
+      root.querySelectorAll('.v2-i').forEach(el=>{
+        el.style.display = R[+el.dataset.i].n.toLowerCase().includes(q)?'':'none';
+      });
+    });
+    pick(6);
+  }
+  if(k==='v4'){
+    const q=root.querySelector('#v4q'), res=root.querySelector('#v4res');
+    q.addEventListener('input',()=>{
+      const s=q.value.trim().toLowerCase();
+      if(!s){ res.classList.remove('on'); res.innerHTML=''; return; }
+      const hit=R.filter(r=>(r.n+' '+r.d+' '+GROUPS[r.g]).toLowerCase().includes(s)).slice(0,7);
+      res.innerHTML = hit.length
+        ? hit.map(r=>`<div class="v4-r"><span class="ti ${r.t}">${TICON[r.t]}</span>
+            <span class="t">${r.n}</span><span class="g">${GROUPS[r.g]}</span>
+            <span class="g num" style="min-width:52px;text-align:right">${r.v==null?'not run':fmt(r.v)}</span></div>`).join('')
+        : `<div class="v4-none">No predefined report matches “${q.value}”.<br>
+             <button class="btn ghost" style="margin-top:11px">Build a custom report instead</button></div>`;
+      res.classList.add('on');
+    });
+  }
+  if(k==='v5'){
+    const body=root.querySelector('#v5body');
+    const render=()=>{ body.innerHTML=v5rows(); };
+    render();
+    root.querySelector('.facets').addEventListener('click',e=>{
+      const b=e.target.closest('.fc'); if(!b) return;
+      const f=b.dataset.f;
+      if(f==='attn'){ V5.attn=!V5.attn; b.classList.toggle('on',V5.attn); }
+      else{
+        V5[f]=b.dataset.v;
+        root.querySelectorAll(`.fc[data-f="${f}"]`).forEach(x=>x.classList.toggle('on',x===b));
+      }
+      render();
+    });
+    root.querySelector('#v5q').addEventListener('input',render);
+    body.addEventListener('click',e=>{
+      if(e.target.closest('#v5reset')){
+        V5.type='all'; V5.fresh='any'; V5.attn=false;
+        root.querySelector('#v5q').value='';
+        root.querySelectorAll('.fc').forEach(x=>x.classList.toggle('on',x.dataset.v==='all'||x.dataset.v==='any'));
+        render();
+      }
+    });
+  }
+}
+show('v1');
+</script>
