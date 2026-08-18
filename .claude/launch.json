@@ -43,6 +43,14 @@
       ],
       "port": 4720,
       "url": "http://localhost:4720"
+    },
+    {
+      "name": "prism-bff",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "/Users/kale-20817/prism-ds-3/server/bff.mjs"
+      ],
+      "port": 8787
     }
   ]
 }
