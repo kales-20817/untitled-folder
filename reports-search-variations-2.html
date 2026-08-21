@@ -1,0 +1,697 @@
+<meta charset="utf-8">
+<title>Search Reports, Five More Ways</title>
+<style>
+  :root{
+    --violet:#2563eb; --violet-hov:#1d4ed8; --violet-soft:rgba(37,99,235,.08);
+    --surface:#fff; --surface-2:#f4f6fb; --surface-3:#eef2fa; --page:#f7f9fc;
+    --border:rgba(15,23,42,.09); --border-soft:rgba(15,23,42,.06); --border-strong:rgba(15,23,42,.16);
+    --text:#0f1420; --muted:#5b6472; --faint:#97a1b0;
+    --ok:#15803d; --ok-bg:rgba(34,197,94,.12);
+    --warn:#a16207; --warn-bg:rgba(234,179,8,.14); --warn-line:rgba(234,179,8,.4);
+    --err:#dc2626; --err-bg:rgba(239,68,68,.10); --err-line:rgba(239,68,68,.3);
+    --r:16px; --r-sm:10px;
+    --shadow:0 1px 2px rgba(16,24,40,.04), 0 3px 9px rgba(16,24,40,.05);
+    --shadow-lg:0 8px 20px -4px rgba(16,24,40,.10), 0 20px 44px -12px rgba(16,24,40,.12);
+    --pop:0 14px 38px rgba(16,25,42,.16);
+    --font:'Zoho Puvi',ui-sans-serif,system-ui,'Segoe UI',Roboto,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --surface:#12131a; --surface-2:#1a1c25; --surface-3:#20222d; --page:#0a0a0c;
+    --border:rgba(255,255,255,.11); --border-soft:rgba(255,255,255,.06); --border-strong:rgba(255,255,255,.22);
+    --text:rgba(255,255,255,.94); --muted:rgba(255,255,255,.55); --faint:rgba(255,255,255,.38);
+    --ok:#22c55e; --ok-bg:rgba(34,197,94,.16);
+    --warn:#eab308; --warn-bg:rgba(234,179,8,.14); --warn-line:rgba(234,179,8,.32);
+    --err:#f87171; --err-bg:rgba(239,68,68,.13); --err-line:rgba(239,68,68,.3);
+    --shadow:0 1px 2px rgba(0,0,0,.3); --shadow-lg:0 20px 44px rgba(0,0,0,.5); --pop:0 14px 38px rgba(0,0,0,.6);
+  }}
+  :root[data-theme="dark"]{
+    --surface:#12131a; --surface-2:#1a1c25; --surface-3:#20222d; --page:#0a0a0c;
+    --border:rgba(255,255,255,.11); --border-soft:rgba(255,255,255,.06); --border-strong:rgba(255,255,255,.22);
+    --text:rgba(255,255,255,.94); --muted:rgba(255,255,255,.55); --faint:rgba(255,255,255,.38);
+    --ok:#22c55e; --ok-bg:rgba(34,197,94,.16);
+    --warn:#eab308; --warn-bg:rgba(234,179,8,.14); --warn-line:rgba(234,179,8,.32);
+    --err:#f87171; --err-bg:rgba(239,68,68,.13); --err-line:rgba(239,68,68,.3);
+    --shadow:0 1px 2px rgba(0,0,0,.3); --shadow-lg:0 20px 44px rgba(0,0,0,.5); --pop:0 14px 38px rgba(0,0,0,.6);
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--page);color:var(--text);font:14.5px/1.55 var(--font);-webkit-font-smoothing:antialiased}
+  button,input{font-family:inherit;color:inherit}
+  a{color:inherit}
+  :focus-visible{outline:2px solid var(--accent,var(--violet));outline-offset:2px;border-radius:6px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  .num{font-variant-numeric:tabular-nums}
+  code{font:11.5px ui-monospace,'SF Mono',Menlo,monospace;background:var(--surface-2);border:1px solid var(--border);
+       padding:1px 5px;border-radius:5px}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+
+  @keyframes riseIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+  .riseIn{animation:riseIn .32s cubic-bezier(.16,1,.3,1) both}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+  /* ══ switcher chrome ══ */
+  .pitch{position:sticky;top:0;z-index:80;background:var(--surface);border-bottom:1px solid var(--border);
+         backdrop-filter:saturate(1.1)}
+  .pitch-in{display:flex;align-items:center;gap:14px;padding:11px 20px;flex-wrap:wrap}
+  .pitch-t{font-weight:700;font-size:13px;letter-spacing:-.01em}
+  .pitch-t span{color:var(--muted);font-weight:500}
+  .vtabs{display:flex;gap:3px;background:var(--surface-2);padding:3px;border-radius:10px;flex-wrap:wrap}
+  .vtabs button{padding:7px 13px;border:none;border-radius:8px;background:none;cursor:pointer;
+                font:600 12.5px var(--font);color:var(--muted);transition:.15s;white-space:nowrap}
+  .vtabs button:hover{color:var(--text)}
+  .vtabs button.on{background:var(--surface);color:var(--tabaccent,var(--violet));box-shadow:var(--shadow)}
+  .why{display:flex;gap:22px;padding:10px 20px 13px;border-top:1px solid var(--border-soft);
+       background:var(--surface-2);flex-wrap:wrap;font-size:12.5px;line-height:1.5}
+  .why div{max-width:48ch}
+  .why b{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);
+         display:block;margin-bottom:3px;font-weight:700}
+  .why .fix b{color:var(--tabaccent,var(--violet))}
+
+  .view{display:none}
+  .view.on{display:block}
+
+  .btn{padding:9px 16px;border-radius:10px;font:600 13px/1 var(--font);cursor:pointer;
+       display:inline-flex;align-items:center;gap:7px;border:1px solid transparent;text-decoration:none;
+       transition:.15s;white-space:nowrap}
+  .btn:active{transform:scale(.96)}
+  .btn.primary{background:var(--violet);color:#fff;box-shadow:var(--shadow)} .btn.primary:hover{background:var(--violet-hov)}
+  .btn.acc{background:var(--accent,var(--violet));color:#fff;box-shadow:var(--shadow)}
+  .btn.acc:hover{filter:brightness(1.08)}
+  .btn.ghost{background:var(--surface);color:var(--text);border-color:var(--border)}
+  .btn.ghost:hover{background:var(--surface-2);border-color:var(--accent,var(--violet))}
+  .btn.sm{padding:7px 12px;font-size:12px}
+  .btn.lg{padding:13px 20px;font-size:14.5px;border-radius:12px}
+
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:600;flex-shrink:0}
+  .badge .dot{width:5px;height:5px;border-radius:50%;background:currentColor}
+  .badge.ok{background:var(--ok-bg);color:var(--ok)}
+  .badge.bad{background:rgba(239,68,68,.14);color:var(--err)}
+  .badge.warn{background:var(--warn-bg);color:var(--warn)}
+  .badge.neu{background:var(--surface-2);color:var(--muted);border:1px solid var(--border)}
+
+  /* ══ shared search-home primitives ══ */
+  .page{max-width:900px;margin:0 auto;padding:0 clamp(14px,3vw,30px) 76px;position:relative}
+  .stage{text-align:center;padding:52px 0 26px;position:relative}
+  .stage-wash{position:absolute;inset:-20px 50% auto 50%;width:900px;height:340px;margin-left:-450px;
+              background:radial-gradient(closest-side, color-mix(in srgb, var(--accent,var(--violet)) 16%, transparent), transparent 72%);
+              pointer-events:none;z-index:0}
+  .stage>*{position:relative;z-index:1}
+  .kicker{display:inline-flex;align-items:center;gap:6px;padding:5px 12px 5px 10px;border-radius:999px;
+          background:color-mix(in srgb, var(--accent,var(--violet)) 12%, var(--surface));
+          color:var(--accent,var(--violet));font:700 11px var(--font);letter-spacing:.05em;text-transform:uppercase;
+          margin-bottom:14px}
+  .kicker i{width:6px;height:6px;border-radius:50%;background:currentColor}
+  .stage h1{font-size:28px;font-weight:800;letter-spacing:-.025em;margin:0 0 9px;text-wrap:balance;line-height:1.15}
+  .stage .lede{font-size:14.5px;color:var(--muted);margin:0 auto;max-width:56ch}
+
+  .kbd{font:600 11px var(--font);color:var(--muted);background:var(--surface-2);
+       border:1px solid var(--border);border-radius:6px;padding:3px 7px;flex-shrink:0}
+  .clr{background:none;border:none;color:var(--faint);cursor:pointer;padding:4px;border-radius:7px;line-height:0;flex-shrink:0}
+  .clr:hover{color:var(--text);background:var(--surface-2)}
+
+  .bigsearch{max-width:640px;margin:0 auto}
+  .bigsearch-in{display:flex;align-items:center;gap:12px;padding:16px 19px;background:var(--surface);
+           border:1.5px solid var(--border);border-radius:16px;box-shadow:var(--shadow-lg);transition:.18s}
+  .bigsearch-in:focus-within{border-color:var(--accent,var(--violet));
+           box-shadow:0 0 0 5px color-mix(in srgb, var(--accent,var(--violet)) 14%, transparent), var(--shadow-lg)}
+  .bigsearch-in svg{color:var(--muted);flex-shrink:0}
+  .bigsearch-in input{flex:1;min-width:0;border:none;background:none;outline:none;color:var(--text);font-size:16px}
+  .bigsearch-in input::placeholder{color:var(--faint)}
+
+  .facets{display:flex;gap:8px;flex-wrap:wrap}
+  .facet{padding:7px 14px;border-radius:999px;border:1px solid var(--border);background:var(--surface);
+         color:var(--muted);font:600 12.5px var(--font);cursor:pointer;transition:.15s;display:inline-flex;
+         align-items:center;gap:6px;white-space:nowrap}
+  .facet:hover{border-color:var(--accent,var(--violet));color:var(--text)}
+  .facet.on{background:var(--accent,var(--violet));border-color:var(--accent,var(--violet));color:#fff;box-shadow:var(--shadow)}
+
+  .hitgroup{margin-bottom:20px}
+  .hitgroup h3{display:flex;align-items:center;gap:9px;font-size:11px;font-weight:700;color:var(--faint);
+               text-transform:uppercase;letter-spacing:.06em;margin:0 0 9px}
+  .hits{border:1px solid var(--border);border-radius:var(--r);background:var(--surface);box-shadow:var(--shadow);overflow:hidden}
+  .hit{display:flex;align-items:center;gap:13px;padding:13px 16px;color:var(--text);
+       border-bottom:1px solid var(--border-soft);transition:.14s;cursor:pointer}
+  .hit:last-child{border-bottom:none}
+  .hit:hover{background:color-mix(in srgb, var(--accent,var(--violet)) 7%, var(--surface))}
+  .hit .gi{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;flex-shrink:0;
+           background:var(--surface-2);color:var(--muted);border:1px solid var(--border);transition:.14s}
+  .hit:hover .gi{background:var(--surface);color:var(--accent,var(--violet));border-color:var(--accent,var(--violet))}
+  .hit .body{flex:1;min-width:0}
+  .hit .nm{font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .hit .nm mark{background:none;color:var(--accent,var(--violet));font-weight:700}
+  .hit .meta{font-size:12px;color:var(--muted);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .hit .side{flex-shrink:0;display:flex;align-items:center;gap:8px}
+
+  .empty{padding:44px 22px;text-align:center;border:1px dashed var(--border-strong);border-radius:var(--r);color:var(--muted)}
+  .empty .ic{width:46px;height:46px;border-radius:50%;background:var(--surface-2);color:var(--faint);
+             display:grid;place-items:center;margin:0 auto 14px}
+  .empty b{display:block;color:var(--text);font-size:14.5px;margin-bottom:6px}
+  .empty p{margin:0 0 16px;font-size:13px;max-width:44ch;margin-inline:auto}
+  .empty .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+
+  .disc-sec{margin-bottom:26px}
+  .disc-h{display:flex;align-items:baseline;gap:9px;margin-bottom:12px}
+  .disc-h h2{font-size:13px;font-weight:700;margin:0}
+  .disc-h .sp{flex:1}
+  .note{display:flex;gap:9px;align-items:flex-start;padding:12px 14px;border-radius:var(--r-sm);
+        background:var(--surface-2);border:1px solid var(--border);font-size:12px;color:var(--muted);margin-top:24px}
+  .note svg{flex-shrink:0;margin-top:1px}
+
+  /* ══ V1 · mobile field technician ══ */
+  #view-v1{--accent:#ea580c;--tabaccent:#ea580c}
+  .phonewrap{display:flex;justify-content:center;padding:30px 16px 60px;
+             background:radial-gradient(circle at 50% 0%, rgba(234,88,12,.10), transparent 60%)}
+  .phone{width:380px;max-width:100%;background:var(--surface);border-radius:32px;box-shadow:var(--pop);
+         border:8px solid #14161c;overflow:hidden;position:relative}
+  .phone-status{display:flex;justify-content:space-between;align-items:center;padding:10px 20px 4px;
+                font:700 12px var(--font);color:var(--text)}
+  .offline-bar{display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--warn-bg);
+               color:var(--warn);font:600 11.5px var(--font);border-bottom:1px solid var(--warn-line)}
+  .phone-body{padding:16px 16px 4px}
+  .m-search{display:flex;align-items:center;gap:10px;padding:13px 14px;background:var(--surface-2);
+            border-radius:14px;border:1px solid var(--border)}
+  .m-search:focus-within{border-color:var(--accent);background:var(--surface)}
+  .m-search input{flex:1;border:none;background:none;outline:none;font-size:15px;color:var(--text)}
+  .m-search input::placeholder{color:var(--faint)}
+  .mic{width:34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;border:none;
+       display:grid;place-items:center;flex-shrink:0;cursor:pointer}
+  .mic.listening{animation:pulse 1s ease-in-out infinite}
+  .mfacets{display:flex;gap:7px;overflow-x:auto;padding:12px 0 4px;scrollbar-width:none}
+  .mfacets::-webkit-scrollbar{display:none}
+  .mfacets .facet{flex-shrink:0}
+  .mcards{padding:2px 0 16px;display:flex;flex-direction:column;gap:9px;max-height:400px;overflow-y:auto}
+  .mcard{display:flex;align-items:center;gap:12px;padding:14px;border-radius:14px;background:var(--surface-2);
+         border:1px solid var(--border);cursor:pointer}
+  .mcard .gi{width:38px;height:38px;border-radius:11px;background:var(--surface);color:var(--accent);
+             display:grid;place-items:center;flex-shrink:0;border:1px solid var(--border)}
+  .mcard .body{flex:1;min-width:0}
+  .mcard .nm{font-weight:700;font-size:13.5px}
+  .mcard .meta{font-size:11.5px;color:var(--muted);margin-top:1px}
+  .mcard .go{width:36px;height:36px;border-radius:10px;background:var(--accent);color:#fff;display:grid;
+             place-items:center;flex-shrink:0}
+  .phone-home{height:5px;width:120px;background:var(--border-strong);border-radius:99px;margin:10px auto 12px}
+
+  /* ══ V2 · executive instant answer ══ */
+  #view-v2{--accent:#4338ca;--tabaccent:#4338ca}
+  .answer-card{max-width:560px;margin:26px auto 0;text-align:center;padding:34px 30px;border-radius:20px;
+              background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow-lg)}
+  .answer-num{font-size:64px;font-weight:800;letter-spacing:-.03em;line-height:1;color:var(--accent)}
+  .answer-unit{font-size:14px;color:var(--muted);margin-top:6px;font-weight:600}
+  .answer-delta{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:700;margin-top:12px;
+                padding:4px 11px;border-radius:999px}
+  .answer-delta.up{background:var(--err-bg);color:var(--err)} .answer-delta.down{background:var(--ok-bg);color:var(--ok)}
+  .answer-src{margin-top:18px;padding-top:16px;border-top:1px solid var(--border-soft);font-size:12.5px;color:var(--muted);
+              display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
+  .alt-h{font-size:11px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:.06em;
+         text-align:center;margin:26px 0 12px}
+  .altrow{display:flex;align-items:center;gap:12px;padding:11px 15px;background:var(--surface);border:1px solid var(--border);
+          border-radius:12px;margin-bottom:8px;cursor:pointer;max-width:560px;margin-inline:auto}
+  .altrow:hover{border-color:var(--accent)}
+  .altrow .v{font-weight:800;font-size:17px;color:var(--accent);flex-shrink:0;min-width:52px}
+  .altrow .t{flex:1;font-size:13px;font-weight:600}
+  .exec-suggest{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:16px}
+  .exec-suggest button{padding:8px 14px;border-radius:999px;border:1px solid var(--border);background:var(--surface);
+                        font:500 12.5px var(--font);cursor:pointer;box-shadow:var(--shadow)}
+  .exec-suggest button:hover{border-color:var(--accent);background:color-mix(in srgb, var(--accent) 8%, var(--surface))}
+
+  /* ══ V3 · IT ops / trend ══ */
+  #view-v3{--accent:#0891b2;--tabaccent:#0891b2}
+  .oprow{display:flex;align-items:center;gap:14px;padding:13px 16px}
+  .fresh-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+  .fresh-dot.g{background:var(--ok)} .fresh-dot.a{background:var(--warn)} .fresh-dot.r{background:var(--err)}
+  .oprow .body{flex:1;min-width:0}
+  .oprow .nm{font-size:13.5px;font-weight:600}
+  .oprow .meta{font-size:11.5px;color:var(--muted);margin-top:1px;display:flex;gap:8px;flex-wrap:wrap}
+  .opspark{flex-shrink:0}
+
+  /* ══ V4 · finance / SAM ══ */
+  #view-v4{--accent:#059669;--tabaccent:#059669}
+  .exposure-strip{display:flex;align-items:center;gap:20px;padding:16px 18px;border-radius:var(--r);
+                  background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);margin-bottom:22px;
+                  flex-wrap:wrap}
+  .exposure-strip .big{font-size:26px;font-weight:800;color:var(--accent);letter-spacing:-.02em}
+  .exposure-strip .lbl{font-size:12px;color:var(--muted)}
+  .finrow{display:flex;align-items:center;gap:14px;padding:14px 16px}
+  .finrow .body{flex:1;min-width:0}
+  .finrow .nm{font-size:13.5px;font-weight:600}
+  .finrow .meta{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .util-wrap{display:flex;align-items:center;gap:8px;margin-top:7px}
+  .util-bar{flex:1;height:6px;border-radius:99px;background:var(--surface-2);overflow:hidden;max-width:140px}
+  .util-bar i{display:block;height:100%;background:var(--accent);border-radius:99px}
+  .util-pct{font-size:11px;color:var(--muted);font-weight:700;flex-shrink:0}
+  .fin-side{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
+  .fin-amt{font-size:15px;font-weight:800;color:var(--accent)}
+  .renew-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px}
+  .renew-badge.soon{background:var(--warn-bg);color:var(--warn)}
+  .renew-badge.late{background:var(--err-bg);color:var(--err)}
+  .renew-badge.ok{background:var(--ok-bg);color:var(--ok)}
+
+  /* ══ V5 · accessibility-first ══ */
+  #view-v5{--accent:#1d4ed8;--tabaccent:#1d4ed8;font-size:17px}
+  #view-v5 .page{max-width:760px}
+  #view-v5 .skip{position:absolute;left:16px;top:-48px;padding:10px 16px;background:var(--accent);color:#fff;
+                 border-radius:8px;font:700 13px var(--font);text-decoration:none;transition:.15s;z-index:5}
+  #view-v5 .skip:focus{top:16px}
+  #view-v5 .stage{padding:40px 0 22px;text-align:left}
+  #view-v5 .stage-wash{display:none}
+  #view-v5 h1{font-size:26px}
+  #view-v5 .bigsearch{max-width:none;margin:0}
+  #view-v5 .bigsearch-in{border:2px solid var(--border-strong);border-radius:12px;box-shadow:none}
+  #view-v5 .bigsearch-in:focus-within{border-color:var(--accent);box-shadow:0 0 0 4px rgba(29,78,216,.18)}
+  #view-v5 .hits{border:2px solid var(--border-strong);box-shadow:none;border-radius:12px}
+  #view-v5 .hit{border-bottom:2px solid var(--border-soft);padding:16px 18px}
+  #view-v5 .hit:hover{background:var(--surface-2)}
+  #view-v5 .hit .act{display:flex!important;gap:8px}
+  #view-v5 .hit .nm{font-size:15px;text-decoration:underline;text-decoration-color:var(--border-strong);
+                     text-underline-offset:3px}
+  #view-v5 .hit:hover .nm,#view-v5 .hit:focus-within .nm{text-decoration-color:var(--accent)}
+  #view-v5 .facet{border:2px solid var(--border-strong);font-size:13.5px}
+  #view-v5 .facet.on{border-color:var(--accent)}
+  #view-v5 .a11y-status{padding:10px 14px;border:2px solid var(--border-strong);border-radius:10px;
+                        font-size:13.5px;font-weight:700;margin-bottom:16px;background:var(--surface-2)}
+</style>
+
+<div class="pitch">
+  <div class="pitch-in">
+    <div class="pitch-t">Search Reports, five more ways<span> · same index, five different needs</span></div>
+    <div class="sp" style="flex:1"></div>
+    <div class="vtabs" id="vtabs"></div>
+  </div>
+  <div class="why" id="why"></div>
+</div>
+
+<div id="views"></div>
+
+<script>
+function E(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]); }
+const MODULE = 'reports-module-revamp.html';
+const svg = (p,s=15) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const I = {
+  search:()=>svg('<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',18),
+  x:()=>svg('<path d="M18 6 6 18M6 6l12 12"/>',16),
+  mic:()=>svg('<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v1a7 7 0 0 0 14 0v-1M12 18v3"/>',16),
+  wifi:()=>svg('<path d="M5 12.5a11 11 0 0 1 14 0M8.5 16a6 6 0 0 1 7 0M12 20h.01"/>',14),
+  pc:()=>svg('<rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>'),
+  shield:()=>svg('<path d="M12 2 4 6v6c0 5 3.4 9.4 8 10 4.6-.6 8-5 8-10V6z"/><path d="m9 12 2 2 4-4"/>'),
+  clock:()=>svg('<circle cx="12" cy="12" r="10"/><path d="M12 7v5l3 2"/>'),
+  wrench:()=>svg('<path d="M14.7 6.3a4 4 0 1 0-5.4 5.4l-6 6a2 2 0 0 0 2.8 2.8l6-6a4 4 0 0 0 5.4-5.4l-2.1 2.1-2.8-2.8z"/>'),
+  card:()=>svg('<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/>'),
+  chip:()=>svg('<rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/>'),
+  up:()=>svg('<path d="M17 7 7 17M17 7H9M17 7v8"/>',13),
+  down:()=>svg('<path d="M7 7 17 17M7 7v8M7 7h8"/>',13),
+  disk:()=>svg('<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="2.2" fill="currentColor" stroke="none"/><path d="M12 2v6.8"/>'),
+  box:()=>svg('<path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/>'),
+  power:()=>svg('<path d="M12 2v10M18.4 6.6a9 9 0 1 1-12.8 0"/>'),
+  key:()=>svg('<circle cx="8" cy="15" r="4"/><path d="M10.8 12.2 20 3M17 6l2 2M14 9l2 2"/>'),
+  dollar:()=>svg('<circle cx="12" cy="12" r="10"/><path d="M15 8.5A2.5 2.5 0 0 0 12.5 6h-1A2.5 2.5 0 0 0 9 8.5c0 3 6 1.5 6 4.5a2.5 2.5 0 0 1-2.5 2.5h-1A2.5 2.5 0 0 1 9 13"/><path d="M12 4v2M12 16v2"/>'),
+  info:()=>svg('<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>',14),
+  check:()=>svg('<path d="m4.5 12.5 5 5 10-11"/>'),
+  a11y:()=>svg('<circle cx="12" cy="4.5" r="1.8"/><path d="M4 8.5c3 1.2 5.5 1.5 8 1.5s5-.3 8-1.5M12 10v11M8.5 21l2-6h3l2 6"/>'),
+};
+
+/* ═══ shared catalogue — a curated subset of the real 261-report catalogue, trimmed for this exploration ═══ */
+const CATALOG = {
+'User Reports':['All User Accounts','Recently Created User Accounts','Recently Modified User Accounts','User Accounts without Logon Scripts','User Accounts in Multiple Groups','User Accounts that Never Expires','Active User Accounts','Inactive User Accounts','Disabled User Accounts','Expired / Not Expired User Accounts','Soon-to-Expire User Passwords','Password Expired User Accounts','Password Never Expiring Users','User Accounts Password that cannot be Changed','Domain Admin User Accounts','User Accounts with Dial-in Permissions','Unused User Accounts','Recently Logged On User Accounts','Last Logon Failed User Accounts'],
+'Computer Reports':['All Computers','Windows Workstation','Recently Added Computers','Recently Logged On Computers','Recently Modified Computer Accounts','Disabled Computer Accounts','Computer Accounts by OU','Windows Servers','Member Servers','Domain Controllers','Computers by OS & Service Pack'],
+'Group Reports':['All Groups','Recently Created Group','Recently Modified Group','Groups by OU','Security Groups','Distribution Groups','Nested Groups','Groups with Member Details','Groups with Maximum Members','Groups without Members','User-only Groups','Computer-only Groups'],
+'Threats & Patches Reports':['Missing Patches','Installed Patches','Applicable Patches','Detailed Patch Summary','Managed Systems','Scan Report','System Compliance Report','Latest Patches','Highly Vulnerable Systems','Vulnerable Systems','Healthy Systems','System Health Report','Patch Compliance Report','Vulnerabilities','Zero Day Vulnerability Report','Detected CVE Summary','Systems Affected by Vulnerabilities'],
+'Inventory Reports':['Computers by OS','Computers By Manufacturer','Computers By Memory','Computers by Disk Usage Summary','Computers by Disk Usage Detail Report','Computers By Age','Computers by Device Type','Mapped Logical Disks','Software by Manufacturer','All Installed Software','License Compliance','License to be Renewed','Share Details','Soon to expire Warranty','Expired Warranty','Antivirus Details','Bitlocker Details','Software Product Keys','Prohibited Software'],
+'USB Reports':['USB Usage Report'],
+'MDM Reports':['App Installation summary','Devices with/without Specific App','Inactive Devices','Rooted Devices','Devices by Storage Encryption'],
+'Application Control Reports':['Managed Systems','Discovered Products','Unmanaged Products','Applications running with Administrator Privileges'],
+'Device Control Reports':['Device Audit','Device Summary','Unauthorized Devices'],
+'BitLocker Reports':['Managed Systems','BitLocker Reports','TPM Reports'],
+'Power Management Reports':['System Uptime Report'],
+'GPO Reports':['All GPOs','Recently Created GPOs','Recently Modified GPOs','Disabled GPOs','Unused GPOs'],
+};
+const ICO_FOR_CAT = {
+  'User Reports':I.pc,'Computer Reports':I.pc,'Group Reports':I.pc,'Threats & Patches Reports':I.shield,
+  'Inventory Reports':I.box,'USB Reports':I.chip,'MDM Reports':I.chip,'Application Control Reports':I.box,
+  'Device Control Reports':I.chip,'BitLocker Reports':I.shield,'Power Management Reports':I.power,'GPO Reports':I.box,
+};
+const INDEX = [];
+Object.entries(CATALOG).forEach(([cat, list]) => list.forEach(n =>
+  INDEX.push({ n, cat, kind:'predefined', ico:ICO_FOR_CAT[cat]||I.box })));
+
+function highlight(name, q){
+  if(!q) return E(name);
+  const i = name.toLowerCase().indexOf(q);
+  if(i<0) return E(name);
+  return E(name.slice(0,i)) + '<mark>' + E(name.slice(i,i+q.length)) + '</mark>' + E(name.slice(i+q.length));
+}
+function sparkPath(arr,w,h){
+  const mn=Math.min(...arr),mx=Math.max(...arr),sp=(mx-mn)||1;
+  return arr.map((v,i)=>[i/(arr.length-1)*w, h-1-((v-mn)/sp)*(h-2)]);
+}
+function spark(arr,color,w=64,h=22){
+  const pts = sparkPath(arr,w,h);
+  const line = pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+  return `<svg class="opspark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true">
+    <polyline points="${line}" fill="none" stroke="${color}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="${pts[pts.length-1][0].toFixed(1)}" cy="${pts[pts.length-1][1].toFixed(1)}" r="2" fill="${color}"/>
+  </svg>`;
+}
+
+/* ═══════════════════════════ V1 · mobile field technician ═══════════════════════════ */
+function v1(){
+  return `<div class="phonewrap"><div class="phone">
+    <div class="phone-status"><span>9:41</span><span style="display:flex;gap:5px;align-items:center">${I.wifi()} 62%</span></div>
+    <div class="offline-bar" id="v1off">${I.wifi()} Last synced 12 min ago — showing cached results</div>
+    <div class="phone-body">
+      <div class="m-search">${I.search()}<input id="v1q" placeholder="Search reports…" autocomplete="off">
+        <button class="mic" id="v1mic" aria-label="Voice search">${I.mic()}</button></div>
+      <div class="mfacets" id="v1facets"></div>
+      <div class="mcards" id="v1cards"></div>
+    </div>
+    <div class="phone-home"></div>
+  </div></div>`;
+}
+function v1Wire(root){
+  const FACETS = [['all','All'],['fav','My reports'],['recent','Recently run']];
+  let active='all';
+  const FAV = ['Missing Patches','All Computers','Bitlocker Details','USB Usage Report'];
+  const RECENT = ['Missing Patches','System Uptime Report','All Computers'];
+  const q=root.querySelector('#v1q'), cards=root.querySelector('#v1cards'), mic=root.querySelector('#v1mic');
+  root.querySelector('#v1facets').innerHTML = FACETS.map(([k,l])=>`<button class="facet ${active===k?'on':''}" data-k="${k}">${E(l)}</button>`).join('');
+  root.querySelectorAll('#v1facets .facet').forEach(b=>b.onclick=()=>{active=b.dataset.k;root.querySelectorAll('#v1facets .facet').forEach(x=>x.classList.toggle('on',x===b));render();});
+  mic.onclick = ()=>{ mic.classList.add('listening'); q.focus(); setTimeout(()=>mic.classList.remove('listening'),900); };
+  function render(){
+    const qs=q.value.toLowerCase().trim();
+    let hits = INDEX;
+    if(active==='fav') hits = hits.filter(h=>FAV.includes(h.n));
+    if(active==='recent') hits = hits.filter(h=>RECENT.includes(h.n));
+    if(qs) hits = hits.filter(h=>(h.n+' '+h.cat).toLowerCase().includes(qs));
+    if(!hits.length){ cards.innerHTML = `<div class="empty" style="padding:30px 14px"><b>No matches</b><p>Try a shorter word, or check the connection banner above.</p></div>`; return; }
+    cards.innerHTML = hits.slice(0,20).map((h,i)=>`<div class="mcard riseIn" style="animation-delay:${i*24}ms" data-n="${E(h.n)}">
+      <span class="gi">${h.ico()}</span>
+      <span class="body"><span class="nm">${highlight(h.n,qs)}</span><span class="meta">${E(h.cat)}</span></span>
+      <span class="go" aria-label="Run">${I.check()}</span>
+    </div>`).join('');
+    cards.querySelectorAll('.mcard').forEach(el=>el.onclick=()=>location.href=MODULE);
+  }
+  q.oninput = render;
+  render();
+}
+
+/* ═══════════════════════════ V2 · executive instant answer ═══════════════════════════ */
+const EXEC_QA = [
+  { k:['missing patch','patched','patch'], a:'214', unit:'endpoints missing a critical patch', delta:-12, dir:'down', src:'Missing Patches', when:'2 hours ago' },
+  { k:['critical vulnerab','open vulnerab'], a:'19', unit:'critical vulnerabilities open right now', delta:22, dir:'up', src:'Vulnerable Systems', when:'1 hour ago' },
+  { k:['how many computer','manage','endpoints do we'], a:'936', unit:'endpoints under management', delta:1, dir:'up', src:'All Computers', when:'1 hour ago' },
+  { k:['schedule fail','delivery fail','report fail'], a:'1', unit:'of 1 scheduled deliveries is failing', delta:0, dir:'flat', src:'Schedule Reports', when:'today' },
+];
+function v2(){
+  return `<div class="page">
+    <div class="stage"><div class="stage-wash"></div>
+      <div class="kicker"><i></i>Ask, get a number</div>
+      <h1>What do you want to know?</h1>
+      <p class="lede">Skip the report. Ask a question in plain English and get the answer first — the report is one click away if you need to dig in.</p>
+      <div class="bigsearch">
+        <div class="bigsearch-in">${I.search()}
+          <input id="v2q" placeholder="e.g. “how many endpoints are missing patches”" autocomplete="off">
+          <button class="clr" id="v2clr" hidden>${I.x()}</button>
+        </div>
+      </div>
+      <div class="exec-suggest" id="v2sugg"></div>
+    </div>
+    <div id="v2out"></div>
+  </div>`;
+}
+function v2Wire(root){
+  const q=root.querySelector('#v2q'), clr=root.querySelector('#v2clr'), out=root.querySelector('#v2out');
+  root.querySelector('#v2sugg').innerHTML = EXEC_QA.map(qa=>`<button data-q="${E(qa.k[0])}">${E(qa.k[0])}</button>`).join('');
+  root.querySelectorAll('#v2sugg button').forEach(b=>b.onclick=()=>{q.value=b.dataset.q;render();});
+  function render(){
+    const raw=q.value, qs=raw.toLowerCase().trim();
+    clr.hidden=!raw;
+    if(!qs){ out.innerHTML=''; return; }
+    const hit = EXEC_QA.find(qa=>qa.k.some(k=>qs.includes(k)));
+    if(hit){
+      out.innerHTML = `<div class="answer-card riseIn">
+        <div class="answer-num num">${E(hit.a)}</div>
+        <div class="answer-unit">${E(hit.unit)}</div>
+        ${hit.dir!=='flat'?`<div class="answer-delta ${hit.dir==='up'?'up':'down'}">${hit.dir==='up'?I.up():I.down()} ${Math.abs(hit.delta)}% vs last week</div>`:''}
+        <div class="answer-src">${I.info()} From <b>${E(hit.src)}</b> · last run ${E(hit.when)}
+          <a class="btn ghost sm" href="${MODULE}">View full report</a></div>
+      </div>`;
+      return;
+    }
+    const hits = INDEX.filter(h=>(h.n+' '+h.cat).toLowerCase().includes(qs)).slice(0,4);
+    if(!hits.length){
+      out.innerHTML = `<div class="empty" style="max-width:560px;margin:26px auto 0"><div class="ic">${I.search()}</div>
+        <b>No direct answer for that yet</b><p>This search only answers a handful of questions today. Try one of the suggestions above, or open the full catalogue.</p>
+        <div class="row"><a class="btn ghost sm" href="reports-search-home.html">Search the full catalogue</a></div></div>`;
+      return;
+    }
+    out.innerHTML = `<div class="alt-h">Closest reports — no canned answer for this one</div>` +
+      hits.map(h=>`<div class="altrow riseIn"><span class="v">→</span><span class="t">${highlight(h.n,qs)}</span><span class="badge neu">${E(h.cat)}</span></div>`).join('');
+    out.querySelectorAll('.altrow').forEach(el=>el.onclick=()=>location.href=MODULE);
+  }
+  q.oninput = render;
+  clr.onclick = ()=>{q.value='';render();q.focus();};
+}
+
+/* ═══════════════════════════ V3 · IT ops / trend-first ═══════════════════════════ */
+const OPS = [
+  { n:'System Uptime Report', cat:'Uptime & performance', freshHrs:1, sched:'Daily · 06:00', sp:[301,304,309,312,315,318,320] },
+  { n:'Computers by Disk Usage Summary', cat:'Disk & storage', freshHrs:3, sched:'Weekly · Mon', sp:[62,64,65,67,70,74,79] },
+  { n:'Computers By Age', cat:'Hardware lifecycle', freshHrs:26, sched:'', sp:[936,936,935,934,934,933,933] },
+  { n:'Computers by Device Type', cat:'Hardware lifecycle', freshHrs:5, sched:'Weekly · Mon', sp:[820,824,829,831,835,840,845] },
+  { n:'Share Details', cat:'Disk & storage', freshHrs:50, sched:'', sp:[41,41,42,42,43,44,44] },
+  { n:'Soon to expire Warranty', cat:'Hardware lifecycle', freshHrs:12, sched:'Monthly · 1st', sp:[18,19,21,23,25,27,29] },
+  { n:'All Computers', cat:'Uptime & performance', freshHrs:1, sched:'Daily · 06:00', sp:[930,931,932,933,934,935,936] },
+];
+function v3(){
+  return `<div class="page">
+    <div class="stage"><div class="stage-wash"></div>
+      <div class="kicker"><i></i>Operational health</div>
+      <h1>Search with the trend built in</h1>
+      <p class="lede">Every result carries its own freshness and 7-run trend — so you can tell a healthy report from a stale one before you open it.</p>
+      <div class="bigsearch">
+        <div class="bigsearch-in">${I.search()}
+          <input id="v3q" placeholder="Search operational reports…" autocomplete="off">
+          <button class="clr" id="v3clr" hidden>${I.x()}</button>
+        </div>
+      </div>
+      <div class="facets" id="v3facets" style="justify-content:center;margin-top:16px"></div>
+    </div>
+    <div id="v3results"></div>
+  </div>`;
+}
+function v3Wire(root){
+  const CATS = ['All','Uptime & performance','Disk & storage','Hardware lifecycle'];
+  let active='All';
+  const q=root.querySelector('#v3q'), clr=root.querySelector('#v3clr');
+  const facetsEl=root.querySelector('#v3facets'), resEl=root.querySelector('#v3results');
+  function freshCls(h){ return h<6?'g':h<24?'a':'r'; }
+  function row(o,qs,i){
+    const cls = freshCls(o.freshHrs), color = cls==='g'?'var(--ok)':cls==='a'?'var(--warn)':'var(--err)';
+    return `<div class="oprow riseIn" style="animation-delay:${i*26}ms" data-n="${E(o.n)}">
+      <span class="fresh-dot ${cls}" title="${o.freshHrs<6?'Fresh':o.freshHrs<24?'Aging':'Stale'}"></span>
+      <span class="body"><span class="nm">${highlight(o.n,qs)}</span>
+        <span class="meta">${E(o.cat)} · ${o.freshHrs<1?'just now':o.freshHrs+'h ago'} ${o.sched?' · '+E(o.sched):' · <span style="color:var(--faint)">not scheduled</span>'}</span></span>
+      ${spark(o.sp,color)}
+      <a class="btn ghost sm" href="${MODULE}">Open</a>
+    </div>`;
+  }
+  function renderFacets(){
+    facetsEl.innerHTML = CATS.map(c=>`<button class="facet ${active===c?'on':''}" data-c="${E(c)}">${E(c)}</button>`).join('');
+    facetsEl.querySelectorAll('.facet').forEach(b=>b.onclick=()=>{active=b.dataset.c;render();});
+  }
+  function render(){
+    const raw=q.value, qs=raw.toLowerCase().trim();
+    clr.hidden=!raw;
+    renderFacets();
+    let hits = OPS.filter(o=>active==='All'||o.cat===active);
+    if(qs) hits = hits.filter(o=>(o.n+' '+o.cat).toLowerCase().includes(qs));
+    hits = [...hits].sort((a,b)=>a.freshHrs-b.freshHrs);
+    if(!hits.length){ resEl.innerHTML = `<div class="empty"><div class="ic">${I.disk()}</div><b>Nothing matches</b><p>Try a broader category or clear the search.</p></div>`; return; }
+    resEl.innerHTML = `<div style="font-size:13.5px;font-weight:700;margin-bottom:12px">${hits.length} operational report${hits.length===1?'':'s'} · freshest first</div>
+      <div class="hits">${hits.map((o,i)=>row(o,qs,i)).join('')}</div>`;
+    resEl.querySelectorAll('.oprow').forEach(el=>el.addEventListener('click',e=>{ if(!e.target.closest('a')) location.href=MODULE; }));
+  }
+  q.oninput = render;
+  clr.onclick=()=>{q.value='';render();q.focus();};
+  render();
+}
+
+/* ═══════════════════════════ V4 · finance / SAM ═══════════════════════════ */
+const FIN = [
+  { n:'License Compliance', cat:'Licensing', impact:48200, util:0.86, renew:null },
+  { n:'License to be Renewed', cat:'Licensing', impact:19500, util:null, renew:18 },
+  { n:'Soon to expire Warranty', cat:'Hardware lifecycle', impact:8200, util:null, renew:29 },
+  { n:'Expired Warranty', cat:'Hardware lifecycle', impact:14300, util:null, renew:-40 },
+  { n:'Prohibited Software', cat:'Compliance risk', impact:6100, util:null, renew:null },
+  { n:'Software Product Keys', cat:'Licensing', impact:0, util:null, renew:null },
+];
+const FIN_TOTAL = FIN.reduce((a,f)=>a+f.impact,0);
+function v4(){
+  return `<div class="page">
+    <div class="stage"><div class="stage-wash"></div>
+      <div class="kicker"><i></i>Cost-first search</div>
+      <h1>Search reports by dollar impact</h1>
+      <p class="lede">License, warranty and compliance-risk reports, ranked by what they cost you — not by name.</p>
+    </div>
+    <div class="exposure-strip">
+      <div>${I.dollar()}</div>
+      <div><div class="big num">$${FIN_TOTAL.toLocaleString('en-US')}</div><div class="lbl">total exposure across licensing, warranty and compliance risk this quarter</div></div>
+    </div>
+    <div class="bigsearch">
+      <div class="bigsearch-in">${I.search()}
+        <input id="v4q" placeholder="Search — try “license”, “warranty”, “renew”…" autocomplete="off">
+        <button class="clr" id="v4clr" hidden>${I.x()}</button>
+      </div>
+    </div>
+    <div class="facets" id="v4facets" style="justify-content:center;margin-top:16px"></div>
+    <div id="v4results" style="margin-top:20px"></div>
+  </div>`;
+}
+function v4Wire(root){
+  const CATS = ['All','Licensing','Hardware lifecycle','Compliance risk'];
+  let active='All', sortImpact=true;
+  const q=root.querySelector('#v4q'), clr=root.querySelector('#v4clr');
+  const facetsEl=root.querySelector('#v4facets'), resEl=root.querySelector('#v4results');
+  function renewBadge(f){
+    if(f.renew==null) return '';
+    if(f.renew<0) return `<span class="renew-badge late">${Math.abs(f.renew)}d overdue</span>`;
+    if(f.renew<=21) return `<span class="renew-badge soon">${f.renew}d left</span>`;
+    return `<span class="renew-badge ok">${f.renew}d left</span>`;
+  }
+  function row(f,qs,i){
+    return `<div class="finrow riseIn" style="animation-delay:${i*26}ms" data-n="${E(f.n)}">
+      <span class="gi" style="width:34px;height:34px;border-radius:9px;background:var(--surface-2);display:grid;place-items:center;color:var(--accent);border:1px solid var(--border);flex-shrink:0">${I.key()}</span>
+      <span class="body"><span class="nm">${highlight(f.n,qs)}</span><span class="meta">${E(f.cat)}</span>
+        ${f.util!=null?`<div class="util-wrap"><div class="util-bar"><i style="width:${f.util*100}%"></i></div><span class="util-pct">${Math.round(f.util*100)}% utilized</span></div>`:''}</span>
+      <span class="fin-side">
+        <span class="fin-amt num">${f.impact?'$'+f.impact.toLocaleString('en-US'):'—'}</span>
+        ${renewBadge(f)}
+      </span>
+    </div>`;
+  }
+  function renderFacets(){
+    facetsEl.innerHTML = CATS.map(c=>`<button class="facet ${active===c?'on':''}" data-c="${E(c)}">${E(c)}</button>`).join('') +
+      `<button class="facet" id="v4sort">${I.dollar()} Sort by $ impact</button>`;
+    facetsEl.querySelectorAll('.facet[data-c]').forEach(b=>b.onclick=()=>{active=b.dataset.c;render();});
+    root.querySelector('#v4sort').onclick = ()=>{sortImpact=!sortImpact;render();};
+  }
+  function render(){
+    const raw=q.value, qs=raw.toLowerCase().trim();
+    clr.hidden=!raw;
+    renderFacets();
+    let hits = FIN.filter(f=>active==='All'||f.cat===active);
+    if(qs) hits = hits.filter(f=>(f.n+' '+f.cat).toLowerCase().includes(qs));
+    hits = [...hits].sort((a,b)=> sortImpact ? b.impact-a.impact : a.n.localeCompare(b.n));
+    if(!hits.length){ resEl.innerHTML = `<div class="empty"><div class="ic">${I.card()}</div><b>Nothing matches</b><p>Try a broader category.</p></div>`; return; }
+    resEl.innerHTML = `<div style="font-size:13.5px;font-weight:700;margin-bottom:12px">${hits.length} report${hits.length===1?'':'s'} · $${hits.reduce((a,f)=>a+f.impact,0).toLocaleString('en-US')} of the total exposure</div>
+      <div class="hits">${hits.map((f,i)=>row(f,qs,i)).join('')}</div>`;
+    resEl.querySelectorAll('.finrow').forEach(el=>el.onclick=()=>location.href=MODULE);
+  }
+  q.oninput = render;
+  clr.onclick=()=>{q.value='';render();q.focus();};
+  render();
+}
+
+/* ═══════════════════════════ V5 · accessibility-first ═══════════════════════════ */
+function v5(){
+  return `<a class="skip" href="#v5results">Skip to search results</a>
+  <div class="page">
+    <div class="stage">
+      <div class="kicker"><i></i>Built for assistive technology</div>
+      <h1>Search all reports</h1>
+      <p class="lede">Every action is a labelled button, not a hover-only icon. Focus is always visible. Screen readers hear how many results were found.</p>
+      <div class="bigsearch" style="margin:0">
+        <label for="v5q" class="sr-only">Search reports</label>
+        <div class="bigsearch-in">${I.search()}
+          <input id="v5q" placeholder="Search reports by name or category" autocomplete="off">
+          <button class="clr" id="v5clr" hidden aria-label="Clear search">${I.x()}</button>
+        </div>
+      </div>
+      <div class="facets" id="v5facets" style="margin-top:14px"></div>
+    </div>
+    <div class="a11y-status" id="v5status" role="status" aria-live="polite">Showing all predefined reports.</div>
+    <div id="v5results" tabindex="-1"></div>
+  </div>`;
+}
+function v5Wire(root){
+  const CATS = ['All', ...Object.keys(CATALOG)];
+  let active='All';
+  const q=root.querySelector('#v5q'), clr=root.querySelector('#v5clr');
+  const facetsEl=root.querySelector('#v5facets'), resEl=root.querySelector('#v5results'), status=root.querySelector('#v5status');
+  function renderFacets(){
+    facetsEl.innerHTML = CATS.map(c=>`<button class="facet ${active===c?'on':''}" data-c="${E(c)}">${E(c)}</button>`).join('');
+    facetsEl.querySelectorAll('.facet').forEach(b=>b.onclick=()=>{active=b.dataset.c;render();b.focus();});
+  }
+  function row(h,qs){
+    return `<div class="hit" data-n="${E(h.n)}">
+      <span class="gi">${h.ico()}</span>
+      <span class="body"><span class="nm">${highlight(h.n,qs)}</span><span class="meta">${E(h.cat)}</span></span>
+      <span class="act"><a class="btn ghost sm" href="${MODULE}">Preview report</a><a class="btn acc sm" href="${MODULE}">Run report</a></span>
+    </div>`;
+  }
+  function render(){
+    const raw=q.value, qs=raw.toLowerCase().trim();
+    clr.hidden=!raw;
+    renderFacets();
+    let hits = INDEX.filter(h=>active==='All'||h.cat===active);
+    if(qs) hits = hits.filter(h=>(h.n+' '+h.cat).toLowerCase().includes(qs));
+    status.textContent = qs || active!=='All'
+      ? `${hits.length} result${hits.length===1?'':'s'} found${qs?` for "${raw.trim()}"`:''}${active!=='All'?` in ${active}`:''}.`
+      : `Showing all ${hits.length} predefined reports.`;
+    if(!hits.length){
+      resEl.innerHTML = `<div class="empty"><div class="ic">${I.search()}</div><b>No results found</b>
+        <p>Try a different search term, or choose "All" to clear the category filter.</p></div>`;
+      return;
+    }
+    resEl.innerHTML = `<div class="hits">${hits.slice(0,80).map(h=>row(h,qs)).join('')}</div>`;
+  }
+  q.oninput = render;
+  clr.onclick = ()=>{q.value='';render();q.focus();};
+  render();
+}
+
+/* ═════════ mount / switcher ═════════ */
+const VARIANTS = [
+  { k:'v1', t:'1 · Field technician',
+    who:'On-site technician on a phone, gloves on, connectivity spotty.',
+    fix:'Thumb-reach search bar, oversized tap targets, a voice-search button, and a visible "cached results" banner so a dropped connection doesn’t look like a broken app.',
+    off:'Deliberately shows far less per result than a desktop view — no metadata that doesn’t fit a 380px screen makes it in.' },
+  { k:'v2', t:'2 · Executive answer',
+    who:'Manager or executive who wants the number, not the report.',
+    fix:'Search returns a single big answer first — value, trend, source — with the underlying report one click away. Only falls back to a report list when there’s no canned answer.',
+    off:'Only a handful of questions have a real canned answer here; everything else quietly degrades to a plain list, which can feel inconsistent.' },
+  { k:'v3', t:'3 · Ops & trend',
+    who:'IT Operations — cares about freshness and trend, not just a name match.',
+    fix:'Every row carries a freshness dot, a 7-point sparkline and its schedule, sorted freshest-first — you can judge a report before opening it.',
+    off:'Trend and freshness data has to be computed and cached per report; this view assumes that pipeline exists.' },
+  { k:'v4', t:'4 · Finance / SAM',
+    who:'Finance or Software Asset Management — thinks in dollars, not report names.',
+    fix:'A running exposure total up top, results ranked by $ impact by default, with utilization bars and renewal countdowns inline.',
+    off:'Dollar figures and utilization are illustrative for this exploration — real ones need a costing model wired to license and warranty data.' },
+  { k:'v5', t:'5 · Accessibility-first',
+    who:'A user relying on a screen reader, keyboard-only input, or low vision.',
+    fix:'2px high-contrast borders, a skip link, always-visible labelled action buttons (no hover-only affordances), and a live region that announces result counts as you type.',
+    off:'The larger type and always-visible actions cost density — this view fits roughly half as many results per screen as the others.' },
+];
+document.getElementById('vtabs').innerHTML = VARIANTS.map((v,i)=>`<button data-v="${v.k}" class="${i===0?'on':''}">${v.t}</button>`).join('');
+document.getElementById('views').innerHTML = VARIANTS.map((v,i)=>`<div class="view ${i===0?'on':''}" id="view-${v.k}"></div>`).join('');
+
+const ACCENT = {v1:'#ea580c', v2:'#4338ca', v3:'#0891b2', v4:'#059669', v5:'#1d4ed8'};
+const BUILD = {v1,v2,v3,v4,v5};
+const WIRE = {v1:v1Wire,v2:v2Wire,v3:v3Wire,v4:v4Wire,v5:v5Wire};
+const built = {};
+function show(k){
+  VARIANTS.forEach(v=>document.getElementById('view-'+v.k).classList.toggle('on', v.k===k));
+  document.querySelectorAll('#vtabs button').forEach(b=>b.classList.toggle('on', b.dataset.v===k));
+  document.documentElement.style.setProperty('--tabaccent', ACCENT[k]);
+  const v = VARIANTS.find(x=>x.k===k);
+  document.getElementById('why').innerHTML = `<div class="fix"><b>Built for</b>${v.who} ${v.fix}</div><div><b>Trade-off</b>${v.off}</div>`;
+  if(!built[k]){
+    const root = document.getElementById('view-'+k);
+    root.innerHTML = BUILD[k]();
+    WIRE[k](root);
+    built[k] = true;
+  }
+}
+document.getElementById('vtabs').addEventListener('click', e=>{ const b=e.target.closest('button'); if(b) show(b.dataset.v); });
+show('v1');
+</script>

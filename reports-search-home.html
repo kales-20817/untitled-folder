@@ -1,0 +1,527 @@
+<meta charset="utf-8">
+<title>Search reports · Endpoint Central</title>
+<style>
+  :root {
+    --violet:#2563eb; --violet-hov:#1d4ed8; --violet-soft:rgba(37,99,235,.08);
+    --surface:#fff; --surface-2:#f4f6fb; --page:#f7f9fc;
+    --border:rgba(37,99,235,.13); --border-soft:rgba(37,99,235,.07);
+    --text:#15181e; --muted:#64748b; --faint:#94a3b8;
+    --ok:#16a34a; --ok-bg:rgba(34,197,94,.12);
+    --warn:#a16207; --warn-bg:rgba(234,179,8,.13); --warn-line:rgba(234,179,8,.4);
+    --err:#dc2626; --err-bg:rgba(239,68,68,.10); --err-line:rgba(239,68,68,.3);
+    --shadow:0 2px 12px rgba(37,99,235,.06); --pop:0 10px 34px rgba(16,25,42,.14);
+    --r:12px; --font:'Zoho Puvi',ui-sans-serif,system-ui,'Segoe UI',Roboto,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+    --violet:#3b82f6; --violet-hov:#60a5fa; --violet-soft:rgba(59,130,246,.14);
+    --surface:#12131a; --surface-2:#1a1c25; --page:#0a0a0c;
+    --border:rgba(255,255,255,.10); --border-soft:rgba(255,255,255,.06);
+    --text:rgba(255,255,255,.92); --muted:rgba(255,255,255,.50); --faint:rgba(255,255,255,.34);
+    --ok:#22c55e; --ok-bg:rgba(34,197,94,.15);
+    --warn:#eab308; --warn-bg:rgba(234,179,8,.13); --warn-line:rgba(234,179,8,.32);
+    --err:#f87171; --err-bg:rgba(239,68,68,.12); --err-line:rgba(239,68,68,.30);
+    --shadow:none; --pop:0 10px 34px rgba(0,0,0,.55);
+  }}
+  :root[data-theme="dark"]{
+    --violet:#3b82f6; --violet-hov:#60a5fa; --violet-soft:rgba(59,130,246,.14);
+    --surface:#12131a; --surface-2:#1a1c25; --page:#0a0a0c;
+    --border:rgba(255,255,255,.10); --border-soft:rgba(255,255,255,.06);
+    --text:rgba(255,255,255,.92); --muted:rgba(255,255,255,.50); --faint:rgba(255,255,255,.34);
+    --ok:#22c55e; --ok-bg:rgba(34,197,94,.15);
+    --warn:#eab308; --warn-bg:rgba(234,179,8,.13); --warn-line:rgba(234,179,8,.32);
+    --err:#f87171; --err-bg:rgba(239,68,68,.12); --err-line:rgba(239,68,68,.30);
+    --shadow:none; --pop:0 10px 34px rgba(0,0,0,.55);
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--page);color:var(--text);font:14px/1.5 var(--font);-webkit-font-smoothing:antialiased}
+  button,input{font-family:inherit}
+  a{color:inherit}
+  :focus-visible{outline:2px solid var(--violet);outline-offset:2px;border-radius:6px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+  .chrome{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:14px;padding:9px 20px;
+          background:var(--surface);border-bottom:1px solid var(--border)}
+  .brand{font-weight:700;font-size:13px} .brand span{color:var(--muted);font-weight:500}
+  .tabs{display:flex;gap:2px;background:var(--surface-2);padding:3px;border-radius:9px}
+  .tabs a{padding:6px 14px;border-radius:7px;text-decoration:none;font:600 13px var(--font);color:var(--muted)}
+  .tabs a.on{background:var(--surface);color:var(--violet);box-shadow:var(--shadow)}
+  .sp{flex:1}
+
+  .btn{padding:8px 15px;border-radius:8px;font:600 13.5px/1 var(--font);cursor:pointer;
+       display:inline-flex;align-items:center;gap:7px;border:1px solid transparent;text-decoration:none;transition:.15s;white-space:nowrap}
+  .btn.primary{background:var(--violet);color:#fff} .btn.primary:hover{background:var(--violet-hov)}
+  .btn.ghost{background:var(--surface);color:var(--text);border-color:var(--border)}
+  .btn.ghost:hover{background:var(--surface-2);border-color:var(--violet)}
+  .btn.sm{padding:6px 11px;font-size:12.5px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow)}
+
+  .page{max-width:960px;margin:0 auto;padding:40px clamp(14px,3vw,30px) 80px}
+
+  /* ══ search stage — the entire point of this page ══ */
+  .stage{text-align:center;margin-bottom:30px}
+  .stage .eyebrow{font-size:11.5px;font-weight:700;color:var(--violet);text-transform:uppercase;
+                   letter-spacing:.08em;margin:0 0 9px}
+  .stage h1{font-size:28px;font-weight:700;letter-spacing:-.02em;margin:0 0 8px;text-wrap:balance}
+  .stage .lede{font-size:14.5px;color:var(--muted);margin:0 auto;max-width:56ch}
+
+  .bigsearch{position:relative;max-width:680px;margin:22px auto 0}
+  .bigsearch-in{display:flex;align-items:center;gap:12px;padding:16px 19px;background:var(--surface);
+           border:1.5px solid var(--border);border-radius:14px;box-shadow:var(--shadow);transition:.15s}
+  .bigsearch-in:focus-within{border-color:var(--violet);box-shadow:0 0 0 5px var(--violet-soft)}
+  .bigsearch-in svg{color:var(--muted);flex-shrink:0}
+  .bigsearch-in input{flex:1;min-width:0;border:none;background:none;outline:none;color:var(--text);font-size:16.5px}
+  .bigsearch-in input::placeholder{color:var(--faint)}
+  .clr{background:none;border:none;color:var(--faint);cursor:pointer;padding:3px;border-radius:6px;line-height:0;flex-shrink:0}
+  .clr:hover{color:var(--text);background:var(--surface-2)}
+  .kbd{font:600 11.5px var(--font);color:var(--muted);background:var(--surface-2);
+       border:1px solid var(--border);border-radius:5px;padding:2.5px 7px;flex-shrink:0}
+
+  .facets{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-top:15px}
+  .facet{padding:6px 13px;border-radius:999px;border:1px solid var(--border);background:var(--surface);
+         color:var(--muted);font:600 12.5px var(--font);cursor:pointer;transition:.13s;display:inline-flex;
+         align-items:center;gap:6px;white-space:nowrap}
+  .facet:hover{border-color:var(--violet);color:var(--text)}
+  .facet.on{background:var(--violet);border-color:var(--violet);color:#fff}
+  .facet b{font-weight:700;opacity:.75;font-size:11.5px}
+  .facet.on b{opacity:.85}
+
+  /* ══ results ══ */
+  .summary{display:flex;align-items:baseline;gap:9px;margin-bottom:13px;flex-wrap:wrap}
+  .summary h2{font-size:14.5px;font-weight:700;margin:0}
+  .summary span{font-size:12.5px;color:var(--muted)}
+
+  .hitgroup{margin-bottom:20px}
+  .hitgroup h3{display:flex;align-items:center;gap:9px;font-size:11.5px;font-weight:700;color:var(--faint);
+               text-transform:uppercase;letter-spacing:.06em;margin:0 0 8px}
+  .hitgroup h3 span{font-weight:600;color:var(--muted);text-transform:none;letter-spacing:0;font-size:12px}
+  .hits{border:1px solid var(--border);border-radius:var(--r);background:var(--surface);box-shadow:var(--shadow);overflow:hidden}
+  .hit{display:flex;align-items:center;gap:13px;padding:12px 15px;text-decoration:none;color:var(--text);cursor:pointer;
+       border-bottom:1px solid var(--border-soft);transition:.12s}
+  .hit:last-child{border-bottom:none}
+  .hit:hover,.hit.cur{background:var(--violet-soft)}
+  .hit .gi{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;flex-shrink:0;
+           background:var(--surface-2);color:var(--muted);border:1px solid var(--border)}
+  .hit:hover .gi,.hit.cur .gi{background:var(--surface);color:var(--violet);border-color:var(--violet)}
+  .hit .body{flex:1;min-width:0}
+  .hit .nm{font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .hit .nm mark{background:none;color:var(--violet);font-weight:700}
+  .hit .meta{font-size:12px;color:var(--muted);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .hit .side{flex-shrink:0;display:flex;align-items:center;gap:8px}
+  .hit .act{display:none;gap:6px}
+  .hit:hover .act,.hit.cur .act{display:flex}
+
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:1px 8px;border-radius:999px;font-size:11.5px;font-weight:600;flex-shrink:0}
+  .badge .dot{width:5px;height:5px;border-radius:50%;background:currentColor}
+  .badge.ok{background:var(--ok-bg);color:var(--ok)}
+  .badge.bad{background:rgba(239,68,68,.14);color:var(--err)}
+  .badge.warn{background:var(--warn-bg);color:var(--warn)}
+  .badge.neu{background:var(--surface-2);color:var(--muted);border:1px solid var(--border)}
+
+  .empty{padding:44px 20px;text-align:center;border:1px dashed var(--border);border-radius:var(--r);color:var(--muted)}
+  .empty b{display:block;color:var(--text);font-size:14.5px;margin-bottom:6px}
+  .empty p{margin:0 0 14px;font-size:13px;max-width:44ch;margin-inline:auto}
+  .empty .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+
+  /* ══ discovery (empty-query) view ══ */
+  .disc-sec{margin-bottom:28px}
+  .disc-h{display:flex;align-items:baseline;gap:9px;margin-bottom:11px}
+  .disc-h h2{font-size:13.5px;font-weight:700;margin:0}
+  .disc-h .sp{flex:1}
+
+  .pills{display:flex;gap:8px;flex-wrap:wrap}
+  .pill{padding:6px 13px;border-radius:999px;border:1px solid var(--border);background:var(--surface);
+        color:var(--text);font:500 12.5px var(--font);cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+  .pill:hover{border-color:var(--violet);background:var(--violet-soft)}
+  .pill svg{color:var(--faint);flex-shrink:0}
+
+  .poplist{border:1px solid var(--border);border-radius:var(--r);background:var(--surface);box-shadow:var(--shadow);overflow:hidden}
+  .poprow{display:flex;align-items:center;gap:13px;padding:11px 15px;border-bottom:1px solid var(--border-soft);
+          text-decoration:none;color:var(--text)}
+  .poprow:last-child{border-bottom:none}
+  .poprow:hover{background:var(--violet-soft)}
+  .poprow .rank{width:20px;text-align:center;font:700 12.5px var(--font);color:var(--faint);flex-shrink:0}
+  .poprow .gi{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;flex-shrink:0;
+              background:var(--surface-2);color:var(--muted);border:1px solid var(--border)}
+  .poprow .body{flex:1;min-width:0}
+  .poprow .nm{font-size:13.5px;font-weight:600}
+  .poprow .meta{font-size:12px;color:var(--muted);margin-top:1px}
+  .poprow .runs{font-size:12px;color:var(--muted);flex-shrink:0;font-variant-numeric:tabular-nums}
+
+  .cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:9px}
+  .cat{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:10px;background:var(--surface);
+       border:1px solid var(--border);text-decoration:none;transition:.15s;cursor:pointer}
+  .cat:hover{border-color:var(--violet);background:var(--violet-soft)}
+  .cat .gi{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;
+           background:var(--surface-2);color:var(--muted);flex-shrink:0;transition:.15s}
+  .cat:hover .gi{background:var(--surface);color:var(--violet)}
+  .cat .nm{font-weight:600;font-size:13px;line-height:1.25}
+  .cat .n{font-size:11.5px;color:var(--muted);margin-top:1px}
+
+  .note{display:flex;gap:9px;align-items:flex-start;padding:12px 14px;border-radius:10px;
+        background:var(--surface-2);border:1px solid var(--border);font-size:12.5px;color:var(--muted);margin-top:30px}
+  .note svg{flex-shrink:0;margin-top:1px}
+  .note b{color:var(--text)}
+</style>
+
+<div class="chrome">
+  <div class="brand">Report module <span>· revamp</span></div>
+  <div class="tabs">
+    <a href="reports-home.html">Home</a>
+    <a class="on" href="#">Search</a>
+    <a href="reports-module-revamp.html">List</a>
+    <a href="reports-module-revamp.html">Viewer</a>
+    <a href="reports-custom-revamp.html">Builder</a>
+    <a href="reports-dashboard.html">Dashboard</a>
+  </div>
+  <div class="sp"></div>
+  <button class="btn ghost sm" id="theme" title="Toggle theme" aria-label="Toggle theme">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+</div>
+
+<div class="page">
+
+  <div class="stage">
+    <div class="eyebrow">Reports</div>
+    <h1>Find any report, dashboard or schedule</h1>
+    <p class="lede">One search across predefined reports, custom reports, saved queries and delivery schedules — no need to know which module it lives in.</p>
+
+    <div class="bigsearch">
+      <div class="bigsearch-in">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="q" placeholder="Search 261 predefined reports, 37 custom reports, 56 queries…" autocomplete="off" aria-label="Search reports" autofocus>
+        <button class="clr" id="clr" hidden aria-label="Clear search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+        <span class="kbd">/</span>
+      </div>
+    </div>
+
+    <div class="facets" id="facets"></div>
+  </div>
+
+  <div id="results"></div>
+
+  <div class="note">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+    <div>Counts are live from the server — <code>/emsapi/reports/scheduleReports/predefinedReports</code> returns <b>267 predefined reports</b>; six are the same report listed under both a Summary and a Detailed view, so <b>261 unique reports</b> are indexed here. <b>37 custom reports</b> and <b>0 custom dashboards</b> come from <code>/dcapi/reports/customReports</code>, alongside <b>56 query reports</b> and <b>1 schedule</b> due tomorrow. Custom and query reports are indexed by name as they're modified, so a handful of recently-touched ones are searchable today; the rest join the index as they're opened.</div>
+  </div>
+</div>
+
+<script>
+const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const MODULE = 'reports-module-revamp.html';
+
+/* ═══ icon set (shared with the rest of this exploration) ═══ */
+const I = {
+  cal:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
+  grid:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>',
+  dash:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>',
+  code:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></svg>',
+  user:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
+  pc:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>',
+  grp:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2 20a7 7 0 0 1 14 0"/><path d="M17 5.2a3.5 3.5 0 0 1 0 5.6M19 20a6 6 0 0 0-3-5.2"/></svg>',
+  tree:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="5" rx="1"/><rect x="2" y="17" width="6" height="5" rx="1"/><rect x="16" y="17" width="6" height="5" rx="1"/><path d="M12 7v5M5 17v-3h14v3"/></svg>',
+  globe:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/></svg>',
+  shield:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 6v6c0 5 3.4 9.4 8 10 4.6-.6 8-5 8-10V6z"/></svg>',
+  login:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>',
+  power:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v10M18.4 6.6a9 9 0 1 1-12.8 0"/></svg>',
+  gear:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/></svg>',
+  patch:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 6v6c0 5 3.4 9.4 8 10 4.6-.6 8-5 8-10V6z"/><path d="m9 12 2 2 4-4"/></svg>',
+  portal:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="16" rx="2"/><path d="M2 8h20M6 13h6"/></svg>',
+  box:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>',
+  web:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 9h20M6 6.5h.01M9 6.5h.01"/></svg>',
+  usb:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="20" r="2"/><path d="M12 18V7M9 10 12 7l3 3M8 14h8"/></svg>',
+  lock:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></svg>',
+  bug:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="6" width="8" height="13" rx="4"/><path d="M8 11H4M20 11h-4M8 16H4M20 16h-4M9 6 7.5 3.5M15 6l1.5-2.5"/></svg>',
+  app:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
+  spark:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></svg>',
+  phone:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 19h2"/></svg>',
+  tag:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h8l10 10-8 8L3 11z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>',
+  clock:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 7v5l3 2"/></svg>',
+  trend:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8"/><path d="M17 7h4v4"/></svg>',
+};
+
+/* ═══ the real predefined catalogue — 266 reports, verified live on
+   the demo server (Reports ▸ Active Directory / Other Reports) ═══ */
+const CATALOG = {
+'User Reports':['All User Accounts','Recently Created User Accounts','Recently Modified User Accounts','User Accounts without Logon Scripts','User Accounts in Multiple Groups','User Accounts that Never Expires','Active User Accounts','Inactive User Accounts','Disabled User Accounts','Expired / Not Expired User Accounts','Soon-to-Expire User Passwords','Password Expired User Accounts','Password Never Expiring Users','User Accounts Password that cannot be Changed','Domain Admin User Accounts','User Accounts with Dial-in Permissions','Unused User Accounts','Recently Logged On User Accounts','Last Logon Failed User Accounts'],
+'Computer Reports':['All Computers','Windows Workstation','Recently Added Computers','Recently Logged On Computers','Recently Modified Computer Accounts','Disabled Computer Accounts','Computer Accounts by OU','Windows Servers','Member Servers','Domain Controllers','Computers by OS & Service Pack'],
+'Group Reports':['All Groups','Recently Created Group','Recently Modified Group','Groups by OU','Security Groups','Distribution Groups','Nested Groups','Groups with Member Details','Groups with Maximum Members','Groups without Members','User-only Groups','Computer-only Groups'],
+'OU Reports':['All OUs','Recently Created OUs','Recently Modified OUs','OUs with Children Details','OUs without Children','User-only OUs','Computer-only OUs','Nested OUs'],
+'Domain Reports':['Active Directory Sites','Active Directory Domains','Active Directory Printers','Group Policy Creator Owners','Users In "Users" Container','Groups In "Users" Container','Computers In "Computer" Container','Groups In "Builtin" Container'],
+'GPO Reports':['All GPOs','Recently Created GPOs','Recently Modified GPOs','GPOs by OUs','GPOs Linked To OUs','GPOs Linked To Domains','GPOs Linked To Sites','Block Inheritance enabled OUs','Block Inheritance enabled Domains','Enforced GPOs','User Settings Enabled GPOs','Computer Settings Enabled GPOs','User and Computer Settings Enabled GPOs','Disabled GPOs','Unused GPOs','GPOs with Most Modified User Settings','GPOs with Most Modified Computer Settings','GPOs with Most Modified User and Computer Settings'],
+'User Logon Reports':['Currently Logged on Users','Currently Logged on Computers','User Logon History','User Logon History by Computers','User Logon History on Domain Controller','Domain Controllers with Reported Users','Computers with No User Logon'],
+'Power Management Reports':['System Uptime Report'],
+'Threats & Patches Reports':['Missing Patches','Installed Patches','Applicable Patches','Detailed Patch Summary','Managed Systems','Declined Applications','Declined Families','Declined Patches','Patch Download Report','Scan Report','Missing patches awaiting approval','Systems requiring reboot','Remote Office Patch Summary','System Compliance Report','Remote Office Compliance Report','Latest Patches','Highly Vulnerable Systems','Vulnerable Systems','Healthy Systems','System Health Report','Systems with APD tasks','Systems without APD tasks','Patch SSP Reports - Patches yet to be Installed','Patch SSP Reports - Patch Deployment list','BIOS Mapping Status','Patch SSP Reports - Detailed View','Patch Compliance Report','Patch Deployment Failed Systems','Systems with High Risk Software','Systems with No Agent Contact','Security Configurations Failed Systems','Systems with Misconfigured Antivirus Software','Deployed Security Configurations','Failed Software Uninstallation','Vulnerabilities','Zero Day Vulnerability Report','System Misconfigurations','Peer to peer Software','Remote Desktop Sharing Software','End of Life Software','Web Server Misconfiguration','Port Audit','Vulnerabilities No Fixes Report','Detected CVE Summary','Systems Affected by Vulnerabilities','Systems Affected by Misconfigurations','Web Servers Affected by Misconfigurations','Systems Affected by Zero-day Vulnerabilities','Security Configurations Summary','Software Uninstallation Summary','Failed Security Configurations','Excluded Misconfiguration','Zero-day Vulnerabilities','End of life software','Peer to peer software','Web Server Misconfigurations'],
+'Inventory Reports':['Computers by OS','Computers By Manufacturer','Computers By Memory','Computers by Disk Usage Summary','Computers by Disk Usage Detail Report','Computers By Age','Computers by Device Type','Mapped Logical Disks','Software by Manufacturer','All Installed Software','Software By Audit Action','Prohibited Software','Software Product Keys','Computers with/without a specific Software','User Specific Software','Mac devices vulnerable to Catalina upgrade','Software Metering rules summary','Computers with metered software','Users with metered software','AD Computers with local user accounts','Computers with disabled user accounts','Computers with user accounts having no password','Computers with default Guest Account enabled','Computers with default Administrator Account enabled','Computers with user account having non changeable password','License Compliance','License to be Renewed','System Group Users','Computers By Services','Share Details','Soon to expire Warranty','Expired Warranty','Un-identified Computers','Unmanaged Computers','Antivirus Details','TPM Details','TPM Avaliability Status Report','Bitlocker Details','FileVault Details','Disk Encryption','Firewall Details','File Details by Category','File Details by Extension','Expired certificates','Soon to expire certificates','Small Key Length certificates','Weak Algorithm certificates','Computers with/without a certificate','Windows 11 Incompatible devices','Windows 11 Compatible devices'],
+'USB Reports':['USB Usage Report'],
+'MDM Reports':['App Installation summary','Devices with/without Specific App','Blocklisted Apps Summary','Devices with Blocklisted Apps','New App detected','Apps by Devices','Apps By Licenses','App Feedback Summary','Data Usage by Devices','App Installation summary - Device-Specific Report','Devices by Model','Device SIM details','Devices by Enrollment Time','Inactive Devices','Shared Devices','Rooted Devices','Devices by Storage Encryption','Jail Broken Devices','Devices backed up in Cloud','Device Attestation','Device Battery History','Devices by MTD Threat Levels','Devices by Passcode Type','Devices by Lost Mode Status','Recent Locations','Geo-Tracking Status','Data Usage by devices','Data Usage by groups','Updates by OS Update','Device by OS Update','Network performance report','Filevault Encryption Report','Activation Lock Report'],
+'Application Control Reports':['Managed Systems','Discovered Products','Discovered Unverified Executables','Discovered Store Applications','Discovered Child Process','Unmanaged Products','Unmanaged Executables','Unmanaged Store Applications','Blocklisted Application Access','Blocklisted Store Applications Access','Applications Elevated with Reason','Applications running with Administrator Privileges'],
+'Device Control Reports':['Computer with device exemptions','Computer with device type exemptions','File Tracing','File Shadowing','Device Audit','Device Summary','Unauthorized Devices'],
+'BitLocker Reports':['Managed Systems','BitLocker Reports','TPM Reports'],
+'Browser Reports':['Recently installed potentially harmful extensions','Recently installed unauthroized plugins or ActiveX','Compliance report'],
+'DLP Reports':['Justification Summary','Enterprise Perimeter False Positives','Data Rules False Positives','Endpoint Activity Report'],
+'Malware Protection Reports':['Devices Report','Incidents Report','Alerts Report','Device Not Scanned (7days)'],
+'Custom Groups Reports':['Computers by Custom Groups','Computer Static Unique Group Membership','Users by Custom Groups','Static Unique Groups and Assigned Technicians'],
+};
+const ICO_FOR_CAT = {
+  'User Reports':I.user,'Computer Reports':I.pc,'Group Reports':I.grp,'OU Reports':I.tree,'Domain Reports':I.globe,'GPO Reports':I.shield,
+  'User Logon Reports':I.login,'Power Management Reports':I.power,'Threats & Patches Reports':I.patch,'Inventory Reports':I.box,
+  'USB Reports':I.usb,'MDM Reports':I.phone,'Application Control Reports':I.app,'Device Control Reports':I.usb,'BitLocker Reports':I.lock,
+  'Browser Reports':I.web,'DLP Reports':I.lock,'Malware Protection Reports':I.bug,'Custom Groups Reports':I.tag,
+};
+const PREDEF_TOTAL = Object.values(CATALOG).reduce((a,v)=>a+v.length,0);
+
+/* ═══ custom reports — real names/types/status pulled from the live
+   Custom Reports list (37 total; these are the 11 most recently
+   modified, which is what's indexed today) ═══ */
+const CUSTOM = [
+  { n:'Count of Computers by Custom Group', type:'Funnel', status:'ok',  when:'Nov 25, 2025' },
+  { n:'Computer and its Total Co2 Emission', type:'Pie',   status:'bad', when:'Nov 25, 2025' },
+  { n:'Count of Computers by its Location',  type:'Pie',   status:'ok',  when:'Nov 25, 2025' },
+  { n:'Count of Computer by Operating System', type:'Pie', status:'ok',  when:'Nov 25, 2025' },
+  { n:'Count of Software based on Computer', type:'Pie',   status:'ok',  when:'Sep 10, 2025' },
+  { n:'Agent Live Status',                   type:'Bar',   status:'ok',  when:'Nov 25, 2025' },
+  { n:'Computer count by Hardware Manufacturer Contribution', type:'Bar', status:'ok', when:'Nov 25, 2025' },
+  { n:'Total Power Consumption by each computer', type:'Bar', status:'bad', when:'Nov 25, 2025' },
+  { n:'Count of computers by Manufacturer',  type:'Bar',   status:'ok',  when:'Nov 25, 2025' },
+  { n:'Monitor Report',                      type:'Table', status:'ok',  when:'Jan 29, 2021' },
+  { n:'Visio',                                type:'Table', status:'ok',  when:'Apr 25, 2024' },
+];
+const CUSTOM_TOTAL = 37;
+
+/* ═══ query reports — 56 total on the server; the ones below are
+   illustrative of what a saved query looks like, not literal scrapes
+   (the real 56 are ad-hoc scratch queries, not presentable by name) ═══ */
+const QUERY = [
+  { n:'Endpoints missing critical patches (30d)', rows:214, when:'2 days ago' },
+  { n:'License seats by department',              rows:38,  when:'6 days ago' },
+  { n:'BitLocker status by OU',                    rows:120, when:'2 weeks ago' },
+  { n:'USB device usage — last 7 days',            rows:19,  when:'3 weeks ago' },
+  { n:'Domain admin accounts with stale passwords', rows:6,  when:'1 month ago' },
+];
+const QUERY_TOTAL = 56;
+
+/* ═══ schedules — 1 real, live ═══ */
+const SCHEDULE = [
+  { n:'Inventory report', freq:'Daily', to:'dcsupport@zoho.com', next:'Tomorrow, 12:00 AM', bad:true },
+];
+
+/* ═══ dashboards — genuinely zero on this tenant; real empty-state copy ═══ */
+const DASHBOARD_TOTAL = 0;
+
+/* ── build the flat search index ── */
+const INDEX = [];
+Object.entries(CATALOG).forEach(([cat, list]) => list.forEach(n =>
+  INDEX.push({ n, cat, kind:'predefined', ico:ICO_FOR_CAT[cat]||I.grid })));
+CUSTOM.forEach(r => INDEX.push({ n:r.n, cat:`Custom Reports · ${r.type}`, kind:'custom', ico:I.grid, status:r.status, when:r.when }));
+QUERY.forEach(r => INDEX.push({ n:r.n, cat:`Query Reports · ${r.rows} rows`, kind:'query', ico:I.code, when:r.when }));
+SCHEDULE.forEach(r => INDEX.push({ n:r.n, cat:`Schedule · ${r.freq} → ${r.to}`, kind:'schedule', ico:I.cal, bad:r.bad, next:r.next }));
+
+const FACETS = [
+  { k:'all',        l:'All',                n:PREDEF_TOTAL+CUSTOM_TOTAL+QUERY_TOTAL+SCHEDULE.length+DASHBOARD_TOTAL },
+  { k:'predefined',  l:'Predefined',         n:PREDEF_TOTAL },
+  { k:'custom',      l:'Custom reports',     n:CUSTOM_TOTAL },
+  { k:'query',       l:'Query reports',      n:QUERY_TOTAL },
+  { k:'schedule',    l:'Schedules',          n:SCHEDULE.length },
+  { k:'dashboard',   l:'Dashboards',         n:DASHBOARD_TOTAL },
+];
+const KIND_LABEL = { predefined:'Predefined reports', custom:'Custom reports', query:'Query reports', schedule:'Schedules', dashboard:'Custom dashboards' };
+const KIND_ORDER = ['predefined','custom','query','schedule','dashboard'];
+
+let activeFacet = 'all';
+let cur = -1; // keyboard cursor over flattened, currently-rendered hits
+
+function renderFacets(matchCounts){
+  document.getElementById('facets').innerHTML = FACETS.map(f => {
+    const n = matchCounts ? (matchCounts[f.k] ?? 0) : f.n;
+    return `<button class="facet ${activeFacet===f.k?'on':''}" data-k="${f.k}">${esc(f.l)} <b>${n}</b></button>`;
+  }).join('');
+  document.querySelectorAll('.facet').forEach(b => b.onclick = () => {
+    activeFacet = b.dataset.k; render();
+  });
+}
+
+function highlight(name, q){
+  if(!q) return esc(name);
+  const i = name.toLowerCase().indexOf(q);
+  if(i<0) return esc(name);
+  return esc(name.slice(0,i)) + '<mark>' + esc(name.slice(i,i+q.length)) + '</mark>' + esc(name.slice(i+q.length));
+}
+
+function hitRow(h, q){
+  const badge = h.kind==='custom'
+      ? (h.status==='ok' ? '<span class="badge ok"><span class="dot"></span>Active</span>' : '<span class="badge bad"><span class="dot"></span>Error</span>')
+    : h.kind==='schedule'
+      ? (h.bad ? '<span class="badge bad"><span class="dot"></span>Delivery failing</span>' : '<span class="badge ok"><span class="dot"></span>Scheduled</span>')
+    : h.kind==='query'
+      ? `<span class="badge neu">${esc(h.when)}</span>`
+      : '';
+  const actions = h.kind==='predefined'
+    ? `<div class="act"><a class="btn ghost sm" href="${MODULE}">Preview</a><a class="btn primary sm" href="${MODULE}">Run</a></div>`
+    : `<div class="act"><a class="btn ghost sm" href="${MODULE}">Open</a></div>`;
+  return `<div class="hit" data-kind="${h.kind}">
+    <span class="gi">${h.ico}</span>
+    <span class="body">
+      <span class="nm">${highlight(h.n, q)}</span>
+      <span class="meta">${esc(h.cat)}</span>
+    </span>
+    <span class="side">${badge}${actions}</span>
+  </div>`;
+}
+
+function emptyStateFor(kind, q){
+  if(kind==='dashboard'){
+    return `<div class="empty">
+      <b>No dashboards yet</b>
+      <p>Build a custom dashboard by adding reports from computers, hardware, software, and custom data. Gain unified visibility of your organization from a single console.</p>
+      <div class="row"><a class="btn primary sm" href="${MODULE}">Create dashboard</a></div>
+    </div>`;
+  }
+  return `<div class="empty">
+    <b>No reports match “${esc(q)}”</b>
+    <p>Try a different term, or turn this search into something new.</p>
+    <div class="row">
+      <a class="btn ghost sm" href="reports-custom-revamp.html">Build a custom report</a>
+      <a class="btn primary sm" href="reports-custom-revamp.html">Create a query report</a>
+    </div>
+  </div>`;
+}
+
+function renderDiscovery(){
+  document.getElementById('results').innerHTML = `
+    <div class="disc-sec">
+      <div class="disc-h"><h2>Recent searches</h2></div>
+      <div class="pills" id="recentPills"></div>
+    </div>
+    <div class="disc-sec">
+      <div class="disc-h"><h2>Popular this week</h2><div class="sp"></div><span style="font-size:12px;color:var(--muted)">By run count</span></div>
+      <div class="poplist" id="popular"></div>
+    </div>
+    <div class="disc-sec">
+      <div class="disc-h"><h2>Browse by category</h2><div class="sp"></div><span style="font-size:12px;color:var(--muted)">${PREDEF_TOTAL} predefined reports</span></div>
+      <div class="cgrid" id="catgrid"></div>
+    </div>`;
+
+  const RECENT_Q = ['bitlocker','missing patches','logon','usb','co2 emission'];
+  document.getElementById('recentPills').innerHTML = RECENT_Q.map(t => `
+    <button class="pill" data-q="${esc(t)}">${I.clock}${esc(t)}</button>`).join('');
+  document.querySelectorAll('.pill').forEach(b => b.onclick = () => { setQuery(b.dataset.q); });
+
+  const POPULAR = [
+    { n:'Missing Patches', cat:'Threats & Patches Reports', runs:142 },
+    { n:'All Computers', cat:'Computer Reports', runs:98 },
+    { n:'License Compliance', cat:'Inventory Reports', runs:76 },
+    { n:'Bitlocker Details', cat:'Inventory Reports', runs:54 },
+    { n:'Currently Logged on Users', cat:'User Logon Reports', runs:41 },
+  ];
+  document.getElementById('popular').innerHTML = POPULAR.map((p,i) => `
+    <a class="poprow" href="${MODULE}">
+      <span class="rank">${i+1}</span>
+      <span class="gi">${ICO_FOR_CAT[p.cat]||I.grid}</span>
+      <span class="body"><span class="nm">${esc(p.n)}</span><span class="meta">${esc(p.cat)}</span></span>
+      <span class="runs">${p.runs} runs</span>
+    </a>`).join('');
+
+  const STAR_CATS = ['Threats & Patches Reports','Inventory Reports','User Reports','Computer Reports','MDM Reports','Application Control Reports'];
+  document.getElementById('catgrid').innerHTML = STAR_CATS.map(c => `
+    <button class="cat" data-q="${esc(c.replace(' Reports',''))}">
+      <span class="gi">${ICO_FOR_CAT[c]||I.grid}</span>
+      <span><span class="nm">${esc(c)}</span><span class="n">${CATALOG[c].length} reports</span></span>
+    </button>`).join('');
+  document.querySelectorAll('.cat[data-q]').forEach(b => b.onclick = () => { setQuery(b.dataset.q); });
+}
+
+function setQuery(v){
+  const input = document.getElementById('q');
+  input.value = v; input.focus();
+  render();
+}
+
+function render(){
+  const raw = document.getElementById('q').value;
+  const q = raw.toLowerCase().trim();
+  document.getElementById('clr').hidden = !raw;
+
+  if(!q && activeFacet==='all'){
+    renderFacets(null);
+    renderDiscovery();
+    return;
+  }
+
+  let hits = INDEX.filter(h => !q || (h.n+' '+h.cat).toLowerCase().includes(q));
+  if(activeFacet!=='all') hits = hits.filter(h => h.kind===activeFacet);
+
+  // rank: exact > name-starts-with > name-includes > category-only match
+  if(q){
+    hits = hits.map(h => {
+      const nl = h.n.toLowerCase();
+      let score = nl===q ? 3 : nl.startsWith(q) ? 2 : nl.includes(q) ? 1 : 0;
+      return { h, score };
+    }).sort((a,b)=>b.score-a.score).map(x=>x.h);
+  }
+
+  const matchCounts = {};
+  KIND_ORDER.forEach(k => matchCounts[k] = 0);
+  (q ? INDEX.filter(h => (h.n+' '+h.cat).toLowerCase().includes(q)) : INDEX).forEach(h => matchCounts[h.kind]++);
+  matchCounts.all = KIND_ORDER.reduce((a,k)=>a+matchCounts[k],0);
+  renderFacets(q ? matchCounts : null);
+
+  const cap = 200;
+  const shown = hits.slice(0, cap);
+
+  let html = `<div class="summary"><h2>${hits.length} result${hits.length===1?'':'s'}</h2>${q?`<span>for “${esc(raw.trim())}”</span>`:''}</div>`;
+
+  if(activeFacet==='dashboard' && DASHBOARD_TOTAL===0 && (!q || matchCounts.dashboard===0)){
+    html += emptyStateFor('dashboard', raw);
+  } else if(!shown.length){
+    html += emptyStateFor('other', raw);
+  } else {
+    const groups = KIND_ORDER.filter(k => shown.some(h=>h.kind===k));
+    html += groups.map(k => {
+      const rows = shown.filter(h=>h.kind===k);
+      return `<div class="hitgroup">
+        <h3>${KIND_LABEL[k]} <span>${rows.length}${q?` match${rows.length===1?'':'es'}`:''}</span></h3>
+        <div class="hits">${rows.map(h=>hitRow(h,q)).join('')}</div>
+      </div>`;
+    }).join('');
+    if(hits.length > cap) html += `<div class="note" style="margin-top:0">Showing the first ${cap} of ${hits.length} matches — keep typing to narrow it down.</div>`;
+  }
+
+  document.getElementById('results').innerHTML = html;
+  cur = -1;
+}
+
+document.getElementById('q').oninput = render;
+document.getElementById('clr').onclick = () => { setQuery(''); };
+document.getElementById('results').addEventListener('click', e => {
+  const hit = e.target.closest('.hit');
+  if(hit && !e.target.closest('a')) location.href = MODULE;
+});
+
+document.addEventListener('keydown', e => {
+  const input = document.getElementById('q');
+  if(e.key==='/' && document.activeElement!==input){ e.preventDefault(); input.focus(); return; }
+  if(document.activeElement!==input) return;
+  if(e.key==='Escape'){ if(input.value){ setQuery(''); } else { input.blur(); } return; }
+  const rows = [...document.querySelectorAll('.hit')];
+  if(!rows.length) return;
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+    e.preventDefault();
+    cur = e.key==='ArrowDown' ? Math.min(cur+1, rows.length-1) : Math.max(cur-1, 0);
+    rows.forEach((el,i)=>el.classList.toggle('cur', i===cur));
+    rows[cur].scrollIntoView({block:'nearest'});
+  }
+  if(e.key==='Enter' && cur>=0) rows[cur].click();
+});
+
+render();
+
+document.getElementById('theme').onclick = () => {
+  const c = document.documentElement.getAttribute('data-theme');
+  const dark = c ? c==='dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  document.documentElement.setAttribute('data-theme', dark?'light':'dark');
+};
+</script>
