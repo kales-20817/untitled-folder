@@ -1,0 +1,1027 @@
+<meta charset="utf-8">
+<title>Reports Home, Five Ways</title>
+<style>
+  :root{
+    --violet:#2563eb; --violet-hov:#1d4ed8; --violet-soft:rgba(37,99,235,.08);
+    --surface:#fff; --surface-2:#f4f6fb; --surface-3:#eef2fa; --page:#f7f9fc;
+    --border:rgba(37,99,235,.13); --border-soft:rgba(37,99,235,.07);
+    --text:#15181e; --muted:#64748b; --faint:#94a3b8;
+    --ok:#16a34a; --ok-bg:rgba(34,197,94,.12);
+    --warn:#a16207; --warn-bg:rgba(234,179,8,.13); --warn-line:rgba(234,179,8,.42);
+    --err:#dc2626; --err-bg:rgba(239,68,68,.10); --err-line:rgba(239,68,68,.32);
+    --sev4:#dc2626; --sev3:#ea580c; --sev2:#ca8a04; --sev1:#0891b2;
+    --shadow:0 2px 12px rgba(37,99,235,.06); --pop:0 12px 34px rgba(16,25,42,.14);
+    --r:12px; --font:'Zoho Puvi',ui-sans-serif,system-ui,'Segoe UI',Roboto,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --violet:#3b82f6; --violet-hov:#60a5fa; --violet-soft:rgba(59,130,246,.14);
+    --surface:#12131a; --surface-2:#1a1c25; --surface-3:#22242f; --page:#0a0a0c;
+    --border:rgba(255,255,255,.10); --border-soft:rgba(255,255,255,.06);
+    --text:rgba(255,255,255,.92); --muted:rgba(255,255,255,.52); --faint:rgba(255,255,255,.36);
+    --ok:#22c55e; --ok-bg:rgba(34,197,94,.15);
+    --warn:#eab308; --warn-bg:rgba(234,179,8,.13); --warn-line:rgba(234,179,8,.34);
+    --err:#f87171; --err-bg:rgba(239,68,68,.13); --err-line:rgba(239,68,68,.32);
+    --sev4:#f87171; --sev3:#fb923c; --sev2:#facc15; --sev1:#22d3ee;
+    --shadow:none; --pop:0 12px 34px rgba(0,0,0,.55);
+  }}
+  :root[data-theme="dark"]{
+    --violet:#3b82f6; --violet-hov:#60a5fa; --violet-soft:rgba(59,130,246,.14);
+    --surface:#12131a; --surface-2:#1a1c25; --surface-3:#22242f; --page:#0a0a0c;
+    --border:rgba(255,255,255,.10); --border-soft:rgba(255,255,255,.06);
+    --text:rgba(255,255,255,.92); --muted:rgba(255,255,255,.52); --faint:rgba(255,255,255,.36);
+    --ok:#22c55e; --ok-bg:rgba(34,197,94,.15);
+    --warn:#eab308; --warn-bg:rgba(234,179,8,.13); --warn-line:rgba(234,179,8,.34);
+    --err:#f87171; --err-bg:rgba(239,68,68,.13); --err-line:rgba(239,68,68,.32);
+    --sev4:#f87171; --sev3:#fb923c; --sev2:#facc15; --sev1:#22d3ee;
+    --shadow:none; --pop:0 12px 34px rgba(0,0,0,.55);
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--page);color:var(--text);font:14px/1.5 var(--font);-webkit-font-smoothing:antialiased}
+  button,input,textarea{font-family:inherit;color:inherit}
+  a{color:inherit;text-decoration:none}
+  :focus-visible{outline:2px solid var(--violet);outline-offset:2px;border-radius:6px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  .num{font-variant-numeric:tabular-nums}
+
+  /* ══ switcher / pitch chrome ══ */
+  .pitch{position:sticky;top:0;z-index:80;background:var(--surface);border-bottom:1px solid var(--border)}
+  .pitch-in{display:flex;align-items:center;gap:14px;padding:10px 18px;flex-wrap:wrap}
+  .pitch-t{font-weight:700;font-size:13px;letter-spacing:-.01em}
+  .pitch-t span{color:var(--muted);font-weight:500}
+  .vtabs{display:flex;gap:3px;background:var(--surface-2);padding:3px;border-radius:9px;flex-wrap:wrap}
+  .vtabs button{padding:6px 12px;border:none;border-radius:7px;background:none;cursor:pointer;
+                font:600 12.5px var(--font);color:var(--muted);transition:.14s;white-space:nowrap}
+  .vtabs button:hover{color:var(--text)}
+  .vtabs button.on{background:var(--surface);color:var(--violet);box-shadow:var(--shadow)}
+  .why{display:flex;gap:20px;padding:9px 18px 11px;border-top:1px solid var(--border-soft);
+       background:var(--surface-2);flex-wrap:wrap;font-size:12.5px;line-height:1.45}
+  .why div{max-width:52ch}
+  .why b{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);
+         display:block;margin-bottom:2px;font-weight:700}
+  .why .fix b{color:var(--violet)}
+
+  .view{display:none}
+  .view.on{display:block}
+
+  /* ══ shared primitives ══ */
+  .btn{padding:8px 14px;border-radius:8px;font:600 13px/1 var(--font);cursor:pointer;
+       display:inline-flex;align-items:center;gap:7px;border:1px solid transparent;transition:.15s;white-space:nowrap}
+  .btn.primary{background:var(--violet);color:#fff} .btn.primary:hover{background:var(--violet-hov)}
+  .btn.ghost{background:var(--surface);color:var(--text);border-color:var(--border)}
+  .btn.ghost:hover{background:var(--surface-2);border-color:var(--violet)}
+  .btn.sm{padding:6px 11px;font-size:12px}
+  .btn.xs{padding:4px 9px;font-size:11.5px;border-radius:7px}
+
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:1px 8px;border-radius:999px;
+         font-size:11.5px;font-weight:600;flex-shrink:0;white-space:nowrap}
+  .badge .dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+  .badge.ok{background:var(--ok-bg);color:var(--ok)}
+  .badge.bad{background:rgba(239,68,68,.14);color:var(--err)}
+  .badge.warn{background:var(--warn-bg);color:var(--warn)}
+  .badge.neu{background:var(--surface-2);color:var(--muted);border:1px solid var(--border)}
+  .badge.acc{background:var(--violet-soft);color:var(--violet)}
+
+  .kbd{font:600 11px var(--font);color:var(--muted);background:var(--surface-2);
+       border:1px solid var(--border);border-radius:5px;padding:2.5px 7px;flex-shrink:0}
+  .clr{background:none;border:none;color:var(--faint);cursor:pointer;padding:3px;border-radius:6px;line-height:0;flex-shrink:0}
+  .clr:hover{color:var(--text);background:var(--surface-2)}
+  .sechead{display:flex;align-items:baseline;gap:9px;margin:0 0 10px}
+  .sechead h2{font-size:13px;font-weight:700;letter-spacing:-.01em;margin:0}
+  .sechead .sub{font-size:12px;color:var(--muted)}
+  .sechead .more{margin-left:auto;font-size:12px;font-weight:600;color:var(--violet);cursor:pointer}
+  .sechead .more:hover{text-decoration:underline}
+  .kindchip{font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+            color:var(--faint);flex-shrink:0}
+
+  /* topbar shared by v1/v3/v5 */
+  .topbar{display:flex;align-items:center;gap:12px;padding:12px clamp(14px,3vw,28px);
+          background:var(--surface);border-bottom:1px solid var(--border)}
+  .topbar .brand{font-weight:700;font-size:14px;letter-spacing:-.015em;display:flex;align-items:center;gap:8px}
+  .topbar .brand svg{color:var(--violet)}
+  .topbar .sp{flex:1}
+
+  /* create menu */
+  .createwrap{position:relative}
+  .createmenu{position:absolute;right:0;top:calc(100% + 6px);width:270px;background:var(--surface);
+              border:1px solid var(--border);border-radius:11px;box-shadow:var(--pop);padding:5px;z-index:60;display:none}
+  .createmenu.on{display:block}
+  .createmenu button{display:flex;gap:10px;width:100%;text-align:left;padding:9px 10px;border:none;background:none;
+                     border-radius:8px;cursor:pointer;align-items:flex-start}
+  .createmenu button:hover{background:var(--violet-soft)}
+  .createmenu .ci{width:28px;height:28px;border-radius:7px;display:grid;place-items:center;flex-shrink:0;
+                  background:var(--surface-2);color:var(--violet);border:1px solid var(--border)}
+  .createmenu .cn{display:block;font-size:13px;font-weight:600}
+  .createmenu .cd{display:block;font-size:11.5px;color:var(--muted);line-height:1.35;margin-top:1px}
+
+/* ═════════════════════════════════════════════════════════════
+   V1 · ANSWER-FIRST — the page IS the open search panel
+   ═════════════════════════════════════════════════════════════ */
+  .v1 .wrap{max-width:1000px;margin:0 auto;padding:26px clamp(14px,3vw,28px) 70px}
+  .v1 .sb{display:flex;align-items:center;gap:12px;padding:14px 17px;background:var(--surface);
+          border:1.5px solid var(--border);border-radius:13px;box-shadow:var(--shadow);transition:.15s}
+  .v1 .sb:focus-within{border-color:var(--violet);box-shadow:0 0 0 5px var(--violet-soft)}
+  .v1 .sb svg{color:var(--muted);flex-shrink:0}
+  .v1 .sb input{flex:1;min-width:0;border:none;background:none;outline:none;font-size:16px}
+  .v1 .sb input::placeholder{color:var(--faint)}
+  .v1 .facets{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0 20px}
+  .v1 .facet{padding:5px 12px;border-radius:999px;border:1px solid var(--border);background:var(--surface);
+             color:var(--muted);font:600 12.5px var(--font);cursor:pointer;transition:.13s;display:inline-flex;
+             align-items:center;gap:6px}
+  .v1 .facet:hover{border-color:var(--violet);color:var(--text)}
+  .v1 .facet.on{background:var(--violet);border-color:var(--violet);color:#fff}
+  .v1 .facet b{font-weight:700;opacity:.72;font-size:11.5px}
+
+  .v1 .idle{display:grid;grid-template-columns:1fr 1fr 1fr;gap:22px}
+  @media(max-width:860px){.v1 .idle{grid-template-columns:1fr}}
+  .v1 .col h3{font-size:11px;font-weight:700;color:var(--faint);text-transform:uppercase;
+              letter-spacing:.06em;margin:0 0 9px}
+  .v1 .rs{display:flex;flex-wrap:wrap;gap:6px}
+  .v1 .rs button{padding:5px 11px;border-radius:999px;border:1px solid var(--border);background:var(--surface);
+                 font:500 12.5px var(--font);color:var(--text);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+  .v1 .rs button:hover{border-color:var(--violet);color:var(--violet)}
+  .v1 .rs button svg{color:var(--faint);width:12px;height:12px}
+  .v1 .jb{display:flex;flex-direction:column;gap:1px}
+  .v1 .jbr{display:flex;align-items:center;gap:10px;padding:7px 9px;border-radius:8px;cursor:pointer;transition:.12s}
+  .v1 .jbr:hover{background:var(--violet-soft)}
+  .v1 .jbr .gi{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;flex-shrink:0;
+               background:var(--surface-2);color:var(--muted);border:1px solid var(--border-soft)}
+  .v1 .jbr:hover .gi{color:var(--violet);border-color:var(--violet)}
+  .v1 .jbr .nm{font-size:13px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .v1 .jbr .tm{font-size:11.5px;color:var(--faint);flex-shrink:0}
+  .v1 .qq{display:flex;flex-direction:column;gap:6px}
+  .v1 .qq button{text-align:left;padding:9px 11px;border-radius:9px;border:1px solid var(--border);
+                 background:var(--surface);cursor:pointer;font:500 12.5px/1.4 var(--font);color:var(--text);transition:.13s}
+  .v1 .qq button:hover{border-color:var(--violet);background:var(--violet-soft)}
+  .v1 .qq button i{display:block;font-style:normal;font-size:11px;color:var(--faint);margin-top:2px}
+
+  .v1 .grp{margin-bottom:16px}
+  .v1 .grp h3{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;color:var(--faint);
+              text-transform:uppercase;letter-spacing:.06em;margin:0 0 7px}
+  .v1 .grp h3 em{font-style:normal;font-weight:600;color:var(--muted);font-size:11.5px;text-transform:none;letter-spacing:0}
+  .v1 .hits{border:1px solid var(--border);border-radius:var(--r);background:var(--surface);
+            box-shadow:var(--shadow);overflow:hidden}
+  .v1 .hit{display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid var(--border-soft);
+           cursor:pointer;transition:.12s}
+  .v1 .hit:last-child{border-bottom:none}
+  .v1 .hit:hover{background:var(--violet-soft)}
+  .v1 .hit .gi{width:29px;height:29px;border-radius:8px;display:grid;place-items:center;flex-shrink:0;
+               background:var(--surface-2);color:var(--muted);border:1px solid var(--border)}
+  .v1 .hit:hover .gi{background:var(--surface);color:var(--violet);border-color:var(--violet)}
+  .v1 .hit .body{flex:1;min-width:0;display:block}
+  .v1 .hit .nm{display:block;font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .v1 .hit .nm mark{background:none;color:var(--violet);font-weight:700}
+  .v1 .hit .meta{display:block;font-size:11.5px;color:var(--muted);margin-top:1px;
+                 overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .v1 .empty{border:1px dashed var(--border);border-radius:var(--r);padding:30px 22px;text-align:center;background:var(--surface)}
+  .v1 .empty b{display:block;font-size:14px;margin-bottom:4px}
+  .v1 .empty p{margin:0 0 14px;font-size:12.5px;color:var(--muted)}
+  .v1 .allfoot{margin-top:24px;padding-top:16px;border-top:1px solid var(--border-soft);
+               display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
+  .v1 .allfoot a{color:var(--violet);font-weight:600;cursor:pointer}
+  .v1 .allfoot a:hover{text-decoration:underline}
+
+/* ═════════════════════════════════════════════════════════════
+   V2 · OPERATIONS CONSOLE — what needs you, right now
+   ═════════════════════════════════════════════════════════════ */
+  .v2 .wrap{max-width:1180px;margin:0 auto;padding:20px clamp(14px,3vw,26px) 70px}
+  .v2 .hd{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+  .v2 .hd h1{font-size:17px;font-weight:700;letter-spacing:-.02em;margin:0}
+  .v2 .hd .as{font-size:12.5px;color:var(--muted)}
+  .v2 .hd .sp{flex:1}
+  .v2 .msearch{display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--surface);
+               border:1px solid var(--border);border-radius:9px;min-width:230px}
+  .v2 .msearch input{border:none;background:none;outline:none;flex:1;min-width:0;font-size:13px}
+  .v2 .msearch svg{color:var(--faint);flex-shrink:0}
+
+  .v2 .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:22px}
+  @media(max-width:900px){.v2 .tiles{grid-template-columns:repeat(2,1fr)}}
+  .v2 .tile{padding:13px 15px;border-radius:11px;background:var(--surface);border:1px solid var(--border);
+            cursor:pointer;transition:.14s;text-align:left;position:relative;overflow:hidden}
+  .v2 .tile:hover{border-color:var(--violet);transform:translateY(-1px);box-shadow:var(--shadow)}
+  .v2 .tile::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--faint)}
+  .v2 .tile.crit::before{background:var(--err)} .v2 .tile.warnb::before{background:var(--warn-line)}
+  .v2 .tile.info::before{background:var(--violet)} .v2 .tile.good::before{background:var(--ok)}
+  .v2 .tile .v{display:block;font-size:24px;font-weight:700;letter-spacing:-.03em;line-height:1.1}
+  .v2 .tile.crit .v{color:var(--err)} .v2 .tile.warnb .v{color:var(--warn)}
+  .v2 .tile .l{display:block;font-size:12.5px;font-weight:600;margin-top:2px}
+  .v2 .tile .s{display:block;font-size:11.5px;color:var(--muted);margin-top:2px;line-height:1.4}
+
+  .v2 .split{display:grid;grid-template-columns:1.55fr 1fr;gap:20px;align-items:start}
+  @media(max-width:960px){.v2 .split{grid-template-columns:1fr}}
+  .v2 .panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+             box-shadow:var(--shadow);overflow:hidden}
+  .v2 .panel > h2{font-size:12.5px;font-weight:700;margin:0;padding:11px 15px;border-bottom:1px solid var(--border-soft);
+                  display:flex;align-items:center;gap:8px}
+  .v2 .panel > h2 .c{margin-left:auto;font-size:11.5px;font-weight:600;color:var(--muted)}
+  .v2 .arow{display:flex;align-items:center;gap:12px;padding:11px 15px;border-bottom:1px solid var(--border-soft);
+            transition:.12s;cursor:pointer}
+  .v2 .arow:last-child{border-bottom:none}
+  .v2 .arow:hover{background:var(--violet-soft)}
+  .v2 .arow .sev{width:3px;align-self:stretch;border-radius:2px;flex-shrink:0;background:var(--border)}
+  .v2 .arow.e .sev{background:var(--err)} .v2 .arow.w .sev{background:var(--warn-line)}
+  .v2 .arow .body{flex:1;min-width:0;display:block}
+  .v2 .arow .nm{display:block;font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .v2 .arow .meta{display:block;font-size:11.5px;color:var(--muted);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .v2 .arow .act{display:flex;gap:6px;flex-shrink:0;opacity:0;transition:.12s}
+  .v2 .arow:hover .act{opacity:1}
+  .v2 .feed{display:flex;flex-direction:column}
+  .v2 .fr{display:flex;align-items:center;gap:10px;padding:9px 15px;border-bottom:1px solid var(--border-soft);font-size:12.5px}
+  .v2 .fr:last-child{border-bottom:none}
+  .v2 .fr .gi{width:24px;height:24px;border-radius:6px;display:grid;place-items:center;flex-shrink:0;
+              background:var(--surface-2);color:var(--muted);border:1px solid var(--border-soft)}
+  .v2 .fr .nm{flex:1;min-width:0;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .v2 .fr .tm{font-size:11px;color:var(--faint);flex-shrink:0}
+  .v2 .spin{animation:sp 1.1s linear infinite;transform-origin:center}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .v2 .modstrip{margin-top:22px}
+  .v2 .mods{display:flex;gap:7px;flex-wrap:wrap}
+  .v2 .mods button{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;
+                   border:1px solid var(--border);background:var(--surface);cursor:pointer;
+                   font:600 12.5px var(--font);color:var(--text);transition:.13s}
+  .v2 .mods button:hover{border-color:var(--violet);color:var(--violet)}
+  .v2 .mods button b{font-weight:700;font-size:11.5px;color:var(--faint)}
+  .v2 .mods button:hover b{color:var(--violet)}
+  .v2 .note{margin-top:18px;font-size:11.5px;color:var(--faint);line-height:1.5;max-width:78ch}
+
+/* ═════════════════════════════════════════════════════════════
+   V3 · MY WORKSPACE — yours first, catalogue second
+   ═════════════════════════════════════════════════════════════ */
+  .v3 .wrap{max-width:1180px;margin:0 auto;padding:22px clamp(14px,3vw,26px) 70px;
+            display:grid;grid-template-columns:1fr 280px;gap:26px;align-items:start}
+  @media(max-width:980px){.v3 .wrap{grid-template-columns:1fr}}
+  .v3 .greet{font-size:18px;font-weight:700;letter-spacing:-.02em;margin:0 0 3px}
+  .v3 .greetsub{font-size:12.5px;color:var(--muted);margin:0 0 20px}
+  .v3 .pins{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:26px}
+  @media(max-width:760px){.v3 .pins{grid-template-columns:repeat(2,1fr)}}
+  .v3 .pin{padding:13px 14px;border-radius:11px;background:var(--surface);border:1px solid var(--border);
+           cursor:pointer;transition:.14s;position:relative;text-align:left}
+  .v3 .pin:hover{border-color:var(--violet);box-shadow:var(--shadow);transform:translateY(-1px)}
+  .v3 .pin .top{display:flex;align-items:flex-start;gap:9px;margin-bottom:9px}
+  .v3 .pin .gi{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;flex-shrink:0;
+               background:var(--violet-soft);color:var(--violet)}
+  .v3 .pin .nm{font-size:13px;font-weight:600;line-height:1.32;flex:1;min-width:0}
+  .v3 .pin .unpin{opacity:0;background:none;border:none;cursor:pointer;color:var(--faint);padding:2px;line-height:0}
+  .v3 .pin:hover .unpin{opacity:1}
+  .v3 .pin .unpin:hover{color:var(--violet)}
+  .v3 .pin .val{display:block;font-size:20px;font-weight:700;letter-spacing:-.02em;line-height:1}
+  .v3 .pin .val.bad{color:var(--err)} .v3 .pin .val.warn{color:var(--warn)}
+  .v3 .pin .cap{display:block;font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.35}
+  .v3 .pin .spark{display:block;margin-top:7px}
+  .v3 .addpin{border:1px dashed var(--border);background:none;border-radius:11px;cursor:pointer;
+              display:grid;place-items:center;color:var(--faint);gap:5px;font:600 12px var(--font);min-height:106px}
+  .v3 .addpin:hover{border-color:var(--violet);color:var(--violet);background:var(--violet-soft)}
+  .v3 .lst{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+           box-shadow:var(--shadow);overflow:hidden;margin-bottom:22px}
+  .v3 .lrow{display:flex;align-items:center;gap:11px;padding:10px 14px;border-bottom:1px solid var(--border-soft);
+            cursor:pointer;transition:.12s}
+  .v3 .lrow:last-child{border-bottom:none}
+  .v3 .lrow:hover{background:var(--violet-soft)}
+  .v3 .lrow .gi{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;flex-shrink:0;
+                background:var(--surface-2);color:var(--muted);border:1px solid var(--border-soft)}
+  .v3 .lrow:hover .gi{color:var(--violet);border-color:var(--violet)}
+  .v3 .lrow .body{flex:1;min-width:0;display:block}
+  .v3 .lrow .nm{display:block;font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .v3 .lrow .meta{display:block;font-size:11.5px;color:var(--muted);margin-top:1px;
+                  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .v3 .lrow .tm{font-size:11.5px;color:var(--faint);flex-shrink:0}
+  .v3 .rail{position:sticky;top:96px;display:flex;flex-direction:column;gap:18px}
+  .v3 .rcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+             box-shadow:var(--shadow);padding:13px 14px}
+  .v3 .rcard h3{font-size:11px;font-weight:700;color:var(--faint);text-transform:uppercase;
+                letter-spacing:.06em;margin:0 0 10px}
+  .v3 .mlist{display:flex;flex-direction:column;gap:1px;margin:0 -6px}
+  .v3 .mlist button{display:flex;align-items:center;gap:9px;padding:6px 7px;border:none;background:none;
+                    border-radius:7px;cursor:pointer;width:100%;text-align:left;transition:.12s}
+  .v3 .mlist button:hover{background:var(--violet-soft)}
+  .v3 .mlist .gi{color:var(--faint);line-height:0;flex-shrink:0}
+  .v3 .mlist button:hover .gi{color:var(--violet)}
+  .v3 .mlist .nm{flex:1;font-size:12.5px;font-weight:500}
+  .v3 .mlist .c{font-size:11.5px;color:var(--faint);font-weight:600}
+  .v3 .cold{border:1px dashed var(--border);border-radius:var(--r);padding:22px 18px;background:var(--surface);
+            text-align:center;margin-bottom:26px}
+  .v3 .cold b{display:block;font-size:13.5px;margin-bottom:3px}
+  .v3 .cold p{margin:0 0 13px;font-size:12.5px;color:var(--muted);line-height:1.5}
+  .v3 .coldchips{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+  .v3 .toggle{margin-left:auto;font-size:11.5px;font-weight:600;color:var(--violet);cursor:pointer;
+              background:none;border:none;padding:0}
+  .v3 .toggle:hover{text-decoration:underline}
+
+/* ═════════════════════════════════════════════════════════════
+   V4 · CATALOGUE MAP — all 328, one screen, no hero
+   ═════════════════════════════════════════════════════════════ */
+  .v4 .bar{position:sticky;top:0;z-index:40;background:var(--surface);border-bottom:1px solid var(--border);
+           padding:10px clamp(14px,3vw,24px);display:flex;align-items:center;gap:11px;flex-wrap:wrap}
+  .v4 .bar .fs{display:flex;align-items:center;gap:8px;padding:6px 11px;background:var(--surface-2);
+               border:1px solid var(--border);border-radius:8px;min-width:250px;flex:1;max-width:400px}
+  .v4 .bar .fs input{border:none;background:none;outline:none;flex:1;min-width:0;font-size:13px}
+  .v4 .bar .fs svg{color:var(--faint);flex-shrink:0}
+  .v4 .surf{display:flex;gap:4px;background:var(--surface-2);padding:3px;border-radius:8px;flex-wrap:wrap}
+  .v4 .surf button{padding:5px 10px;border:none;border-radius:6px;background:none;cursor:pointer;
+                   font:600 12px var(--font);color:var(--muted);display:inline-flex;align-items:center;gap:5px;transition:.13s}
+  .v4 .surf button:hover{color:var(--text)}
+  .v4 .surf button.on{background:var(--surface);color:var(--violet);box-shadow:var(--shadow)}
+  .v4 .surf button b{font-size:11px;opacity:.7}
+  .v4 .wrap{padding:18px clamp(14px,3vw,24px) 70px;columns:3;column-gap:18px}
+  @media(max-width:1100px){.v4 .wrap{columns:2}}
+  @media(max-width:720px){.v4 .wrap{columns:1}}
+  .v4 .blk{break-inside:avoid;margin-bottom:18px;background:var(--surface);border:1px solid var(--border);
+           border-radius:11px;box-shadow:var(--shadow);overflow:hidden}
+  .v4 .blk > h3{margin:0;padding:9px 12px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px;
+                border-bottom:1px solid var(--border-soft);background:var(--surface-2)}
+  .v4 .blk > h3 .gi{color:var(--violet);line-height:0;flex-shrink:0}
+  .v4 .blk > h3 .c{margin-left:auto;font-size:11px;font-weight:700;color:var(--faint)}
+  .v4 .blk ul{list-style:none;margin:0;padding:4px 0}
+  .v4 .blk li{padding:5px 12px;font-size:12.5px;line-height:1.4;cursor:pointer;transition:.1s;
+              display:flex;align-items:center;gap:8px}
+  .v4 .blk li:hover{background:var(--violet-soft);color:var(--violet)}
+  .v4 .blk li mark{background:none;color:var(--violet);font-weight:700}
+  .v4 .blk li .st{margin-left:auto;flex-shrink:0}
+  .v4 .blk .rest{padding:6px 12px 9px;font-size:11.5px;color:var(--faint);border-top:1px solid var(--border-soft);
+                 cursor:pointer;font-weight:600}
+  .v4 .blk .rest:hover{color:var(--violet)}
+  .v4 .none{columns:1;text-align:center;padding:40px 20px;color:var(--muted);font-size:13px}
+
+/* ═════════════════════════════════════════════════════════════
+   V5 · ASK-FIRST — describe it; find it or build it
+   ═════════════════════════════════════════════════════════════ */
+  .v5 .wrap{max-width:820px;margin:0 auto;padding:40px clamp(14px,3vw,28px) 70px}
+  .v5 h1{font-size:26px;font-weight:700;letter-spacing:-.03em;text-align:center;margin:0 0 8px;
+         background:linear-gradient(96deg,var(--violet),#7c3aed);-webkit-background-clip:text;
+         background-clip:text;color:transparent}
+  .v5 .lede{text-align:center;font-size:14px;color:var(--muted);margin:0 auto 26px;max-width:52ch;line-height:1.55}
+  .v5 .ask{background:var(--surface);border:1.5px solid var(--border);border-radius:15px;
+           box-shadow:var(--shadow);padding:14px 16px;transition:.15s}
+  .v5 .ask:focus-within{border-color:var(--violet);box-shadow:0 0 0 5px var(--violet-soft)}
+  .v5 .ask textarea{width:100%;border:none;background:none;outline:none;resize:none;font-size:15.5px;
+                    line-height:1.5;min-height:52px;display:block}
+  .v5 .ask textarea::placeholder{color:var(--faint)}
+  .v5 .askfoot{display:flex;align-items:center;gap:9px;margin-top:8px;padding-top:9px;border-top:1px solid var(--border-soft)}
+  .v5 .askfoot .h{font-size:11.5px;color:var(--faint);flex:1}
+  .v5 .starters{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:20px}
+  @media(max-width:680px){.v5 .starters{grid-template-columns:1fr}}
+  .v5 .starters button{text-align:left;padding:11px 13px;border-radius:11px;border:1px solid var(--border);
+                       background:var(--surface);cursor:pointer;transition:.14s}
+  .v5 .starters button:hover{border-color:var(--violet);background:var(--violet-soft);transform:translateY(-1px)}
+  .v5 .starters .q{display:block;font-size:13px;font-weight:600;line-height:1.4}
+  .v5 .starters .t{font-size:11.5px;color:var(--faint);margin-top:3px;display:flex;align-items:center;gap:5px}
+  .v5 .ans{margin-top:24px}
+  .v5 .ansec{margin-bottom:20px}
+  .v5 .ansec > h3{font-size:11px;font-weight:700;color:var(--faint);text-transform:uppercase;
+                  letter-spacing:.06em;margin:0 0 9px;display:flex;align-items:center;gap:8px}
+  .v5 .ansec > h3 em{font-style:normal;text-transform:none;letter-spacing:0;font-size:11.5px;
+                     font-weight:600;color:var(--muted)}
+  .v5 .mc{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface);
+          border:1px solid var(--border);border-radius:11px;margin-bottom:7px;cursor:pointer;transition:.13s}
+  .v5 .mc:hover{border-color:var(--violet);box-shadow:var(--shadow)}
+  .v5 .mc .gi{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;flex-shrink:0;
+              background:var(--violet-soft);color:var(--violet)}
+  .v5 .mc .body{flex:1;min-width:0;display:block}
+  .v5 .mc .nm{display:block;font-size:13.5px;font-weight:600}
+  .v5 .mc .meta{display:block;font-size:11.5px;color:var(--muted);margin-top:1px}
+  .v5 .build{border:1px solid var(--violet);border-radius:13px;padding:16px 17px;
+             background:linear-gradient(180deg,var(--violet-soft),transparent)}
+  .v5 .build .bh{display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:700;margin-bottom:5px}
+  .v5 .build .bh svg{color:var(--violet)}
+  .v5 .build p{margin:0 0 12px;font-size:12.5px;color:var(--muted);line-height:1.55}
+  .v5 .build .spec{background:var(--surface);border:1px solid var(--border);border-radius:9px;
+                   padding:10px 12px;margin-bottom:12px;font-size:12px;line-height:1.7}
+  .v5 .build .spec b{color:var(--faint);font-weight:700;font-size:10.5px;letter-spacing:.05em;
+                     text-transform:uppercase;display:inline-block;min-width:78px}
+  .v5 .brow{display:flex;gap:8px;flex-wrap:wrap}
+  .v5 .cat{margin-top:30px;padding-top:18px;border-top:1px solid var(--border-soft)}
+  .v5 .cat h3{font-size:11px;font-weight:700;color:var(--faint);text-transform:uppercase;
+              letter-spacing:.06em;margin:0 0 10px}
+  .v5 .cat .row{display:flex;gap:7px;flex-wrap:wrap}
+  .v5 .cat button{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;
+                  border:1px solid var(--border);background:var(--surface);cursor:pointer;
+                  font:600 12.5px var(--font);transition:.13s}
+  .v5 .cat button:hover{border-color:var(--violet);color:var(--violet)}
+  .v5 .cat button b{font-weight:700;font-size:11.5px;color:var(--faint)}
+</style>
+
+<div class="pitch">
+  <div class="pitch-in">
+    <div class="pitch-t">Reports home, five ways<span> · same 328 items, five ideas about what a home page is for</span></div>
+    <div style="flex:1"></div>
+    <div class="vtabs" id="vtabs"></div>
+  </div>
+  <div class="why" id="why"></div>
+</div>
+
+<div id="views"></div>
+
+<script>
+function E(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]); }
+const svg = (p,s=15) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const I = {
+  search:(s=18)=>svg('<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',s),
+  x:(s=16)=>svg('<path d="M18 6 6 18M6 6l12 12"/>',s),
+  clock:(s=15)=>svg('<circle cx="12" cy="12" r="10"/><path d="M12 7v5l3 2"/>',s),
+  file:(s=15)=>svg('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/>',s),
+  code:(s=15)=>svg('<path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/>',s),
+  cal:(s=15)=>svg('<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',s),
+  dash:(s=15)=>svg('<rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/>',s),
+  user:(s=15)=>svg('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',s),
+  pc:(s=15)=>svg('<rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',s),
+  grp:(s=15)=>svg('<circle cx="9" cy="8" r="3.5"/><path d="M2 20a7 7 0 0 1 14 0"/><path d="M17 5.2a3.5 3.5 0 0 1 0 5.6M19 20a6 6 0 0 0-3-5.2"/>',s),
+  tree:(s=15)=>svg('<rect x="9" y="2" width="6" height="5" rx="1"/><rect x="2" y="17" width="6" height="5" rx="1"/><rect x="16" y="17" width="6" height="5" rx="1"/><path d="M12 7v5M5 17v-3h14v3"/>',s),
+  shield:(s=15)=>svg('<path d="M12 2 4 6v6c0 5 3.4 9.4 8 10 4.6-.6 8-5 8-10V6z"/>',s),
+  box:(s=15)=>svg('<path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/>',s),
+  phone:(s=15)=>svg('<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 19h2"/>',s),
+  app:(s=15)=>svg('<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',s),
+  grid:(s=15)=>svg('<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>',s),
+  alert:(s=15)=>svg('<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h16.9a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0zM12 9v4M12 17h.01"/>',s),
+  plus:(s=15)=>svg('<path d="M12 5v14M5 12h14"/>',s),
+  pin:(s=14)=>svg('<path d="M12 17v5M9 3h6l-1 7 3 3H7l3-3z"/>',s),
+  sparkle:(s=15)=>svg('<path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/>',s),
+  play:(s=14)=>svg('<path d="m6 3 14 9-14 9z"/>',s),
+  refresh:(s=14)=>svg('<path d="M21 12a9 9 0 1 1-3-6.7M21 3v6h-6"/>',s),
+  mail:(s=14)=>svg('<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/>',s),
+  arrow:(s=14)=>svg('<path d="M5 12h14M13 6l6 6-6 6"/>',s),
+  hist:(s=13)=>svg('<circle cx="12" cy="12" r="10"/><path d="M12 7v5l3 2"/>',s),
+  eye:(s=14)=>svg('<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>',s),
+  ext:(s=15)=>svg('<path d="M12 3v6M9 6h6M4 11h16v9a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/>',s),
+};
+
+/* ═══════════ shared data — counts are the ones the live hub renders ═══════════ */
+const KIND = {
+  pre:{t:'Predefined report', p:'Predefined reports', s:'Predefined', n:222, i:'file'},
+  cus:{t:'Custom report',     p:'Custom reports',     s:'Custom',     n:37,  i:'grid'},
+  qry:{t:'Query report',      p:'Query reports',      s:'Query',      n:56,  i:'code'},
+  sch:{t:'Schedule',          p:'Schedules',          s:'Schedules',  n:7,   i:'cal'},
+  dsh:{t:'Dashboard',         p:'Dashboards',         s:'Dashboards', n:6,   i:'dash'},
+};
+const TOTAL = 328;
+
+const MODULES = [
+  {n:'Inventory',           c:49, i:'box',    d:'Hardware, software, licences and certificates across the estate.'},
+  {n:'MDM',                 c:30, i:'phone',  d:'Enrolled devices: apps, hardware, location, security and OS updates.'},
+  {n:'User',                c:19, i:'user',   d:'Directory user accounts by status, password state and logon history.'},
+  {n:'GPO',                 c:18, i:'tree',   d:'Group policy objects, where they are linked and what they still apply to.'},
+  {n:'Threats & Patches',   c:15, i:'shield', d:'Patch compliance, system health, self-service and automated deployment.'},
+  {n:'Group',               c:12, i:'grp',    d:'Directory groups by type, membership and the OU they live in.'},
+  {n:'Application Control', c:11, i:'app',    d:'Discovered applications, what is unmanaged, and the block audit.'},
+  {n:'Computer',            c:11, i:'pc',     d:'Directory computer accounts by role, operating system and activity.'},
+  {n:'Others',              c:57, i:'grid',   d:'Logon, power, configuration, browsers, device control and the rest.'},
+];
+
+/* Real Endpoint Central report names. k = surface, m = module, s = run state. */
+const INDEX = [
+  // ── predefined
+  {n:'Missing Patches',                    k:'pre', m:'Threats & Patches'},
+  {n:'Installed Patches',                  k:'pre', m:'Threats & Patches'},
+  {n:'Patch Compliance Report',            k:'pre', m:'Threats & Patches'},
+  {n:'Highly Vulnerable Systems',          k:'pre', m:'Threats & Patches'},
+  {n:'Zero Day Vulnerability Report',      k:'pre', m:'Threats & Patches'},
+  {n:'Systems with No Agent Contact',      k:'pre', m:'Threats & Patches'},
+  {n:'Detected CVE Summary',               k:'pre', m:'Threats & Patches'},
+  {n:'System Health Report',               k:'pre', m:'Threats & Patches'},
+  {n:'End of Life Software',               k:'pre', m:'Threats & Patches'},
+  {n:'Port Audit',                         k:'pre', m:'Threats & Patches'},
+  {n:'All User Accounts',                  k:'pre', m:'User'},
+  {n:'Inactive User Accounts',             k:'pre', m:'User'},
+  {n:'Soon-to-Expire User Passwords',      k:'pre', m:'User'},
+  {n:'Domain Admin User Accounts',         k:'pre', m:'User'},
+  {n:'Disabled User Accounts',             k:'pre', m:'User'},
+  {n:'Last Logon Failed User Accounts',    k:'pre', m:'User'},
+  {n:'All Computers',                      k:'pre', m:'Computer'},
+  {n:'Domain Controllers',                 k:'pre', m:'Computer'},
+  {n:'Computers by OS & Service Pack',     k:'pre', m:'Computer'},
+  {n:'Recently Added Computers',           k:'pre', m:'Computer'},
+  {n:'All GPOs',                           k:'pre', m:'GPO'},
+  {n:'Unused GPOs',                        k:'pre', m:'GPO'},
+  {n:'Enforced GPOs',                      k:'pre', m:'GPO'},
+  {n:'GPOs Linked To OUs',                 k:'pre', m:'GPO'},
+  {n:'Security Groups',                    k:'pre', m:'Group'},
+  {n:'Nested Groups',                      k:'pre', m:'Group'},
+  {n:'Groups without Members',             k:'pre', m:'Group'},
+  {n:'All Installed Software',             k:'pre', m:'Inventory'},
+  {n:'Prohibited Software',                k:'pre', m:'Inventory'},
+  {n:'License Compliance',                 k:'pre', m:'Inventory'},
+  {n:'Expired certificates',               k:'pre', m:'Inventory'},
+  {n:'Soon to expire Warranty',            k:'pre', m:'Inventory'},
+  {n:'Computers by Disk Usage Summary',    k:'pre', m:'Inventory'},
+  {n:'Windows 11 Incompatible devices',    k:'pre', m:'Inventory'},
+  {n:'BitLocker Details',                  k:'pre', m:'Inventory'},
+  {n:'Unmanaged Computers',                k:'pre', m:'Inventory'},
+  {n:'Firewall Details',                   k:'pre', m:'Inventory'},
+  {n:'Antivirus Details',                  k:'pre', m:'Inventory'},
+  {n:'Rooted Devices',                     k:'pre', m:'MDM'},
+  {n:'Jail Broken Devices',                k:'pre', m:'MDM'},
+  {n:'Inactive Devices',                   k:'pre', m:'MDM'},
+  {n:'Blocklisted Apps Summary',           k:'pre', m:'MDM'},
+  {n:'Devices by Storage Encryption',      k:'pre', m:'MDM'},
+  {n:'Data Usage by Devices',              k:'pre', m:'MDM'},
+  {n:'Blocklisted Application Access',     k:'pre', m:'Application Control'},
+  {n:'Unmanaged Executables',              k:'pre', m:'Application Control'},
+  {n:'Applications running with Administrator Privileges', k:'pre', m:'Application Control'},
+  {n:'Unauthorized Devices',               k:'pre', m:'Others'},
+  {n:'File Shadowing',                     k:'pre', m:'Others'},
+  {n:'Device Audit',                       k:'pre', m:'Others'},
+  {n:'USB Usage Report',                   k:'pre', m:'Others'},
+  {n:'Currently Logged on Users',          k:'pre', m:'Others'},
+  {n:'User Logon History',                 k:'pre', m:'Others'},
+  {n:'Computers with No User Logon',       k:'pre', m:'Others'},
+  {n:'System Uptime Report',               k:'pre', m:'Others'},
+  // ── custom
+  {n:'Count of Computer by Operating System', k:'cus', m:'Inventory',         by:'Bharath'},
+  {n:'Agent Live Status',                     k:'cus', m:'Threats & Patches', by:'Bharath'},
+  {n:'Computer and its Total Co2 Emission',   k:'cus', m:'Inventory',         by:'Admin'},
+  {n:'Patch SLA — 14-day breach list',        k:'cus', m:'Threats & Patches', by:'Sarah K.'},
+  {n:'Executive endpoint summary',            k:'cus', m:'Inventory',         by:'Admin'},
+  // ── query
+  {n:'Endpoints missing 3+ critical patches',       k:'qry', m:'Threats & Patches', by:'John D.'},
+  {n:'Software installed outside approved catalogue', k:'qry', m:'Inventory',       by:'John D.'},
+  {n:'Users with password age over 180 days',       k:'qry', m:'User',              by:'Sarah K.'},
+  {n:'Servers under 10% free disk',                 k:'qry', m:'Inventory',          by:'Sarah K.'},
+  // ── schedules
+  {n:'Q2 Compliance Audit pack',           k:'sch', m:'Others',            to:'audit@acme.com',    fq:'Monthly', st:'failed'},
+  {n:'Weekly patch compliance → CISO',     k:'sch', m:'Threats & Patches', to:'ciso@acme.com',     fq:'Weekly',  st:'ok'},
+  {n:'Monthly licence true-up → Finance',  k:'sch', m:'Inventory',         to:'finance@acme.com',  fq:'Monthly', st:'ok'},
+  {n:'Daily agent health digest',          k:'sch', m:'Threats & Patches', to:'it-ops@acme.com',   fq:'Daily',   st:'ok'},
+  {n:'Vulnerability posture → Security',   k:'sch', m:'Threats & Patches', to:'security@acme.com', fq:'Weekly',  st:'paused'},
+  // ── dashboards
+  {n:'Patch management overview',          k:'dsh', m:'Threats & Patches', w:8},
+  {n:'Threat & vulnerability',             k:'dsh', m:'Threats & Patches', w:11},
+  {n:'Endpoint health',                    k:'dsh', m:'Inventory',         w:9},
+  {n:'Inventory — hardware',               k:'dsh', m:'Inventory',         w:6},
+];
+
+const MODICON = Object.fromEntries(MODULES.map(m=>[m.n,m.i]));
+const kindIcon = k => I[KIND[k].i](15);
+const modIcon  = m => I[MODICON[m]||'grid'](15);
+
+const RECENT_SEARCH = ['missing patches','bitlocker','inactive users','co2','licence'];
+const VIEWED = [
+  {n:'Count of Computer by Operating System', k:'cus', t:'Nov 25, 07:53 PM'},
+  {n:'Agent Live Status',                     k:'cus', t:'Nov 25, 07:46 PM'},
+  {n:'Computer and its Total Co2 Emission',   k:'cus', t:'Nov 25, 07:14 PM'},
+  {n:'Missing Patches',                       k:'pre', t:'Nov 24, 04:02 PM'},
+  {n:'Highly Vulnerable Systems',             k:'pre', t:'Nov 24, 11:20 AM'},
+  {n:'License Compliance',                    k:'pre', t:'Nov 21, 09:58 AM'},
+];
+const QUESTIONS = [
+  {q:'Which endpoints are missing critical patches?', a:'Missing Patches', k:'pre'},
+  {q:'Who has a password expiring this week?',        a:'Soon-to-Expire User Passwords', k:'pre'},
+  {q:'What software are we over-licensed on?',        a:'License Compliance', k:'pre'},
+  {q:'Which machines have not checked in?',           a:'Systems with No Agent Contact', k:'pre'},
+  {q:'Which devices are unencrypted?',                a:'BitLocker Details', k:'pre'},
+  {q:'What is running as administrator?',             a:'Applications running with Administrator Privileges', k:'pre'},
+];
+
+function createMenuHTML(id){
+  return `<div class="createwrap">
+    <button class="btn primary sm" data-create="${id}">${I.plus(14)} Create</button>
+    <div class="createmenu" id="cm-${id}">
+      ${[['grid','Custom report','Pick columns, or describe it to ZIA'],
+         ['dash','Custom dashboard','Lay out widgets over live data'],
+         ['code','Query report','Write the SQL expression yourself'],
+         ['cal','Scheduled report','Deliver an existing report on a cadence']]
+        .map(([ic,n,d])=>`<button><span class="ci">${I[ic](14)}</span><span><span class="cn">${n}</span><span class="cd">${d}</span></span></button>`).join('')}
+    </div></div>`;
+}
+function wireCreate(root){
+  root.querySelectorAll('[data-create]').forEach(b=>{
+    b.onclick = e => { e.stopPropagation();
+      const m = root.querySelector('#cm-'+b.dataset.create);
+      const was = m.classList.contains('on');
+      root.querySelectorAll('.createmenu').forEach(x=>x.classList.remove('on'));
+      m.classList.toggle('on', !was);
+    };
+  });
+  document.addEventListener('click', ()=>root.querySelectorAll('.createmenu').forEach(x=>x.classList.remove('on')));
+}
+function hl(name, q){
+  if(!q) return E(name);
+  const i = name.toLowerCase().indexOf(q.toLowerCase());
+  if(i < 0) return E(name);
+  return E(name.slice(0,i)) + '<mark>' + E(name.slice(i,i+q.length)) + '</mark>' + E(name.slice(i+q.length));
+}
+const match = (h,q) => (h.n+' '+h.m+' '+KIND[h.k].t).toLowerCase().includes(q.toLowerCase());
+
+/* ═════════ V1 · ANSWER-FIRST ═════════ */
+function v1(){
+  return `<div class="topbar">
+      <div class="brand">${I.file(17)} Reports</div>
+      <div style="flex:1"></div>
+      <button class="btn ghost sm">${I.grid(14)} Browse all</button>
+      ${createMenuHTML('v1')}
+    </div>
+    <div class="wrap">
+      <div class="sb">${I.search()}
+        <input id="v1q" placeholder="Search 328 reports, dashboards, queries and schedules" autocomplete="off">
+        <button class="clr" id="v1clr" hidden aria-label="Clear">${I.x()}</button>
+        <span class="kbd">/</span>
+      </div>
+      <div class="facets" id="v1f"></div>
+      <div id="v1body"></div>
+    </div>`;
+}
+function v1Wire(root){
+  wireCreate(root);
+  const q = root.querySelector('#v1q'), clr = root.querySelector('#v1clr'),
+        body = root.querySelector('#v1body'), fEl = root.querySelector('#v1f');
+  let facet = 'all';
+
+  const facets = [['all','All',TOTAL], ...Object.entries(KIND).map(([k,v])=>[k,v.p,v.n])];
+  const drawFacets = () => fEl.innerHTML = facets.map(([k,t,n]) =>
+    `<button class="facet ${k===facet?'on':''}" data-k="${k}">${t} <b class="num">${n}</b></button>`).join('');
+
+  function idle(){
+    body.innerHTML = `<div class="idle">
+      <div class="col"><h3>Recent searches</h3>
+        <div class="rs">${RECENT_SEARCH.map(s=>`<button data-q="${E(s)}">${I.hist()} ${E(s)}</button>`).join('')}</div>
+      </div>
+      <div class="col"><h3>Jump back in</h3>
+        <div class="jb">${VIEWED.map(v=>`<div class="jbr"><span class="gi">${kindIcon(v.k)}</span>
+          <span class="nm">${E(v.n)}</span><span class="tm">${E(v.t)}</span></div>`).join('')}</div>
+      </div>
+      <div class="col"><h3>Or start from a question</h3>
+        <div class="qq">${QUESTIONS.slice(0,4).map(x=>`<button data-q="${E(x.a)}">${E(x.q)}<i>→ ${E(x.a)}</i></button>`).join('')}</div>
+      </div></div>
+      <div class="allfoot">Nothing to type yet? <a data-browse>Browse the full catalogue</a> — 222 predefined reports across 9 modules, plus 37 custom, 56 query, 7 scheduled and 6 dashboards.</div>`;
+  }
+
+  function results(term){
+    const pool = INDEX.filter(h => match(h,term) && (facet==='all' || h.k===facet));
+    if(!pool.length){
+      body.innerHTML = `<div class="empty"><b>Nothing matched “${E(term)}”</b>
+        <p>No report, query or schedule in the catalogue uses that wording.</p>
+        <button class="btn primary sm">${I.sparkle(14)} Ask ZIA to build this report</button></div>`;
+      return;
+    }
+    const order = ['pre','cus','qry','sch','dsh'];
+    body.innerHTML = order.map(k=>{
+      const rows = pool.filter(h=>h.k===k);
+      if(!rows.length) return '';
+      return `<div class="grp"><h3>${KIND[k].p} <em>${rows.length} of ${KIND[k].n}</em></h3>
+        <div class="hits">${rows.slice(0,6).map(h=>`<div class="hit">
+          <span class="gi">${modIcon(h.m)}</span>
+          <span class="body"><span class="nm">${hl(h.n,term)}</span>
+            <span class="meta">${E(h.m)}${h.by?' · '+E(h.by):''}${h.to?' · '+E(h.to)+' · '+E(h.fq):''}${h.w?' · '+h.w+' widgets':''}</span></span>
+          ${h.st==='failed'?'<span class="badge bad"><span class="dot"></span>Failed</span>':''}
+          ${h.st==='paused'?'<span class="badge warn"><span class="dot"></span>Paused</span>':''}
+        </div>`).join('')}
+        ${rows.length>6?`<div class="hit" style="justify-content:center;color:var(--violet);font-weight:600;font-size:12.5px">Show all ${rows.length}</div>`:''}
+        </div></div>`;
+    }).join('');
+  }
+
+  function render(){
+    const term = q.value.trim();
+    clr.hidden = !term;
+    term ? results(term) : idle();
+  }
+  q.oninput = render;
+  clr.onclick = ()=>{ q.value=''; render(); q.focus(); };
+  fEl.onclick = e => { const b = e.target.closest('.facet'); if(!b) return;
+    facet = b.dataset.k; drawFacets(); render(); };
+  body.addEventListener('click', e=>{
+    const b = e.target.closest('[data-q]'); if(b){ q.value = b.dataset.q; render(); q.focus(); }
+  });
+  drawFacets(); render();
+}
+
+/* ═════════ V2 · OPERATIONS CONSOLE ═════════ */
+function v2(){
+  const failed  = INDEX.filter(h=>h.st==='failed');
+  const paused  = INDEX.filter(h=>h.st==='paused');
+  const attention = [
+    {c:'e', n:'Q2 Compliance Audit pack', meta:'Schedule · monthly to audit@acme.com · last delivery failed Aug 12, SMTP timeout', act:['Retry','Open']},
+    {c:'e', n:'Systems with No Agent Contact', meta:'Predefined · returned 41 endpoints, up from 12 last week', act:['Run','Open']},
+    {c:'w', n:'Vulnerability posture → Security', meta:'Schedule · paused 34 days ago by Admin, never resumed', act:['Resume','Open']},
+    {c:'w', n:'Patch SLA — 14-day breach list', meta:'Custom · last run 97 days ago, owner Sarah K. no longer active', act:['Run','Open']},
+    {c:'w', n:'Expired certificates', meta:'Predefined · 6 certificates expired since the last run', act:['Run','Open']},
+    {c:'',  n:'Zero Day Vulnerability Report', meta:'Predefined · 2 new CVEs matched since Nov 22', act:['Run','Open']},
+  ];
+  const feed = [
+    {n:'Count of Computer by Operating System', k:'cus', t:'07:53 PM', s:'ok'},
+    {n:'Agent Live Status',                     k:'cus', t:'07:46 PM', s:'run'},
+    {n:'Computer and its Total Co2 Emission',   k:'cus', t:'07:14 PM', s:'ok'},
+    {n:'Daily agent health digest',             k:'sch', t:'06:00 PM', s:'sent'},
+    {n:'Missing Patches',                       k:'pre', t:'04:02 PM', s:'ok'},
+    {n:'License Compliance',                    k:'pre', t:'01:30 PM', s:'ok'},
+    {n:'Weekly patch compliance → CISO',        k:'sch', t:'09:00 AM', s:'sent'},
+  ];
+  const pill = s => s==='run' ? `<span class="badge acc">${I.refresh(11)} Running</span>`
+                  : s==='sent' ? `<span class="badge ok">${I.mail(11)} Delivered</span>`
+                  : `<span class="badge neu"><span class="dot"></span>Ready</span>`;
+  return `<div class="wrap">
+    <div class="hd">
+      <h1>Reports</h1>
+      <span class="as">328 items · as of Nov 25, 08:02 PM</span>
+      <span class="sp"></span>
+      <span class="msearch">${I.search(15)}<input placeholder="Find a report…"></span>
+      ${createMenuHTML('v2')}
+    </div>
+
+    <div class="tiles">
+      <button class="tile crit"><span class="v num">${failed.length}</span>
+        <span class="l">Delivery failed</span><span class="s">Q2 Compliance Audit, Aug 12</span></button>
+      <button class="tile warnb"><span class="v num">${paused.length + 1}</span>
+        <span class="l">Paused or stalled</span><span class="s">1 paused schedule · 1 orphaned report</span></button>
+      <button class="tile info"><span class="v num">38</span>
+        <span class="l">Never run</span><span class="s">Of 222 predefined reports</span></button>
+      <button class="tile good"><span class="v num">6</span>
+        <span class="l">Ran today</span><span class="s">4 reports · 2 deliveries</span></button>
+    </div>
+
+    <div class="split">
+      <div class="panel">
+        <h2>${I.alert(14)} Needs attention <span class="c">${attention.length} items</span></h2>
+        ${attention.map(a=>`<div class="arow ${a.c}"><span class="sev"></span>
+          <span class="body"><span class="nm">${E(a.n)}</span><span class="meta">${E(a.meta)}</span></span>
+          <span class="act">${a.act.map((x,i)=>`<button class="btn ${i===0?'primary':'ghost'} xs">${E(x)}</button>`).join('')}</span>
+        </div>`).join('')}
+      </div>
+      <div class="panel">
+        <h2>${I.clock(14)} Today <span class="c">Nov 25</span></h2>
+        <div class="feed">${feed.map(f=>`<div class="fr"><span class="gi">${kindIcon(f.k)}</span>
+          <span class="nm">${E(f.n)}</span>${pill(f.s)}<span class="tm">${E(f.t)}</span></div>`).join('')}</div>
+      </div>
+    </div>
+
+    <div class="modstrip">
+      <div class="sechead"><h2>Browse the catalogue</h2>
+        <span class="sub">222 predefined · 37 custom · 56 query · 7 schedules · 6 dashboards</span></div>
+      <div class="mods">${MODULES.map(m=>`<button>${I[m.i](14)} ${E(m.n)} <b class="num">${m.c}</b></button>`).join('')}</div>
+    </div>
+
+    <p class="note">Every number on this screen assumes the backend tracks last-run time, row deltas and delivery
+      outcomes per item. The current API returns catalogue metadata only — see PRD GAP-6 — so this direction is a
+      request for that data as much as it is a layout.</p>
+  </div>`;
+}
+function v2Wire(root){ wireCreate(root); }
+
+/* ═════════ V3 · MY WORKSPACE ═════════ */
+function v3(){
+  const pins = [
+    {n:'Missing Patches',            m:'Threats & Patches', v:'1,284', c:'endpoints affected', tone:'bad',  sp:[8,11,9,14,12,17,19]},
+    {n:'Highly Vulnerable Systems',  m:'Threats & Patches', v:'62',    c:'systems, +9 this week', tone:'warn', sp:[4,5,4,6,7,6,9]},
+    {n:'License Compliance',         m:'Inventory',         v:'93%',   c:'in compliance',     tone:'',     sp:[12,12,13,12,14,14,15]},
+    {n:'Agent Live Status',          m:'Custom report',     v:'2,940', c:'agents reporting',  tone:'',     sp:[14,15,14,15,15,16,16]},
+    {n:'Expired certificates',       m:'Inventory',         v:'6',     c:'expired since Nov 1', tone:'warn', sp:[1,1,2,2,3,4,6]},
+  ];
+  const spark = (d,tone) => {
+    const w=104,h=22,max=Math.max(...d),min=Math.min(...d);
+    const pts = d.map((v,i)=>`${(i/(d.length-1)*w).toFixed(1)},${(h-2-((v-min)/((max-min)||1))*(h-6)).toFixed(1)}`).join(' ');
+    const col = tone==='bad'?'var(--err)':tone==='warn'?'var(--warn)':'var(--violet)';
+    return `<svg class="spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" fill="none" aria-hidden="true">
+      <polyline points="${pts}" stroke="${col}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  };
+  const mine = [
+    {n:'Patch SLA — 14-day breach list', k:'cus', meta:'Custom report · edited by you', t:'2 days ago'},
+    {n:'Executive endpoint summary',     k:'cus', meta:'Custom report · shared with CISO, IT Team', t:'6 days ago'},
+    {n:'Servers under 10% free disk',    k:'qry', meta:'Query report · 1,204 rows, 0.8 s', t:'12 days ago'},
+    {n:'Endpoints missing 3+ critical patches', k:'qry', meta:'Query report · never run', t:'—'},
+  ];
+  const sched = [
+    {n:'Weekly patch compliance → CISO',    meta:'Weekly · PDF to ciso@acme.com',        t:'Fri 09:00', ok:1},
+    {n:'Daily agent health digest',         meta:'Daily · XLSX to it-ops@acme.com',      t:'Tomorrow 06:00', ok:1},
+    {n:'Monthly licence true-up → Finance', meta:'Monthly · XLSX to finance@acme.com',   t:'Dec 1', ok:1},
+    {n:'Q2 Compliance Audit pack',          meta:'Monthly · PDF to audit@acme.com',      t:'Failed Aug 12', ok:0},
+  ];
+  return `<div class="topbar">
+      <div class="brand">${I.file(17)} Reports</div>
+      <div style="flex:1"></div>
+      <span class="msearch" style="display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:9px;min-width:230px">
+        ${I.search(15)}<input placeholder="Search 328 items…" style="border:none;background:none;outline:none;flex:1;min-width:0;font-size:13px"><span class="kbd">/</span></span>
+      ${createMenuHTML('v3')}
+    </div>
+    <div class="wrap">
+      <div>
+        <h1 class="greet">Good evening, Bharath</h1>
+        <p class="greetsub">Five pinned reports, four schedules and one delivery that needs looking at.</p>
+
+        <div class="sechead"><h2>Pinned</h2><span class="sub">values from the last run</span>
+          <button class="toggle" id="v3cold">Show the day-one state</button></div>
+        <div class="pins" id="v3pins">
+          ${pins.map(p=>`<button class="pin"><span class="top"><span class="gi">${modIcon(p.m)||I.file(14)}</span>
+            <span class="nm">${E(p.n)}</span><span class="unpin" title="Unpin">${I.pin(13)}</span></span>
+            <span class="val ${p.tone}" >${E(p.v)}</span><span class="cap">${E(p.c)}</span>${spark(p.sp,p.tone)}</button>`).join('')}
+          <button class="addpin">${I.plus(16)} Pin a report</button>
+        </div>
+
+        <div class="sechead"><h2>Mine</h2><span class="sub">reports and queries you created</span>
+          <span class="more">View all 12</span></div>
+        <div class="lst">${mine.map(r=>`<div class="lrow"><span class="gi">${kindIcon(r.k)}</span>
+          <span class="body"><span class="nm">${E(r.n)}</span><span class="meta">${E(r.meta)}</span></span>
+          <span class="tm">${E(r.t)}</span></div>`).join('')}</div>
+
+        <div class="sechead"><h2>My schedules</h2><span class="sub">next delivery</span>
+          <span class="more">Manage all 7</span></div>
+        <div class="lst">${sched.map(r=>`<div class="lrow"><span class="gi">${I.cal(14)}</span>
+          <span class="body"><span class="nm">${E(r.n)}</span><span class="meta">${E(r.meta)}</span></span>
+          ${r.ok?`<span class="badge neu">${E(r.t)}</span>`:`<span class="badge bad"><span class="dot"></span>${E(r.t)}</span>`}
+        </div>`).join('')}</div>
+      </div>
+
+      <div class="rail">
+        <div class="rcard"><h3>Recently viewed</h3>
+          <div class="mlist">${VIEWED.slice(0,5).map(v=>`<button><span class="gi">${kindIcon(v.k)}</span>
+            <span class="nm">${E(v.n)}</span></button>`).join('')}</div></div>
+        <div class="rcard"><h3>Browse catalogue</h3>
+          <div class="mlist">${MODULES.map(m=>`<button><span class="gi">${I[m.i](14)}</span>
+            <span class="nm">${E(m.n)}</span><span class="c num">${m.c}</span></button>`).join('')}</div></div>
+        <div class="rcard"><h3>Extensions</h3>
+          <div class="mlist">
+            <button><span class="gi">${I.ext(14)}</span><span class="nm">4 installed</span></button>
+            <button><span class="gi">${I.sparkle(14)}</span><span class="nm">8 available</span></button>
+          </div></div>
+      </div>
+    </div>`;
+}
+function v3Wire(root){
+  wireCreate(root);
+  const btn = root.querySelector('#v3cold'), pins = root.querySelector('#v3pins');
+  const full = pins.innerHTML;
+  let cold = false;
+  btn.onclick = () => {
+    cold = !cold;
+    btn.textContent = cold ? 'Show the populated state' : 'Show the day-one state';
+    pins.innerHTML = cold ? `<div class="cold" style="grid-column:1/-1;margin-bottom:0">
+        <b>You have not pinned anything yet</b>
+        <p>Pinned reports show their latest number here, so the answers you check often are on the page
+           before you search for them. Start with one of these, or pin from any report.</p>
+        <div class="coldchips">${['Missing Patches','License Compliance','Highly Vulnerable Systems','Expired certificates']
+          .map(n=>`<button class="btn ghost sm">${I.plus(13)} ${E(n)}</button>`).join('')}</div>
+      </div>` : full;
+  };
+}
+
+/* ═════════ V4 · CATALOGUE MAP ═════════ */
+function v4(){
+  return `<div class="bar">
+      <span class="fs">${I.search(15)}<input id="v4q" placeholder="Filter all 328 items…" autocomplete="off"></span>
+      <span class="surf" id="v4s"></span>
+      <span style="flex:1"></span>
+      ${createMenuHTML('v4')}
+    </div>
+    <div class="wrap" id="v4wrap"></div>`;
+}
+function v4Wire(root){
+  wireCreate(root);
+  const q = root.querySelector('#v4q'), wrap = root.querySelector('#v4wrap'), sEl = root.querySelector('#v4s');
+  let surf = 'all';
+  const surfaces = [['all','All',TOTAL], ...Object.entries(KIND).map(([k,v])=>[k,v.s,v.n])];
+  const drawSurf = () => sEl.innerHTML = surfaces.map(([k,t,n]) =>
+    `<button data-k="${k}" class="${k===surf?'on':''}">${t} <b class="num">${n}</b></button>`).join('');
+
+  function render(){
+    const term = q.value.trim();
+    const pool = INDEX.filter(h => (!term || match(h,term)) && (surf==='all' || h.k===surf));
+    if(!pool.length){ wrap.innerHTML = `<div class="none">Nothing in the catalogue matches “${E(term)}”.</div>`; return; }
+
+    const blocks = [];
+    // predefined, grouped by module — the block header carries the true module count
+    if(surf==='all' || surf==='pre'){
+      MODULES.forEach(m=>{
+        const rows = pool.filter(h=>h.k==='pre' && h.m===m.n);
+        if(!rows.length) return;
+        blocks.push(`<div class="blk"><h3><span class="gi">${I[m.i](14)}</span>${E(m.n)}<span class="c num">${m.c}</span></h3>
+          <ul>${rows.map(h=>`<li>${hl(h.n,term)}</li>`).join('')}</ul>
+          ${!term && rows.length < m.c ? `<div class="rest">+ ${m.c-rows.length} more in ${E(m.n)}</div>` : ''}</div>`);
+      });
+    }
+    // the other four surfaces, one block each
+    [['cus','Custom reports'],['qry','Query reports'],['sch','Schedules'],['dsh','Dashboards']].forEach(([k,label])=>{
+      if(surf!=='all' && surf!==k) return;
+      const rows = pool.filter(h=>h.k===k);
+      if(!rows.length) return;
+      blocks.push(`<div class="blk"><h3><span class="gi">${kindIcon(k)}</span>${E(label)}<span class="c num">${KIND[k].n}</span></h3>
+        <ul>${rows.map(h=>`<li>${hl(h.n,term)}
+          ${h.st==='failed'?'<span class="st badge bad"><span class="dot"></span>Failed</span>':''}
+          ${h.st==='paused'?'<span class="st badge warn"><span class="dot"></span>Paused</span>':''}
+          ${h.w?`<span class="st" style="color:var(--faint);font-size:11px">${h.w}w</span>`:''}</li>`).join('')}</ul>
+        ${!term && rows.length < KIND[k].n ? `<div class="rest">+ ${KIND[k].n-rows.length} more</div>` : ''}</div>`);
+    });
+    wrap.innerHTML = blocks.join('');
+  }
+  q.oninput = render;
+  sEl.onclick = e => { const b = e.target.closest('button'); if(!b) return; surf = b.dataset.k; drawSurf(); render(); };
+  drawSurf(); render();
+}
+
+/* ═════════ V5 · ASK-FIRST ═════════ */
+function v5(){
+  return `<div class="topbar">
+      <div class="brand">${I.file(17)} Reports</div>
+      <div style="flex:1"></div>
+      <button class="btn ghost sm">${I.grid(14)} Browse all 328</button>
+      ${createMenuHTML('v5')}
+    </div>
+    <div class="wrap">
+      <h1>What do you need to know?</h1>
+      <p class="lede">Describe it in your own words. If a report already answers it, you get that —
+        if nothing does, ZIA builds one.</p>
+      <div class="ask">
+        <textarea id="v5q" rows="2" placeholder="e.g. every Windows server that missed a critical patch in the last 30 days"></textarea>
+        <div class="askfoot">
+          <span class="h">Searches 328 existing items first · <span class="kbd">Enter</span> to ask</span>
+          <button class="btn ghost sm" id="v5clr">Clear</button>
+          <button class="btn primary sm" id="v5go">${I.sparkle(14)} Ask</button>
+        </div>
+      </div>
+      <div id="v5body"></div>
+    </div>`;
+}
+function v5Wire(root){
+  wireCreate(root);
+  const q = root.querySelector('#v5q'), body = root.querySelector('#v5body');
+
+  function idle(){
+    body.innerHTML = `<div class="starters">${QUESTIONS.map(x=>
+      `<button data-q="${E(x.q)}"><span class="q">${E(x.q)}</span>
+        <span class="t">${I.file(12)} ${E(x.a)}</span></button>`).join('')}</div>
+      <div class="cat"><h3>Or go straight to a module</h3>
+        <div class="row">${MODULES.map(m=>`<button>${I[m.i](14)} ${E(m.n)} <b class="num">${m.c}</b></button>`).join('')}</div></div>`;
+  }
+
+  function answer(term){
+    const words = term.toLowerCase().split(/\s+/).filter(w=>w.length>3);
+    const scored = INDEX.map(h=>{
+      const hay = (h.n+' '+h.m).toLowerCase();
+      return {h, s: words.reduce((a,w)=>a + (hay.includes(w)?1:0), 0)};
+    }).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,3);
+
+    const found = scored.length ? `<div class="ansec">
+        <h3>You may already have this <em>${scored.length} close match${scored.length>1?'es':''}</em></h3>
+        ${scored.map(({h})=>`<div class="mc"><span class="gi">${modIcon(h.m)}</span>
+          <span class="body"><span class="nm">${E(h.n)}</span>
+            <span class="meta">${KIND[h.k].t} · ${E(h.m)}${h.by?' · '+E(h.by):''}</span></span>
+          <button class="btn ghost xs">${I.play(12)} Run</button></div>`).join('')}
+      </div>` : `<div class="ansec"><h3>Nothing in the catalogue matches</h3>
+        <div class="mc" style="cursor:default;color:var(--muted)"><span class="gi" style="background:var(--surface-2);color:var(--faint)">${I.search(15)}</span>
+        <span class="body"><span class="nm" style="font-weight:500">No existing report covers this</span>
+        <span class="meta">Searched 222 predefined, 37 custom, 56 query, 7 scheduled and 6 dashboards.</span></span></div></div>`;
+
+    body.innerHTML = found + `<div class="ansec"><h3>Or build it ${scored.length?'<em>tailored to exactly what you asked</em>':''}</h3>
+      <div class="build">
+        <div class="bh">${I.sparkle(16)} ZIA can generate this as a new report</div>
+        <p>Here is the specification it would build from your description. Edit anything before it runs.</p>
+        <div class="spec">
+          <div><b>Data source</b> Patch management · Inventory</div>
+          <div><b>Filter</b> ${E(term.slice(0,72))}${term.length>72?'…':''}</div>
+          <div><b>Columns</b> Endpoint name, OS, Patch ID, Severity, Status, Last seen</div>
+          <div><b>Group by</b> Severity, then endpoint</div>
+        </div>
+        <div class="brow">
+          <button class="btn primary sm">${I.sparkle(14)} Build this report</button>
+          <button class="btn ghost sm">${I.dash(14)} Build as dashboard</button>
+          <button class="btn ghost sm">${I.ext(14)} Look for an extension</button>
+        </div>
+      </div></div>`;
+  }
+
+  function render(){ const t = q.value.trim(); t ? answer(t) : idle(); }
+  q.oninput = render;
+  q.onkeydown = e => { if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); render(); } };
+  root.querySelector('#v5clr').onclick = ()=>{ q.value=''; render(); q.focus(); };
+  root.querySelector('#v5go').onclick = render;
+  body.addEventListener('click', e=>{ const b = e.target.closest('[data-q]');
+    if(b){ q.value = b.dataset.q; render(); q.focus(); } });
+  idle();
+}
+
+/* ═════════ mount / switcher ═════════ */
+const VARIANTS = [
+  { k:'v1', t:'1 · Answer-first',
+    fix:'The shipped hub has a search box that does nothing until you type, and no visible way to create anything. Here the panel is always open — recent searches, jump-back-in and plain-language questions fill the screen at rest, results replace them as you type, and Create sits in the header.',
+    off:'Browsing is demoted to a link. Anyone who wants to wander the catalogue rather than name a thing has to click through first, and the three idle columns are only useful once the tenant has history.' },
+  { k:'v2', t:'2 · Operations console',
+    fix:'Drops the hero entirely and leads with state: a failed delivery, a paused schedule, 38 predefined reports never run, row counts that moved. Reports become an operational surface you check, not a catalogue you shop.',
+    off:'Needs run history, delivery outcomes and row deltas the API does not return today (PRD GAP-6). On a healthy tenant the top half of the page is empty, and it is the wrong first screen for someone who has never run anything.' },
+  { k:'v3', t:'3 · My workspace',
+    fix:'Answers PRD D8 — 328 items with no personalisation. Pinned reports show their latest number with a 7-run sparkline, then your reports, your queries and your next four deliveries. The catalogue moves to a right rail.',
+    off:'Day one is empty, so it lives or dies on the cold-start state (toggle it above the pins). Requires per-user pins, view history and ownership — none of which persist today (GAP-2).' },
+  { k:'v4', t:'4 · Catalogue map',
+    fix:'No hero, no ranking: all six surfaces on one screen, so the facet counts finally label something you can see. Fixes the shipped page showing module tiles for 222 predefined reports while 106 custom, query, scheduled and dashboard items had no browse path at all.',
+    off:'Dense and flat — a directory, not a home page. Nothing tells a first-time admin where to start, and at real enterprise volume the columns need virtualising and per-block paging.' },
+  { k:'v5', t:'5 · Ask-first',
+    fix:'Turns the search box into a prompt box and removes the dead end: your description is matched against the catalogue first, and whatever it fails to answer becomes a ZIA build spec you can edit. Wires both PRD growth vectors to the entry point.',
+    off:'Bets the front door on a capability that is entirely simulated today (GAP-4 — canned responses on a timer). Slower than typing a name you already know, and the build spec is a fixed template here, not generated from what you typed.' },
+];
+document.getElementById('vtabs').innerHTML = VARIANTS.map((v,i)=>`<button data-v="${v.k}" class="${i===0?'on':''}">${v.t}</button>`).join('');
+document.getElementById('views').innerHTML = VARIANTS.map((v,i)=>`<div class="view ${v.k} ${i===0?'on':''}" id="view-${v.k}"></div>`).join('');
+
+const BUILD = {v1,v2,v3,v4,v5};
+const WIRE  = {v1:v1Wire,v2:v2Wire,v3:v3Wire,v4:v4Wire,v5:v5Wire};
+const built = {};
+function show(k){
+  VARIANTS.forEach(v=>document.getElementById('view-'+v.k).classList.toggle('on', v.k===k));
+  document.querySelectorAll('#vtabs button').forEach(b=>b.classList.toggle('on', b.dataset.v===k));
+  const v = VARIANTS.find(x=>x.k===k);
+  document.getElementById('why').innerHTML =
+    `<div class="fix"><b>Fixes</b>${v.fix}</div><div><b>Trade-off</b>${v.off}</div>`;
+  if(!built[k]){
+    const root = document.getElementById('view-'+k);
+    root.innerHTML = BUILD[k]();
+    WIRE[k](root);
+    built[k] = true;
+  }
+}
+document.getElementById('vtabs').addEventListener('click', e=>{ const b=e.target.closest('button'); if(b) show(b.dataset.v); });
+show('v1');
+</script>
