@@ -1,0 +1,574 @@
+<meta charset="utf-8">
+<title>Search settings · Endpoint Central</title>
+<style>
+  :root {
+    --violet:#2563eb; --violet-hov:#1d4ed8; --violet-soft:rgba(37,99,235,.08);
+    --surface:#fff; --surface-2:#f4f6fb; --page:#f7f9fc;
+    --border:rgba(37,99,235,.13); --border-soft:rgba(37,99,235,.07);
+    --text:#15181e; --muted:#64748b; --faint:#94a3b8;
+    --ok:#16a34a; --ok-bg:rgba(34,197,94,.12);
+    --warn:#a16207; --warn-bg:rgba(234,179,8,.13); --warn-line:rgba(234,179,8,.4);
+    --err:#dc2626; --err-bg:rgba(239,68,68,.10); --err-line:rgba(239,68,68,.3);
+    --shadow:0 2px 12px rgba(37,99,235,.06); --pop:0 10px 34px rgba(16,25,42,.14);
+    --r:12px; --font:'Zoho Puvi',ui-sans-serif,system-ui,'Segoe UI',Roboto,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+    --violet:#3b82f6; --violet-hov:#60a5fa; --violet-soft:rgba(59,130,246,.14);
+    --surface:#12131a; --surface-2:#1a1c25; --page:#0a0a0c;
+    --border:rgba(255,255,255,.10); --border-soft:rgba(255,255,255,.06);
+    --text:rgba(255,255,255,.92); --muted:rgba(255,255,255,.50); --faint:rgba(255,255,255,.34);
+    --ok:#22c55e; --ok-bg:rgba(34,197,94,.15);
+    --warn:#eab308; --warn-bg:rgba(234,179,8,.13); --warn-line:rgba(234,179,8,.32);
+    --err:#f87171; --err-bg:rgba(239,68,68,.12); --err-line:rgba(239,68,68,.30);
+    --shadow:none; --pop:0 10px 34px rgba(0,0,0,.55);
+  }}
+  :root[data-theme="dark"]{
+    --violet:#3b82f6; --violet-hov:#60a5fa; --violet-soft:rgba(59,130,246,.14);
+    --surface:#12131a; --surface-2:#1a1c25; --page:#0a0a0c;
+    --border:rgba(255,255,255,.10); --border-soft:rgba(255,255,255,.06);
+    --text:rgba(255,255,255,.92); --muted:rgba(255,255,255,.50); --faint:rgba(255,255,255,.34);
+    --ok:#22c55e; --ok-bg:rgba(34,197,94,.15);
+    --warn:#eab308; --warn-bg:rgba(234,179,8,.13); --warn-line:rgba(234,179,8,.32);
+    --err:#f87171; --err-bg:rgba(239,68,68,.12); --err-line:rgba(239,68,68,.30);
+    --shadow:none; --pop:0 10px 34px rgba(0,0,0,.55);
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--page);color:var(--text);font:14px/1.5 var(--font);-webkit-font-smoothing:antialiased}
+  button,input{font-family:inherit}
+  a{color:inherit}
+  :focus-visible{outline:2px solid var(--violet);outline-offset:2px;border-radius:6px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+  .chrome{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:14px;padding:9px 20px;
+          background:var(--surface);border-bottom:1px solid var(--border)}
+  .brand{font-weight:700;font-size:13px} .brand span{color:var(--muted);font-weight:500}
+  .tabs{display:flex;gap:2px;background:var(--surface-2);padding:3px;border-radius:9px}
+  .tabs a{padding:6px 14px;border-radius:7px;text-decoration:none;font:600 13px var(--font);color:var(--muted)}
+  .tabs a.on{background:var(--surface);color:var(--violet);box-shadow:var(--shadow)}
+  .sp{flex:1}
+
+  .btn{padding:8px 15px;border-radius:8px;font:600 13.5px/1 var(--font);cursor:pointer;
+       display:inline-flex;align-items:center;gap:7px;border:1px solid transparent;text-decoration:none;transition:.15s;white-space:nowrap}
+  .btn.primary{background:var(--violet);color:#fff} .btn.primary:hover{background:var(--violet-hov)}
+  .btn.ghost{background:var(--surface);color:var(--text);border-color:var(--border)}
+  .btn.ghost:hover{background:var(--surface-2);border-color:var(--violet)}
+  .btn.sm{padding:6px 11px;font-size:12.5px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow)}
+
+  .page{max-width:960px;margin:0 auto;padding:40px clamp(14px,3vw,30px) 80px}
+
+  /* ══ search stage ══ */
+  .stage{text-align:center;margin-bottom:30px}
+  .stage .eyebrow{font-size:11.5px;font-weight:700;color:var(--violet);text-transform:uppercase;
+                   letter-spacing:.08em;margin:0 0 9px}
+  .stage h1{font-size:28px;font-weight:700;letter-spacing:-.02em;margin:0 0 8px;text-wrap:balance}
+  .stage .lede{font-size:14.5px;color:var(--muted);margin:0 auto;max-width:58ch}
+
+  .bigsearch{position:relative;max-width:680px;margin:22px auto 0}
+  .bigsearch-in{display:flex;align-items:center;gap:12px;padding:16px 19px;background:var(--surface);
+           border:1.5px solid var(--border);border-radius:14px;box-shadow:var(--shadow);transition:.15s}
+  .bigsearch-in:focus-within{border-color:var(--violet);box-shadow:0 0 0 5px var(--violet-soft)}
+  .bigsearch-in svg{color:var(--muted);flex-shrink:0}
+  .bigsearch-in input{flex:1;min-width:0;border:none;background:none;outline:none;color:var(--text);font-size:16.5px}
+  .bigsearch-in input::placeholder{color:var(--faint)}
+  .clr{background:none;border:none;color:var(--faint);cursor:pointer;padding:3px;border-radius:6px;line-height:0;flex-shrink:0}
+  .clr:hover{color:var(--text);background:var(--surface-2)}
+  .kbd{font:600 11.5px var(--font);color:var(--muted);background:var(--surface-2);
+       border:1px solid var(--border);border-radius:5px;padding:2.5px 7px;flex-shrink:0}
+
+  .facets{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-top:15px}
+  .facet{padding:6px 13px;border-radius:999px;border:1px solid var(--border);background:var(--surface);
+         color:var(--muted);font:600 12.5px var(--font);cursor:pointer;transition:.13s;display:inline-flex;
+         align-items:center;gap:6px;white-space:nowrap}
+  .facet:hover{border-color:var(--violet);color:var(--text)}
+  .facet.on{background:var(--violet);border-color:var(--violet);color:#fff}
+  .facet b{font-weight:700;opacity:.75;font-size:11.5px}
+  .facet.on b{opacity:.85}
+  .facet.more{border-style:dashed}
+
+  /* ══ results ══ */
+  .summary{display:flex;align-items:baseline;gap:9px;margin-bottom:13px;flex-wrap:wrap}
+  .summary h2{font-size:14.5px;font-weight:700;margin:0}
+  .summary span{font-size:12.5px;color:var(--muted)}
+
+  .hitgroup{margin-bottom:20px}
+  .hitgroup h3{display:flex;align-items:center;gap:9px;font-size:11.5px;font-weight:700;color:var(--faint);
+               text-transform:uppercase;letter-spacing:.06em;margin:0 0 8px}
+  .hitgroup h3 span{font-weight:600;color:var(--muted);text-transform:none;letter-spacing:0;font-size:12px}
+  .hits{border:1px solid var(--border);border-radius:var(--r);background:var(--surface);box-shadow:var(--shadow);overflow:hidden}
+  .hit{display:flex;align-items:center;gap:13px;padding:12px 15px;text-decoration:none;color:var(--text);cursor:pointer;
+       border-bottom:1px solid var(--border-soft);transition:.12s}
+  .hit:last-child{border-bottom:none}
+  .hit:hover,.hit.cur{background:var(--violet-soft)}
+  .hit .gi{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;flex-shrink:0;
+           background:var(--surface-2);color:var(--muted);border:1px solid var(--border)}
+  .hit:hover .gi,.hit.cur .gi{background:var(--surface);color:var(--violet);border-color:var(--violet)}
+  .hit .body{flex:1;min-width:0;display:flex;flex-direction:column}
+  /* NOTE: block, not flex — a flex .nm turns the <mark> and its sibling text nodes
+     into separate flex items, which inserts the gap into the middle of a word. */
+  .hit .nm{display:block;font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .hit .nm mark{background:none;color:var(--violet);font-weight:700}
+  .hit .nm .badge{margin-left:7px;vertical-align:1px}
+  .hit .meta{font-size:12px;color:var(--muted);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .hit .meta code{font-size:11.5px;color:var(--faint);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .hit .via{color:var(--violet)}
+  .hit .side{flex-shrink:0;display:flex;align-items:center;gap:8px}
+  .hit .go{color:var(--faint);flex-shrink:0}
+  .hit:hover .go,.hit.cur .go{color:var(--violet)}
+
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:1px 8px;border-radius:999px;font-size:11.5px;font-weight:600;flex-shrink:0}
+  .badge.ok{background:var(--ok-bg);color:var(--ok)}
+  .badge.new{background:var(--warn-bg);color:var(--warn);font-size:10.5px;text-transform:uppercase;letter-spacing:.04em}
+  .badge.neu{background:var(--surface-2);color:var(--muted);border:1px solid var(--border)}
+
+  .empty{padding:44px 20px;text-align:center;border:1px dashed var(--border);border-radius:var(--r);color:var(--muted)}
+  .empty b{display:block;color:var(--text);font-size:14.5px;margin-bottom:6px}
+  .empty p{margin:0 0 14px;font-size:13px;max-width:46ch;margin-inline:auto}
+  .empty .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+
+  /* ══ discovery (empty-query) view ══ */
+  .disc-sec{margin-bottom:28px}
+  .disc-h{display:flex;align-items:baseline;gap:9px;margin-bottom:11px}
+  .disc-h h2{font-size:13.5px;font-weight:700;margin:0}
+  .disc-h .hint{font-size:12px;color:var(--muted)}
+  .disc-h .sp{flex:1}
+
+  .pills{display:flex;gap:8px;flex-wrap:wrap}
+  .pill{padding:6px 13px;border-radius:999px;border:1px solid var(--border);background:var(--surface);
+        color:var(--text);font:500 12.5px var(--font);cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+  .pill:hover{border-color:var(--violet);background:var(--violet-soft)}
+  .pill svg{color:var(--faint);flex-shrink:0}
+  .pill:hover svg{color:var(--violet)}
+
+  /* recent strip */
+  .recents{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:9px}
+  .rec{display:flex;align-items:center;gap:10px;padding:11px 12px;background:var(--surface);border:1px solid var(--border);
+       border-radius:10px;text-decoration:none;color:var(--text);box-shadow:var(--shadow);transition:.13s}
+  .rec:hover{border-color:var(--violet);background:var(--violet-soft)}
+  .rec .gi{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;flex-shrink:0;
+           background:var(--surface-2);color:var(--muted);border:1px solid var(--border)}
+  .rec:hover .gi{color:var(--violet);border-color:var(--violet);background:var(--surface)}
+  .rec .body{min-width:0}
+  .rec .nm{display:block;font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rec .meta{display:block;font-size:11.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  /* category browse grid */
+  .catgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(272px,1fr));gap:14px}
+  .catcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+           box-shadow:var(--shadow);padding:15px 16px 13px}
+  .catcard .ch{display:flex;align-items:center;gap:9px;margin-bottom:10px;padding-bottom:10px;
+               border-bottom:1px solid var(--border-soft)}
+  .catcard .ch .gi{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;flex-shrink:0;
+                   background:var(--violet-soft);color:var(--violet)}
+  .catcard .ch h4{margin:0;font-size:13px;font-weight:700;flex:1}
+  .catcard .ch .n{font-size:11.5px;color:var(--faint);font-weight:600}
+  .catcard ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
+  .catcard li a{display:flex;align-items:center;gap:7px;padding:5px 7px;margin:0 -7px;border-radius:7px;
+                text-decoration:none;color:var(--muted);font-size:12.5px;transition:.12s}
+  .catcard li a:hover{background:var(--violet-soft);color:var(--violet)}
+  .catcard li a .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  .note{display:flex;gap:10px;padding:13px 15px;background:var(--surface-2);border:1px solid var(--border-soft);
+        border-radius:10px;font-size:12.5px;color:var(--muted);line-height:1.55;margin-top:30px}
+  .note svg{flex-shrink:0;margin-top:2px;color:var(--faint)}
+  .note code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;
+             background:var(--surface);padding:1px 5px;border-radius:4px;border:1px solid var(--border-soft)}
+  .note b{color:var(--text);font-weight:600}
+</style>
+
+<div class="chrome">
+  <div class="brand">Admin settings <span>· search home</span></div>
+  <div class="tabs">
+    <a class="on" href="#">Search</a>
+    <a href="#" id="tab-browse">Browse all</a>
+    <a href="reports-search-home.html">Reports search</a>
+  </div>
+  <div class="sp"></div>
+  <button class="btn ghost sm" id="theme" title="Toggle theme" aria-label="Toggle theme">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+</div>
+
+<div class="page">
+
+  <div class="stage">
+    <div class="eyebrow">Admin</div>
+    <h1>Find any setting without knowing which module owns it</h1>
+    <p class="lede">One search across all 70 admin settings. Search by what you're trying to do — <b>SMTP</b>, <b>SSO</b>, <b>2FA</b>, <b>GDPR</b>, <b>disk space</b> — not by the label Endpoint Central happens to use.</p>
+
+    <div class="bigsearch">
+      <div class="bigsearch-in">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="q" placeholder="Search 70 settings across 14 categories…" autocomplete="off" aria-label="Search settings" autofocus>
+        <button class="clr" id="clr" hidden aria-label="Clear search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+        <span class="kbd">/</span>
+      </div>
+    </div>
+
+    <div class="facets" id="facets"></div>
+  </div>
+
+  <div id="results"></div>
+
+  <div class="note">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+    <div>Every setting, category and route on this page was read from the live <b>Admin</b> page of <code>demo.endpointcentralplus.com</code> (Complete Access): <b>70 settings</b> in <b>14 categories</b>, with the nine <b>New</b> flags the product currently shows. Result rows deep-link to the real demo route, so clicking one opens the actual settings page. The search aliases (<code>smtp → Mail Server</code>, <code>sso → SAML Authentication</code>) are the design proposal — they don't exist in the product today, where the Admin search box matches on visible label only.</div>
+  </div>
+</div>
+
+<script>
+const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const DEMO = 'https://demo.endpointcentralplus.com/webclient';
+
+/* ═══ icon set ═══ */
+const I = {
+  globe:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/></svg>',
+  users:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2 20a7 7 0 0 1 14 0"/><path d="M17 5.2a3.5 3.5 0 0 1 0 5.6M19 20a6 6 0 0 0-3-5.2"/></svg>',
+  pc:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>',
+  server:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="7" rx="2"/><rect x="3" y="14" width="18" height="7" rx="2"/><path d="M7 6.5h.01M7 17.5h.01"/></svg>',
+  plug:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 2v6M15 2v6M6 8h12v3a6 6 0 0 1-12 0z"/><path d="M12 17v5"/></svg>',
+  shield:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 6v6c0 5 3.4 9.4 8 10 4.6-.6 8-5 8-10V6z"/></svg>',
+  db:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>',
+  patch:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 4 6v6c0 5 3.4 9.4 8 10 4.6-.6 8-5 8-10V6z"/><path d="m9 12 2 2 4-4"/></svg>',
+  disk:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>',
+  tool:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a4 4 0 0 1 5 5L21 12l-9 9-3-3 9-9z"/><path d="m7 7 3 3M3 11l4 4-3 3-2-2z"/></svg>',
+  box:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>',
+  sliders:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="7" cy="18" r="2"/></svg>',
+  log:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>',
+  chart:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l3-4 3 3 4-6"/></svg>',
+  go:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>',
+  bolt:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>',
+  clock:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  star:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3 2.7 5.6 6.3.9-4.5 4.4 1 6.1L12 17l-5.5 3 1-6.1L3 9.5l6.3-.9z"/></svg>',
+};
+
+/* ═══ the settings index — read from the demo's Admin page ═══ */
+const CATS = [
+  {id:'global', name:'Global Settings', icon:'globe', items:[
+    {n:'Custom Group', r:'#/uems/admin/custom-group', alt:'static dynamic group target computers collection'},
+    {n:'Rebranding', r:'#/uems/admin/rebrand', alt:'logo theme white label brand colour colors banner'},
+    {n:'Self Service Portal Settings', r:'#/uems/admin/software-deployment/ssp-settings', alt:'ssp app catalogue catalog store user request software'},
+    {n:'Credential Manager', r:'#/uems/admin/credential-manager', alt:'password domain admin vault runas secret account'},
+    {n:'Custom Field', r:'#/uems/admin/custom-field', alt:'metadata attribute extra column tag asset'},
+    {n:'Add Custom Data for Computers', r:'#/uems/admin/feedCustomData', alt:'import csv bulk upload custom data computer'},
+    {n:'DEX Manager', r:'#/uems/admin/intelligence/enable', nw:1, alt:'digital employee experience telemetry score intelligence'},
+  ]},
+  {id:'user', name:'User Administration', icon:'users', items:[
+    {n:'Users', r:'#/uems/admin/user-administration', alt:'technician account operator add user invite admin'},
+    {n:'Role', r:'#/uems/admin/user-administration/roles', alt:'permission rbac privilege access control scope grant'},
+    {n:'Mobile App', r:'#/uems/admin/mobile-app', alt:'ios android admin app pairing phone tablet'},
+    {n:'SAML Authentication', r:'#/uems/admin/saml-configuration', alt:'sso single sign on idp okta azure ad entra ldap federation'},
+  ]},
+  {id:'agent', name:'Agent', icon:'pc', items:[
+    {n:'Agent Settings', r:'#/uems/agent/agent-settings', alt:'install uninstall contact interval refresh polling heartbeat'},
+    {n:'SoM Settings', r:'#/uems/agent/som/settings', alt:'scope of management remote office active directory sync workgroup'},
+    {n:'Azure Autopilot', r:'#/uems/agent/windows/azure', alt:'entra intune provisioning windows autopilot cloud join'},
+    {n:'Apple Enrollment (ABM)', r:'#/uems/agent/mac/abm-dep', alt:'dep apple business manager mac ios enrollment supervised'},
+    {n:'APNS Certificate', r:'#/uems/agent/mac/apns-certificate', alt:'apple push notification mdm certificate renew expire'},
+  ]},
+  {id:'server', name:'Server Settings', icon:'server', items:[
+    {n:'NAT Settings', r:'#/uems/admin/nat-settings', alt:'network address translation public ip roaming external dns'},
+    {n:'Proxy Server', r:'#/uems/admin/proxy-settings', alt:'proxy internet outbound pac authentication upstream'},
+    {n:'Mail Server', r:'#/uems/admin/mail-server-settings', alt:'smtp email notification sender relay tls port 25 587'},
+    {n:'SMS Server', r:'#/uems/admin/sms-server-settings', alt:'text message gateway twilio alert notification mobile'},
+    {n:'Central Server Maintenance', r:'#/uems/admin/server-maintenance', alt:'backup cleanup archive disk space purge housekeeping'},
+    {n:'Central Server Settings', r:'#/uems/admin/server-settings', alt:'port https url server name session timeout web'},
+    {n:'Failover Server', r:'#/uems/admin/failover-server', alt:'high availability ha standby disaster recovery cluster'},
+    {n:'Central Server Migration', r:'#/uems/admin/dc-server-migration', alt:'move server migrate new hardware relocate'},
+    {n:'Network Settings', r:'#/uems/admin/network-settings', nw:1, alt:'subnet ip range wifi vlan discovery scan network'},
+  ]},
+  {id:'integr', name:'Integrations', icon:'plug', items:[
+    {n:'ServiceDesk Plus Settings', r:'#/uems/admin/integrations/service-desk-plus', alt:'sdp itsm ticket helpdesk asset sync cmdb manageengine'},
+    {n:'Help Desk Settings', r:'#/uems/admin/integrations/help-desk-settings', alt:'ticketing itsm generic incident request'},
+    {n:'API Key Management', r:'#/uems/admin/integrations/api-key-generation', alt:'token authtoken rest api secret key oauth'},
+    {n:'API Explorer', r:'/APIExplorerServlet?action=showAPIExplorerPage', alt:'swagger docs rest playground reference endpoint'},
+    {n:'ServiceNow Settings', r:'#/uems/admin/integrations/service-now-settings', alt:'snow cmdb itsm ticket incident'},
+    {n:'Jira Settings', r:'#/uems/admin/integrations/jira-settings', alt:'atlassian issue tracker ticket project'},
+    {n:'Zendesk', r:'#/uems/admin/integrations/zendesk', alt:'support ticket helpdesk'},
+    {n:'FreshService', r:'#/uems/admin/integrations/freshservice', nw:1, alt:'freshworks itsm ticket helpdesk'},
+    {n:'FreshDesk', r:'#/uems/admin/integrations/freshdesk', nw:1, alt:'freshworks support ticket helpdesk'},
+    {n:'Advanced Analytics', r:'#/uems/admin/integrations/analytics-plus', alt:'analytics plus bi dashboard reporting visualisation'},
+    {n:'Threat scanner settings', r:'#/uems/admin/integrations/patch-mgmt/settings/third-party-integration', alt:'vulnerability scanner qualys tenable nessus rapid7 cve'},
+    {n:'Log360 - EventLog Analyzer', r:'#/uems/admin/integrations/event-log-analyzer', alt:'siem log360 eventlog audit log forward'},
+    {n:'Splunk Integration', r:'#/uems/admin/integrations/splunk-integration', alt:'siem forwarder hec log index'},
+    {n:'PAM360 Settings', r:'#/uems/admin/integrations/pam-settings', alt:'privileged access password vault manager checkout'},
+    {n:'Syslog', r:'#/uems/admin/integrations/syslog', nw:1, alt:'siem forward log udp 514 rfc5424 remote logging'},
+    {n:'Power BI', r:'#/uems/admin/integrations/power-bi', nw:1, alt:'microsoft bi dashboard connector report visualisation'},
+  ]},
+  {id:'sec', name:'Security & Privacy', icon:'shield', items:[
+    {n:'Manage SSL Certificate', r:'#/uems/admin/manage-ssl-certificate', alt:'https tls certificate csr keystore expiry renew'},
+    {n:'Security Settings', r:'#/uems/admin/security-settings', alt:'password policy 2fa mfa two factor lockout session hardening'},
+    {n:'Privacy Settings', r:'#/uems/admin/privacy-settings', alt:'gdpr pii personal data retention anonymise mask'},
+    {n:'Export Settings', r:'#/uems/admin/export-settings', alt:'csv pdf xlsx export download report format'},
+    {n:'DPO Dashboard', r:'#/uems/admin/dpo-dashboard', alt:'gdpr data protection officer compliance privacy request'},
+    {n:'Product Compliance', r:'#/uems/admin/product-compliance', alt:'hipaa pci gdpr audit standard benchmark cis'},
+  ]},
+  {id:'db', name:'Database Settings', icon:'db', items:[
+    {n:'Database Settings', r:'#/uems/admin/database-settings', alt:'postgres postgresql mssql sql connection credentials'},
+    {n:'Remote DB Access', r:'#/uems/admin/remote-db-access', alt:'external query odbc jdbc read only direct access'},
+    {n:'Database Migration', r:'#/uems/admin/database-migration', nw:1, alt:'postgres to mssql move database migrate convert'},
+  ]},
+  {id:'patch', name:'Patch Settings', icon:'patch', items:[
+    {n:'Red Hat Linux Settings', r:'#/uems/admin/patch/settings/redhat-linux-settings', alt:'rhel yum dnf repository linux patch centos'},
+    {n:'SUSE Linux Settings', r:'#/uems/admin/patch/settings/suse-linux-settings', alt:'sles zypper repository linux patch'},
+    {n:'Patch Database Settings', r:'#/uems/admin/patch/settings/patch-database-settings', alt:'sync catalogue vulnerability database update definition'},
+    {n:'Office Click-to-Run Settings', r:'#/uems/admin/patch/settings/office-click-to-run-settings', nw:1, alt:'microsoft 365 o365 c2r channel office update'},
+    {n:'Patch Download', r:'#/uems/admin/patch/settings/cleanup-settings', alt:'storage location cleanup disk space cache free up bandwidth'},
+    {n:'BIOS Credential Settings', r:'#/uems/admin/patch/settings/bios-credentials-settings', alt:'firmware dell hp lenovo password bios uefi driver'},
+    {n:'N-1 Patch Settings', r:'#/uems/patch-mgmt/settings/superseded-patches', nw:1, alt:'superseded older version rollback previous release'},
+  ]},
+  {id:'osd', name:'OS Deployment', icon:'disk', items:[
+    {n:'Enable OS Deployment', r:'#/uems/admin/osd/enable-os-deployment', alt:'osd turn on imaging enable activate'},
+    {n:'OS Deployment settings', r:'#/uems/admin/osd/settings', alt:'pxe wim image driver boot capture deploy usb'},
+  ]},
+  {id:'tools', name:'Tools Settings', icon:'tool', items:[
+    {n:'Port Settings', r:'#/uems/admin/tools/port-settings', alt:'remote control port firewall range rdp vnc'},
+    {n:'System Manager Settings', r:'#/uems/admin/tools/system-manager-settings', alt:'tools shutdown wake on lan wol restart power'},
+  ]},
+  {id:'inv', name:'Inventory Settings', icon:'box', items:[
+    {n:'Scan Settings', r:'#/uems/admin/inventory/scan-settings', alt:'hardware software scan schedule interval discovery asset'},
+    {n:'Device Privacy', r:'#/uems/mdm/admin/privacy/deviceprivacy/dpdetails', alt:'mdm privacy personal device byod restrict data'},
+    {n:'Geo tracking', r:'#/uems/mdm/inventory/geoTracking', alt:'location gps mdm track device map lost'},
+  ]},
+  {id:'conf', name:'Configuration Settings', icon:'sliders', items:[
+    {n:'Deployment Policies', r:'#/uems/admin/patch/deployment/deployment-policies', alt:'window reboot notification schedule patch maintenance policy'},
+    {n:'Configuration Settings', r:'#/uems/admin/configurations/configuration-settings', alt:'retry collection interval config apply target'},
+    {n:'USB Audit Settings', r:'#/uems/admin/configurations/usb-settings/audit', alt:'removable media device control audit usb block'},
+  ]},
+  {id:'audit', name:'Audit', icon:'log', items:[
+    {n:'Action Log Viewer', r:'#/uems/admin/action-log-viewer', alt:'audit trail who did what history change log activity'},
+    {n:'Alerts', r:'#/uems/admin/alerts', alt:'notification email threshold trigger warning subscribe'},
+  ]},
+  {id:'rep', name:'Reports', icon:'chart', items:[
+    {n:'AD Report Settings', r:'#/uems/admin/reports/ad-reports-settings', alt:'active directory report sync domain schedule'},
+  ]},
+];
+
+/* flatten */
+const ITEMS = [];
+CATS.forEach(c => c.items.forEach(it => ITEMS.push({...it, cat:c.id, catName:c.name, icon:c.icon})));
+const TOTAL = ITEMS.length;
+
+/* simulated personalisation */
+const RECENT = ['Agent Settings','Mail Server','Role','Patch Download','Security Settings'];
+const TASKS = [
+  {label:'Set up email notifications', q:'smtp'},
+  {label:'Add a technician', q:'users'},
+  {label:'Turn on two-factor', q:'2fa'},
+  {label:'Forward logs to a SIEM', q:'siem'},
+  {label:'Free up disk space', q:'disk space'},
+  {label:'Renew a certificate', q:'certificate'},
+  {label:'Restrict USB drives', q:'usb'},
+  {label:'Connect single sign-on', q:'sso'},
+];
+
+/* ═══ scoring ═══ */
+function score(it, q){
+  const n = it.n.toLowerCase(), a = (it.alt||'').toLowerCase(), c = it.catName.toLowerCase();
+  if (n === q) return {s:0};
+  if (n.startsWith(q)) return {s:1};
+  // word-start inside the name
+  if (new RegExp('\\b' + q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).test(n)) return {s:2};
+  if (n.includes(q)) return {s:3};
+  // alias match — surface which alias hit
+  const words = a.split(/\s+/);
+  const exact = words.find(w => w === q);
+  if (exact) return {s:4, via:exact};
+  const pre = words.find(w => w.startsWith(q));
+  if (pre) return {s:5, via:pre};
+  if (a.includes(q)) return {s:6, via:q};
+  if (c.includes(q)) return {s:7, via:it.catName};
+  return null;
+}
+
+function hl(name, q){
+  const i = name.toLowerCase().indexOf(q);
+  if (i < 0 || !q) return esc(name);
+  return esc(name.slice(0,i)) + '<mark>' + esc(name.slice(i,i+q.length)) + '</mark>' + esc(name.slice(i+q.length));
+}
+
+/* ═══ state ═══ */
+let state = {q:'', cat:'all', showAllFacets:false, cur:-1};
+const el = {q:document.getElementById('q'), clr:document.getElementById('clr'),
+            facets:document.getElementById('facets'), results:document.getElementById('results')};
+
+const href = it => it.r.startsWith('#') ? DEMO + it.r : 'https://demo.endpointcentralplus.com' + it.r;
+
+/* ═══ facets ═══ */
+function renderFacets(){
+  const counts = {};
+  CATS.forEach(c => counts[c.id] = c.items.length);
+  const shown = state.showAllFacets ? CATS : CATS.slice(0,6);
+  let h = '<button class="facet' + (state.cat==='all'?' on':'') + '" data-cat="all">All <b>' + TOTAL + '</b></button>';
+  shown.forEach(c => {
+    h += '<button class="facet' + (state.cat===c.id?' on':'') + '" data-cat="' + c.id + '">' +
+         esc(c.name) + ' <b>' + counts[c.id] + '</b></button>';
+  });
+  if (!state.showAllFacets) h += '<button class="facet more" id="morefacets">+' + (CATS.length-6) + ' more</button>';
+  el.facets.innerHTML = h;
+  el.facets.querySelectorAll('[data-cat]').forEach(b => b.onclick = () => {
+    state.cat = b.dataset.cat; state.cur = -1; render();
+  });
+  const mf = document.getElementById('morefacets');
+  if (mf) mf.onclick = () => { state.showAllFacets = true; renderFacets(); };
+}
+
+/* ═══ row ═══ */
+function row(it, q, via){
+  const crumb = 'Admin › ' + it.catName;
+  const meta = via
+    ? '<span class="via">matched “' + esc(via) + '”</span> · ' + esc(crumb)
+    : esc(crumb) + ' · <code>' + esc(it.r) + '</code>';
+  return '<a class="hit" href="' + esc(href(it)) + '" target="_blank" rel="noopener">' +
+    '<span class="gi">' + I[it.icon] + '</span>' +
+    '<span class="body"><span class="nm">' + hl(it.n, q) +
+      (it.nw ? '<span class="badge new">New</span>' : '') + '</span>' +
+      '<span class="meta">' + meta + '</span></span>' +
+    '<span class="side"><span class="go">' + I.go + '</span></span></a>';
+}
+
+/* ═══ discovery view (no query) ═══ */
+function discovery(){
+  const pool = state.cat==='all' ? ITEMS : ITEMS.filter(i => i.cat===state.cat);
+  let h = '';
+
+  if (state.cat === 'all'){
+    // recents
+    h += '<div class="disc-sec"><div class="disc-h">' + I.clock +
+         '<h2>Jump back in</h2><span class="hint">your last five</span></div><div class="recents">';
+    RECENT.forEach(nm => {
+      const it = ITEMS.find(i => i.n === nm);
+      if (!it) return;
+      h += '<a class="rec" href="' + esc(href(it)) + '" target="_blank" rel="noopener">' +
+           '<span class="gi">' + I[it.icon] + '</span><span class="body">' +
+           '<span class="nm">' + esc(it.n) + '</span>' +
+           '<span class="meta">' + esc(it.catName) + '</span></span></a>';
+    });
+    h += '</div></div>';
+
+    // intent tasks
+    h += '<div class="disc-sec"><div class="disc-h">' + I.bolt +
+         '<h2>Common tasks</h2><span class="hint">searches by intent, not by label</span></div><div class="pills">';
+    TASKS.forEach(t => {
+      h += '<button class="pill" data-q="' + esc(t.q) + '">' + I.go + esc(t.label) + '</button>';
+    });
+    h += '</div></div>';
+
+    // what's new
+    const nw = ITEMS.filter(i => i.nw);
+    h += '<div class="disc-sec"><div class="disc-h">' + I.star +
+         '<h2>New in this build</h2><span class="hint">' + nw.length + ' settings</span></div>' +
+         '<div class="hits">' + nw.map(i => row(i,'',null)).join('') + '</div></div>';
+  }
+
+  // browse by category
+  const cats = state.cat==='all' ? CATS : CATS.filter(c => c.id===state.cat);
+  h += '<div class="disc-sec" id="browse"><div class="disc-h">' + I.sliders +
+       '<h2>' + (state.cat==='all' ? 'Browse all 14 categories' : esc(cats[0].name)) +
+       '</h2><span class="hint">' + pool.length + ' settings</span></div><div class="catgrid">';
+  cats.forEach(c => {
+    h += '<div class="catcard"><div class="ch"><span class="gi">' + I[c.icon] + '</span>' +
+         '<h4>' + esc(c.name) + '</h4><span class="n">' + c.items.length + '</span></div><ul>';
+    c.items.forEach(it => {
+      h += '<li><a href="' + esc(href({...it, icon:c.icon})) + '" target="_blank" rel="noopener">' +
+           '<span class="t">' + esc(it.n) + '</span>' +
+           (it.nw ? '<span class="badge new">New</span>' : '') + '</a></li>';
+    });
+    h += '</ul></div>';
+  });
+  h += '</div></div>';
+  return h;
+}
+
+/* ═══ results view ═══ */
+function resultsView(q){
+  let pool = state.cat==='all' ? ITEMS : ITEMS.filter(i => i.cat===state.cat);
+  const scored = [];
+  pool.forEach(it => { const r = score(it,q); if (r) scored.push({it, ...r}); });
+  scored.sort((a,b) => a.s - b.s || a.it.n.localeCompare(b.it.n));
+
+  if (!scored.length){
+    return '<div class="empty"><b>No setting matches “' + esc(q) + '”</b>' +
+      '<p>Try a shorter word, or search by what you want to change — the index also matches on ' +
+      'synonyms like <b>smtp</b>, <b>sso</b>, <b>gdpr</b>, <b>siem</b> or <b>wake on lan</b>.</p>' +
+      '<div class="row"><button class="btn ghost sm" data-q="smtp">smtp</button>' +
+      '<button class="btn ghost sm" data-q="sso">sso</button>' +
+      '<button class="btn ghost sm" data-q="backup">backup</button>' +
+      '<button class="btn primary sm" id="clearall">Clear search</button></div></div>';
+  }
+
+  // group by category, preserving best-score order of first appearance
+  const groups = [];
+  scored.forEach(s => {
+    let g = groups.find(x => x.id === s.it.cat);
+    if (!g){ g = {id:s.it.cat, name:s.it.catName, icon:s.it.icon, rows:[]}; groups.push(g); }
+    g.rows.push(s);
+  });
+
+  const direct = scored.filter(s => s.s <= 3).length;
+  const one = scored.length === 1;
+  let h = '<div class="summary"><h2>' + scored.length + ' setting' + (one?'':'s') +
+          (one?' matches ':' match ') + '“' + esc(q) + '”</h2><span>' + direct + ' by name' +
+          (scored.length-direct ? ' · ' + (scored.length-direct) + ' by synonym' : '') +
+          ' · across ' + groups.length + ' categor' + (groups.length>1?'ies':'y') + '</span></div>';
+
+  groups.forEach(g => {
+    h += '<div class="hitgroup"><h3>' + esc(g.name) + ' <span>' + g.rows.length + '</span></h3>' +
+         '<div class="hits">' + g.rows.map(s => row(s.it, q, s.via)).join('') + '</div></div>';
+  });
+  return h;
+}
+
+/* ═══ render ═══ */
+function render(){
+  const q = state.q.trim().toLowerCase();
+  el.clr.hidden = !state.q;
+  el.results.innerHTML = q ? resultsView(q) : discovery();
+
+  // wire intent pills / empty-state suggestions
+  el.results.querySelectorAll('[data-q]').forEach(b => b.onclick = () => {
+    state.q = b.dataset.q; el.q.value = b.dataset.q; state.cur = -1; render(); el.q.focus();
+  });
+  const ca = document.getElementById('clearall');
+  if (ca) ca.onclick = () => { state.q=''; el.q.value=''; render(); el.q.focus(); };
+  markCur();
+}
+
+function hits(){ return [...el.results.querySelectorAll('.hit')]; }
+function markCur(){
+  hits().forEach((h,i) => h.classList.toggle('cur', i===state.cur));
+  if (state.cur >= 0) hits()[state.cur]?.scrollIntoView({block:'nearest'});
+}
+
+/* ═══ events ═══ */
+el.q.addEventListener('input', e => { state.q = e.target.value; state.cur = -1; render(); });
+el.clr.onclick = () => { state.q=''; el.q.value=''; state.cur=-1; render(); el.q.focus(); };
+
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && document.activeElement !== el.q){ e.preventDefault(); el.q.focus(); el.q.select(); return; }
+  if (e.key === 'Escape'){ if (state.q){ state.q=''; el.q.value=''; state.cur=-1; render(); } el.q.blur(); return; }
+  const list = hits();
+  if (!list.length) return;
+  if (e.key === 'ArrowDown'){ e.preventDefault(); state.cur = Math.min(state.cur+1, list.length-1); markCur(); }
+  if (e.key === 'ArrowUp'){ e.preventDefault(); state.cur = Math.max(state.cur-1, 0); markCur(); }
+  if (e.key === 'Enter' && state.cur >= 0){ e.preventDefault(); list[state.cur].click(); }
+});
+
+document.getElementById('tab-browse').onclick = e => {
+  e.preventDefault();
+  state.q=''; el.q.value=''; render();
+  document.getElementById('browse')?.scrollIntoView({behavior:'smooth', block:'start'});
+};
+
+document.getElementById('theme').onclick = () => {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const dark = cur ? cur==='dark' : matchMedia('(prefers-color-scheme:dark)').matches;
+  document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
+};
+
+renderFacets();
+render();
+</script>
