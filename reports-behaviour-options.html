@@ -1,0 +1,768 @@
+<meta charset="utf-8">
+<title>Reports home, five behaviours · Endpoint Central</title>
+<style>
+  :root{
+    --violet:#2563eb; --violet-hov:#1d4ed8; --violet-soft:rgba(37,99,235,.08);
+    --surface:#fff; --surface-2:#f4f6fb; --surface-3:#eef2fa; --page:#f7f9fc;
+    --border:rgba(37,99,235,.13); --border-soft:rgba(37,99,235,.07);
+    --text:#15181e; --muted:#64748b; --faint:#94a3b8;
+    --ok:#16a34a; --ok-bg:rgba(34,197,94,.12);
+    --warn:#a16207; --warn-bg:rgba(234,179,8,.13); --warn-line:rgba(234,179,8,.42);
+    --err:#dc2626; --err-bg:rgba(239,68,68,.10); --err-line:rgba(239,68,68,.32);
+    --sev4:#dc2626; --sev3:#ea580c; --sev2:#ca8a04; --sev1:#0891b2;
+    --shadow:0 2px 12px rgba(37,99,235,.06); --pop:0 12px 34px rgba(16,25,42,.14);
+    --r:12px; --font:'Zoho Puvi',ui-sans-serif,system-ui,'Segoe UI',Roboto,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --violet:#3b82f6; --violet-hov:#60a5fa; --violet-soft:rgba(59,130,246,.14);
+    --surface:#12131a; --surface-2:#1a1c25; --surface-3:#22242f; --page:#0a0a0c;
+    --border:rgba(255,255,255,.10); --border-soft:rgba(255,255,255,.06);
+    --text:rgba(255,255,255,.92); --muted:rgba(255,255,255,.52); --faint:rgba(255,255,255,.36);
+    --ok:#22c55e; --ok-bg:rgba(34,197,94,.15);
+    --warn:#eab308; --warn-bg:rgba(234,179,8,.13); --warn-line:rgba(234,179,8,.34);
+    --err:#f87171; --err-bg:rgba(239,68,68,.13); --err-line:rgba(239,68,68,.32);
+    --sev4:#f87171; --sev3:#fb923c; --sev2:#facc15; --sev1:#22d3ee;
+    --shadow:none; --pop:0 12px 34px rgba(0,0,0,.55);
+  }}
+  :root[data-theme="dark"]{
+    --violet:#3b82f6; --violet-hov:#60a5fa; --violet-soft:rgba(59,130,246,.14);
+    --surface:#12131a; --surface-2:#1a1c25; --surface-3:#22242f; --page:#0a0a0c;
+    --border:rgba(255,255,255,.10); --border-soft:rgba(255,255,255,.06);
+    --text:rgba(255,255,255,.92); --muted:rgba(255,255,255,.52); --faint:rgba(255,255,255,.36);
+    --ok:#22c55e; --ok-bg:rgba(34,197,94,.15);
+    --warn:#eab308; --warn-bg:rgba(234,179,8,.13); --warn-line:rgba(234,179,8,.34);
+    --err:#f87171; --err-bg:rgba(239,68,68,.13); --err-line:rgba(239,68,68,.32);
+    --sev4:#f87171; --sev3:#fb923c; --sev2:#facc15; --sev1:#22d3ee;
+    --shadow:none; --pop:0 12px 34px rgba(0,0,0,.55);
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--page);color:var(--text);font:14px/1.5 var(--font);-webkit-font-smoothing:antialiased}
+  button,input{font-family:inherit;color:inherit}
+  a{color:inherit}
+  :focus-visible{outline:2px solid var(--violet);outline-offset:2px;border-radius:6px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  .num{font-variant-numeric:tabular-nums}
+
+  /* ══ switcher / pitch chrome ══ */
+  .pitch{position:sticky;top:0;z-index:80;background:var(--surface);border-bottom:1px solid var(--border)}
+  .pitch-in{display:flex;align-items:center;gap:14px;padding:10px 18px;flex-wrap:wrap}
+  .pitch-t{font-weight:700;font-size:13px;letter-spacing:-.01em}
+  .pitch-t span{color:var(--muted);font-weight:500}
+  .vtabs{display:flex;gap:3px;background:var(--surface-2);padding:3px;border-radius:9px;flex-wrap:wrap}
+  .vtabs button{padding:6px 12px;border:none;border-radius:7px;background:none;cursor:pointer;
+                font:600 12.5px var(--font);color:var(--muted);transition:.14s;white-space:nowrap}
+  .vtabs button:hover{color:var(--text)}
+  .vtabs button.on{background:var(--surface);color:var(--violet);box-shadow:var(--shadow)}
+  .why{display:flex;gap:20px;padding:9px 18px 11px;border-top:1px solid var(--border-soft);
+       background:var(--surface-2);flex-wrap:wrap;font-size:12.5px;line-height:1.45}
+  .why div{max-width:47ch}
+  .why b{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);
+         display:block;margin-bottom:2px;font-weight:700}
+  .why .fix b{color:var(--violet)}
+
+  .view{display:none}
+  .view.on{display:block}
+
+  .btn{padding:8px 14px;border-radius:8px;font:600 13px/1 var(--font);cursor:pointer;
+       display:inline-flex;align-items:center;gap:7px;border:1px solid transparent;text-decoration:none;transition:.15s;white-space:nowrap}
+  .btn.primary{background:var(--violet);color:#fff} .btn.primary:hover{background:var(--violet-hov)}
+  .btn.ghost{background:var(--surface);color:var(--text);border-color:var(--border)}
+  .btn.ghost:hover{background:var(--surface-2);border-color:var(--violet)}
+  .btn.sm{padding:6px 11px;font-size:12px}
+
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:1px 8px;border-radius:999px;font-size:11.5px;font-weight:600;flex-shrink:0}
+  .badge .dot{width:5px;height:5px;border-radius:50%;background:currentColor}
+  .badge.ok{background:var(--ok-bg);color:var(--ok)}
+  .badge.bad{background:rgba(239,68,68,.14);color:var(--err)}
+  .badge.warn{background:var(--warn-bg);color:var(--warn)}
+  .badge.neu{background:var(--surface-2);color:var(--muted);border:1px solid var(--border)}
+
+  /* ══ shared search-home primitives (reused across variants) ══ */
+  .page{max-width:900px;margin:0 auto;padding:34px clamp(14px,3vw,30px) 70px}
+  .kbd{font:600 11px var(--font);color:var(--muted);background:var(--surface-2);
+       border:1px solid var(--border);border-radius:5px;padding:2.5px 7px;flex-shrink:0}
+  .clr{background:none;border:none;color:var(--faint);cursor:pointer;padding:3px;border-radius:6px;line-height:0;flex-shrink:0}
+  .clr:hover{color:var(--text);background:var(--surface-2)}
+
+  .bigsearch-in{display:flex;align-items:center;gap:12px;padding:15px 18px;background:var(--surface);
+           border:1.5px solid var(--border);border-radius:14px;box-shadow:var(--shadow);transition:.15s}
+  .bigsearch-in:focus-within{border-color:var(--violet);box-shadow:0 0 0 5px var(--violet-soft)}
+  .bigsearch-in svg{color:var(--muted);flex-shrink:0}
+  .bigsearch-in input{flex:1;min-width:0;border:none;background:none;outline:none;color:var(--text);font-size:16px}
+  .bigsearch-in input::placeholder{color:var(--faint)}
+
+  .facets{display:flex;gap:7px;flex-wrap:wrap}
+  .facet{padding:6px 13px;border-radius:999px;border:1px solid var(--border);background:var(--surface);
+         color:var(--muted);font:600 12.5px var(--font);cursor:pointer;transition:.13s;display:inline-flex;
+         align-items:center;gap:6px;white-space:nowrap}
+  .facet:hover{border-color:var(--violet);color:var(--text)}
+  .facet.on{background:var(--violet);border-color:var(--violet);color:#fff}
+  .facet b{font-weight:700;opacity:.75;font-size:11.5px}
+
+  .hitgroup{margin-bottom:18px}
+  .hitgroup h3{display:flex;align-items:center;gap:9px;font-size:11px;font-weight:700;color:var(--faint);
+               text-transform:uppercase;letter-spacing:.06em;margin:0 0 8px}
+  .hitgroup h3 span{font-weight:600;color:var(--muted);text-transform:none;letter-spacing:0;font-size:12px}
+  .hits{border:1px solid var(--border);border-radius:var(--r);background:var(--surface);box-shadow:var(--shadow);overflow:hidden}
+  .hit{display:flex;align-items:center;gap:13px;padding:12px 15px;color:var(--text);
+       border-bottom:1px solid var(--border-soft);transition:.12s;cursor:pointer}
+  .hit:last-child{border-bottom:none}
+  .hit:hover,.hit.cur{background:var(--violet-soft)}
+  .hit .gi{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;flex-shrink:0;
+           background:var(--surface-2);color:var(--muted);border:1px solid var(--border)}
+  .hit:hover .gi,.hit.cur .gi{background:var(--surface);color:var(--violet);border-color:var(--violet)}
+  .hit .body{flex:1;min-width:0}
+  .hit .nm{font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .hit .nm mark{background:none;color:var(--violet);font-weight:700}
+  .hit .meta{font-size:12px;color:var(--muted);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .hit .side{flex-shrink:0;display:flex;align-items:center;gap:8px}
+  .hit .act{display:none;gap:6px}
+  .hit:hover .act,.hit.cur .act{display:flex}
+
+  .empty{padding:40px 20px;text-align:center;border:1px dashed var(--border);border-radius:var(--r);color:var(--muted)}
+  .empty b{display:block;color:var(--text);font-size:14.5px;margin-bottom:6px}
+  .empty p{margin:0 0 14px;font-size:13px;max-width:44ch;margin-inline:auto}
+  .empty .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+
+  .pills{display:flex;gap:8px;flex-wrap:wrap}
+  .pill{padding:6px 13px;border-radius:999px;border:1px solid var(--border);background:var(--surface);
+        color:var(--text);font:500 12.5px var(--font);cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+  .pill:hover{border-color:var(--violet);background:var(--violet-soft)}
+  .pill svg{color:var(--faint);flex-shrink:0}
+
+  .cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:9px}
+  .cat{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:10px;background:var(--surface);
+       border:1px solid var(--border);transition:.15s;cursor:pointer;text-align:left}
+  .cat:hover{border-color:var(--violet);background:var(--violet-soft)}
+  .cat .gi{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;
+           background:var(--surface-2);color:var(--muted);flex-shrink:0}
+  .cat:hover .gi{background:var(--surface);color:var(--violet)}
+  .cat .nm{font-weight:600;font-size:13px;line-height:1.25;display:block}
+  .cat .n{font-size:11.5px;color:var(--muted);display:block;margin-top:1px}
+
+  .disc-sec{margin-bottom:24px}
+  .disc-h{display:flex;align-items:baseline;gap:9px;margin-bottom:11px}
+  .disc-h h2{font-size:13px;font-weight:700;margin:0}
+  .disc-h .sp{flex:1}
+  .stage{text-align:center;margin-bottom:24px}
+  .stage .eyebrow{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:0 0 8px}
+  .stage h1{font-size:25px;font-weight:700;letter-spacing:-.02em;margin:0 0 8px;text-wrap:balance}
+  .stage .lede{font-size:14px;color:var(--muted);margin:0 auto;max-width:58ch}
+  .bigsearch{max-width:640px;margin:0 auto}
+
+  .note{display:flex;gap:9px;align-items:flex-start;padding:11px 13px;border-radius:10px;
+        background:var(--surface-2);border:1px solid var(--border);font-size:12px;color:var(--muted);margin-top:22px}
+  .note svg{flex-shrink:0;margin-top:1px}
+
+  /* ══ V2 · risk strip ══ */
+  .sevstrip{display:flex;align-items:center;gap:18px;padding:14px 16px;border-radius:var(--r);
+            background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow);margin-bottom:20px;flex-wrap:wrap}
+  .sevstrip .sv-t{font-size:12px;font-weight:700;color:var(--muted);flex-shrink:0}
+  .sevstack{display:flex;height:9px;border-radius:999px;overflow:hidden;flex:1;min-width:120px;gap:2px}
+  .sevstack span{display:block}
+  .sevkeys{display:flex;gap:14px;flex-wrap:wrap;font-size:12px}
+  .sevkeys div{display:flex;align-items:center;gap:6px;color:var(--muted)}
+  .sevkeys i{width:8px;height:8px;border-radius:2.5px;flex-shrink:0}
+  .sevkeys b{color:var(--text);font-weight:700}
+  .riskchip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:2px 7px;border-radius:999px;flex-shrink:0}
+
+  /* ══ V3 · compliance ══ */
+  .evidence-alert{display:flex;align-items:flex-start;gap:12px;padding:13px 15px;border-radius:var(--r);
+                  background:var(--err-bg);border:1px solid var(--err-line);margin-bottom:20px}
+  .evidence-alert .ico{width:32px;height:32px;border-radius:9px;background:rgba(239,68,68,.16);color:var(--err);
+                        display:grid;place-items:center;flex-shrink:0}
+  .evidence-alert b{font-size:13.5px} .evidence-alert p{margin:3px 0 0;font-size:12.5px;color:var(--muted)}
+  .tagrow{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0}
+  .tagchip{padding:6px 13px;border-radius:999px;border:1px solid var(--border);background:var(--surface);
+           color:var(--muted);font:600 12px var(--font);cursor:pointer}
+  .tagchip:hover{border-color:var(--violet);color:var(--text)}
+  .tagchip.on{background:var(--violet);border-color:var(--violet);color:#fff}
+  .ev-meta{display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:2px}
+  .ev-meta span{display:inline-flex;align-items:center;gap:4px}
+
+  /* ══ V4 · command palette ══ */
+  .cmdshell{background:#0b0d13;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.35);overflow:hidden;
+            max-width:620px;margin:6vh auto 0;border:1px solid rgba(255,255,255,.08)}
+  .cmdwrap{color:#e7e9ee;font:14px/1.5 var(--font)}
+  .cmdin{display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.08)}
+  .cmdin svg{color:#6b7280;flex-shrink:0}
+  .cmdin input{flex:1;background:none;border:none;outline:none;color:#f3f4f6;font:15px ui-monospace,'SF Mono',Menlo,monospace}
+  .cmdin input::placeholder{color:#54596b}
+  .cmdlegend{display:flex;gap:12px;flex-wrap:wrap;padding:9px 18px;border-bottom:1px solid rgba(255,255,255,.08);
+             font:11.5px ui-monospace,'SF Mono',Menlo,monospace;color:#6b7280}
+  .cmdlegend b{color:#9ca8ff}
+  .cmdlist{max-height:400px;overflow-y:auto;padding:6px}
+  .cmdrow{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:8px;cursor:pointer}
+  .cmdrow:hover,.cmdrow.cur{background:rgba(59,130,246,.16)}
+  .cmdrow .gi{width:24px;height:24px;border-radius:6px;display:grid;place-items:center;background:rgba(255,255,255,.06);
+              color:#8b93a7;flex-shrink:0}
+  .cmdrow .t{flex:1;min-width:0;font:13.5px ui-monospace,'SF Mono',Menlo,monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cmdrow .t mark{background:none;color:#93c5fd;font-weight:700}
+  .cmdrow .meta{font:11px ui-monospace,'SF Mono',Menlo,monospace;color:#6b7280;flex-shrink:0}
+  .cmdfoot{display:flex;gap:16px;padding:9px 18px;border-top:1px solid rgba(255,255,255,.08);
+           font:11px ui-monospace,'SF Mono',Menlo,monospace;color:#6b7280}
+  .cmdfoot span{display:flex;align-items:center;gap:5px}
+  .cmdfoot .k{background:rgba(255,255,255,.08);padding:1px 6px;border-radius:4px;color:#c9cedb}
+  .cmdempty{padding:30px 20px;text-align:center;color:#6b7280;font:13px var(--font)}
+
+  /* ══ V5 · guided ══ */
+  .askbox{max-width:640px;margin:0 auto}
+  .askbox .bigsearch-in{border-radius:18px;padding:17px 19px}
+  .ask-sparkle{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#8b5cf6,#2563eb);
+               display:grid;place-items:center;flex-shrink:0;color:#fff}
+  .starters{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:16px}
+  .starter{padding:9px 15px;border-radius:12px;border:1px solid var(--border);background:var(--surface);
+           color:var(--text);font:500 13px var(--font);cursor:pointer;box-shadow:var(--shadow)}
+  .starter:hover{border-color:var(--violet);background:var(--violet-soft)}
+  .plaingrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:11px}
+  .plaincat{display:flex;flex-direction:column;gap:9px;padding:16px;border-radius:var(--r);background:var(--surface);
+            border:1px solid var(--border);box-shadow:var(--shadow);cursor:pointer;text-align:left}
+  .plaincat:hover{border-color:var(--violet)}
+  .plaincat .gi{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--violet-soft);color:var(--violet)}
+  .plaincat .nm{font-weight:700;font-size:14px}
+  .plaincat .n{font-size:12px;color:var(--muted)}
+  .rescard{display:flex;align-items:center;gap:14px;padding:15px 16px;border-radius:var(--r);background:var(--surface);
+           border:1px solid var(--border);box-shadow:var(--shadow);margin-bottom:9px}
+  .rescard .gi{width:38px;height:38px;border-radius:10px;background:var(--violet-soft);color:var(--violet);
+               display:grid;place-items:center;flex-shrink:0}
+  .rescard .body{flex:1;min-width:0}
+  .rescard .nm{font-weight:700;font-size:14px}
+  .rescard .d{font-size:12.5px;color:var(--muted);margin-top:2px}  /* ══ shared: behaviour label under the switcher ══ */
+  .covers{font-size:11px;color:var(--faint);padding:0 18px 10px;margin-top:-4px}
+  .covers b{color:var(--violet);font-weight:700}
+
+  /* Base .hit was written for div rows, so it omits text-decoration and leaves
+     .nm/.meta inline. These options use <a class="hit">, which needs both fixed. */
+  a.hit{text-decoration:none}
+  .hit .body{display:flex;flex-direction:column}
+  .hit .nm,.hit .meta{display:block}
+  /* Same trap anywhere a two-line row is built from sibling <span>s: without an
+     explicit block, name and meta collapse onto one line. */
+  .brow .body{display:flex;flex-direction:column;min-width:0}
+  /* .sc children are [gi, text, rank] — the text block is nth-child(2), not last-child */
+  .sc>span:nth-child(2){flex:1;min-width:0;display:flex;flex-direction:column}
+  .brow .nm,.brow .meta,.sc .nm,.sc .why{display:block}
+
+  /* ══ 1 · answer-first ══ */
+  .ans{max-width:660px;margin:20px auto 0;background:var(--surface);border:1px solid var(--border);
+       border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;text-align:left}
+  .ans-top{display:flex;align-items:flex-start;gap:16px;padding:18px 20px}
+  .ans-v{font:700 40px/1 var(--font);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+  .ans-u{font-size:12.5px;color:var(--muted);margin-top:5px}
+  .ans-body{flex:1;min-width:0}
+  .ans-q{font-size:13px;color:var(--muted);margin-bottom:3px}
+  .ans-h{font-size:15px;font-weight:700}
+  .ans-delta{font-size:12px;font-weight:600;margin-top:4px}
+  .ans-delta.up{color:var(--err)} .ans-delta.down{color:var(--ok)}
+  .spark{display:flex;align-items:flex-end;gap:2px;height:34px;margin-top:8px}
+  .spark i{flex:1;background:var(--violet-soft);border-radius:1px}
+  .spark i:last-child{background:var(--violet)}
+  .ans-src{display:flex;align-items:center;gap:9px;padding:10px 20px;background:var(--surface-2);
+           border-top:1px solid var(--border-soft);font-size:12px;color:var(--muted);flex-wrap:wrap}
+  .ans-src .sp{flex:1}
+  .ans-src code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px}
+
+  /* ══ 2 · launchpad ══ */
+  .lp{display:grid;grid-template-columns:repeat(auto-fit,minmax(212px,1fr));gap:11px}
+  .lpc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);
+       padding:13px 14px;text-decoration:none;color:inherit;display:block;position:relative;transition:.13s}
+  .lpc:hover{border-color:var(--violet)}
+  .lpc .t{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:18px}
+  .lpc .v{font:700 27px/1.1 var(--font);letter-spacing:-.02em;margin-top:6px;font-variant-numeric:tabular-nums}
+  .lpc .d{font-size:11.5px;color:var(--faint);margin-top:3px}
+  .lpc .pin{position:absolute;top:10px;right:10px;color:var(--violet);line-height:0}
+  .strip{display:flex;align-items:center;gap:9px;padding:11px 14px;background:var(--violet-soft);
+         border:1px solid var(--border);border-radius:10px;font-size:12.5px;color:var(--text);margin-bottom:14px}
+  .strip .sp{flex:1}
+
+  /* ══ 3 · guided catalogue ══ */
+  /* 320px min → 2×2 for the four starting points; at 196px the rationale text was
+     crushed to ~93px by the icon and rank chip sharing the row. */
+  .startrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:10px;margin-bottom:8px}
+  .sc{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:12px 13px;
+      box-shadow:var(--shadow);text-decoration:none;color:inherit;display:flex;gap:10px;align-items:flex-start}
+  .sc:hover{border-color:var(--violet);background:var(--violet-soft)}
+  .sc .gi{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;flex-shrink:0;
+          background:var(--violet-soft);color:var(--violet)}
+  .sc .nm{font-size:12.5px;font-weight:600;line-height:1.35}
+  .sc .why{font-size:11px;color:var(--muted);margin-top:2px}
+  .rank{font-size:10.5px;font-weight:700;color:var(--violet);background:var(--violet-soft);
+        border-radius:999px;padding:1px 7px;flex-shrink:0}
+  .catcard2{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+            box-shadow:var(--shadow);padding:14px 15px}
+  .catcard2 .ch{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+  .catcard2 .ch .gi{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;
+                    background:var(--violet-soft);color:var(--violet);flex-shrink:0}
+  .catcard2 .ch h4{margin:0;font-size:13px;font-weight:700;flex:1}
+  .catcard2 .ch .n{font-size:11.5px;color:var(--faint);font-weight:600}
+  .catcard2 ul{list-style:none;margin:0;padding:0}
+  .catcard2 li a{display:block;padding:4px 7px;margin:0 -7px;border-radius:6px;text-decoration:none;
+                 color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .catcard2 li a:hover{background:var(--violet-soft);color:var(--violet)}
+  .catcard2 .more{font-size:11.5px;color:var(--violet);font-weight:600;background:none;border:none;
+                  cursor:pointer;padding:5px 0 0;margin:0}
+
+  /* ══ 4 · obligations board ══ */
+  .board{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}
+  @media (max-width:820px){ .board{grid-template-columns:1fr} }
+  .bcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+         box-shadow:var(--shadow);overflow:hidden}
+  .bcard>h3{margin:0;padding:11px 15px;font-size:12px;font-weight:700;border-bottom:1px solid var(--border-soft);
+            display:flex;align-items:center;gap:8px;background:var(--surface-2)}
+  .bcard>h3 .sp{flex:1}
+  .bcard>h3 .c{font-size:11.5px;color:var(--muted);font-weight:600}
+  .brow{display:flex;align-items:center;gap:12px;padding:11px 15px;border-bottom:1px solid var(--border-soft)}
+  .brow:last-child{border-bottom:none}
+  .brow .body{flex:1;min-width:0}
+  .brow .nm{font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .brow .meta{font-size:11.5px;color:var(--muted);margin-top:1px}
+  .alert{border-left:3px solid var(--err)}
+  .fw{display:flex;align-items:center;gap:11px;padding:10px 15px;border-bottom:1px solid var(--border-soft)}
+  .fw:last-child{border-bottom:none}
+  .fw .nm{font-size:12.5px;font-weight:600;width:78px;flex-shrink:0}
+  .fwbar{flex:1;height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden}
+  .fwbar i{display:block;height:100%;border-radius:3px;background:var(--violet)}
+  .fw .n{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums;width:52px;text-align:right;flex-shrink:0}
+  .gap{color:var(--warn)}
+
+  /* ══ 5 · composer ══ */
+  .doors{display:grid;grid-template-columns:repeat(auto-fit,minmax(238px,1fr));gap:13px}
+  .door{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);
+        padding:17px 17px 15px;text-align:left;cursor:pointer;font:inherit;color:inherit;transition:.14s;
+        display:flex;flex-direction:column;gap:8px}
+  .door:hover{border-color:var(--violet);box-shadow:var(--pop)}
+  .door .gi{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;
+            background:var(--violet-soft);color:var(--violet)}
+  .door h4{margin:0;font-size:14.5px;font-weight:700}
+  .door p{margin:0;font-size:12.5px;color:var(--muted);line-height:1.5}
+  .door .use{font-size:11.5px;color:var(--faint);margin-top:auto;padding-top:6px;
+             border-top:1px solid var(--border-soft);font-weight:600}
+  .door .use b{color:var(--violet)}
+</style>
+
+<div class="pitch">
+  <div class="pitch-in">
+    <div class="pitch-t">Reports home, five behaviours<span> · same catalogue, five things the user is actually doing</span></div>
+    <div class="sp" style="flex:1"></div>
+    <div class="vtabs" id="vtabs"></div>
+    <button class="btn ghost sm" id="theme" title="Toggle theme" aria-label="Toggle theme">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
+  </div>
+  <div class="why" id="why"></div>
+  <div class="covers" id="covers"></div>
+</div>
+
+<div id="views"></div>
+
+<script>
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]); }
+const svg = (p,s=15) => '<svg width="'+s+'" height="'+s+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>';
+const I = {
+  search:()=>svg('<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',18),
+  clock:()=>svg('<circle cx="12" cy="12" r="10"/><path d="M12 7v5l3 2"/>'),
+  x:()=>svg('<path d="M18 6 6 18M6 6l12 12"/>',16),
+  grid:()=>svg('<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>'),
+  code:()=>svg('<path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/>'),
+  cal:()=>svg('<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>'),
+  dash:()=>svg('<rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/>'),
+  user:()=>svg('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>'),
+  pc:()=>svg('<rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>'),
+  grp:()=>svg('<circle cx="9" cy="8" r="3.5"/><path d="M2 20a7 7 0 0 1 14 0"/><path d="M17 5.2a3.5 3.5 0 0 1 0 5.6M19 20a6 6 0 0 0-3-5.2"/>'),
+  tree:()=>svg('<rect x="9" y="2" width="6" height="5" rx="1"/><rect x="2" y="17" width="6" height="5" rx="1"/><rect x="16" y="17" width="6" height="5" rx="1"/><path d="M12 7v5M5 17v-3h14v3"/>'),
+  globe:()=>svg('<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/>'),
+  shield:()=>svg('<path d="M12 2 4 6v6c0 5 3.4 9.4 8 10 4.6-.6 8-5 8-10V6z"/>'),
+  shieldCheck:()=>svg('<path d="M12 2 4 6v6c0 5 3.4 9.4 8 10 4.6-.6 8-5 8-10V6z"/><path d="m9 12 2 2 4-4"/>'),
+  login:()=>svg('<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/>'),
+  power:()=>svg('<path d="M12 2v10M18.4 6.6a9 9 0 1 1-12.8 0"/>'),
+  box:()=>svg('<path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/>'),
+  usb:()=>svg('<circle cx="12" cy="20" r="2"/><path d="M12 18V7M9 10 12 7l3 3M8 14h8"/>'),
+  lock:()=>svg('<rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/>'),
+  bug:()=>svg('<rect x="8" y="6" width="8" height="13" rx="4"/><path d="M8 11H4M20 11h-4M8 16H4M20 16h-4M9 6 7.5 3.5M15 6l1.5-2.5"/>'),
+  app:()=>svg('<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>'),
+  phone:()=>svg('<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 19h2"/>'),
+  web:()=>svg('<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 9h20M6 6.5h.01M9 6.5h.01"/>'),
+  tag:()=>svg('<path d="M3 3h8l10 10-8 8L3 11z"/><circle cx="7.5" cy="7.5" r="1.5"/>'),
+  alert:()=>svg('<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01"/>'),
+  mail:()=>svg('<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/>'),
+  sparkle:()=>svg('<path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/>',14),
+  info:()=>svg('<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>',14),
+  question:()=>svg('<path d="M9 9a3 3 0 1 1 5.5 1.7c-.6.9-1.5 1.3-1.5 2.3v1"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="10"/>'),
+};
+
+/* ═══ shared catalogue — 267 real predefined reports (261 unique) ═══ */
+const CATALOG = {
+'User Reports':['All User Accounts','Recently Created User Accounts','Recently Modified User Accounts','User Accounts without Logon Scripts','User Accounts in Multiple Groups','User Accounts that Never Expires','Active User Accounts','Inactive User Accounts','Disabled User Accounts','Expired / Not Expired User Accounts','Soon-to-Expire User Passwords','Password Expired User Accounts','Password Never Expiring Users','User Accounts Password that cannot be Changed','Domain Admin User Accounts','User Accounts with Dial-in Permissions','Unused User Accounts','Recently Logged On User Accounts','Last Logon Failed User Accounts'],
+'Computer Reports':['All Computers','Windows Workstation','Recently Added Computers','Recently Logged On Computers','Recently Modified Computer Accounts','Disabled Computer Accounts','Computer Accounts by OU','Windows Servers','Member Servers','Domain Controllers','Computers by OS & Service Pack'],
+'Group Reports':['All Groups','Recently Created Group','Recently Modified Group','Groups by OU','Security Groups','Distribution Groups','Nested Groups','Groups with Member Details','Groups with Maximum Members','Groups without Members','User-only Groups','Computer-only Groups'],
+'OU Reports':['All OUs','Recently Created OUs','Recently Modified OUs','OUs with Children Details','OUs without Children','User-only OUs','Computer-only OUs','Nested OUs'],
+'Domain Reports':['Active Directory Sites','Active Directory Domains','Active Directory Printers','Group Policy Creator Owners','Users In "Users" Container','Groups In "Users" Container','Computers In "Computer" Container','Groups In "Builtin" Container'],
+'GPO Reports':['All GPOs','Recently Created GPOs','Recently Modified GPOs','GPOs by OUs','GPOs Linked To OUs','GPOs Linked To Domains','GPOs Linked To Sites','Block Inheritance enabled OUs','Block Inheritance enabled Domains','Enforced GPOs','User Settings Enabled GPOs','Computer Settings Enabled GPOs','User and Computer Settings Enabled GPOs','Disabled GPOs','Unused GPOs','GPOs with Most Modified User Settings','GPOs with Most Modified Computer Settings','GPOs with Most Modified User and Computer Settings'],
+'User Logon Reports':['Currently Logged on Users','Currently Logged on Computers','User Logon History','User Logon History by Computers','User Logon History on Domain Controller','Domain Controllers with Reported Users','Computers with No User Logon'],
+'Power Management Reports':['System Uptime Report'],
+'Threats & Patches Reports':['Missing Patches','Installed Patches','Applicable Patches','Detailed Patch Summary','Managed Systems','Declined Applications','Declined Families','Declined Patches','Patch Download Report','Scan Report','Missing patches awaiting approval','Systems requiring reboot','Remote Office Patch Summary','System Compliance Report','Remote Office Compliance Report','Latest Patches','Highly Vulnerable Systems','Vulnerable Systems','Healthy Systems','System Health Report','Systems with APD tasks','Systems without APD tasks','Patch SSP Reports - Patches yet to be Installed','Patch SSP Reports - Patch Deployment list','BIOS Mapping Status','Patch SSP Reports - Detailed View','Patch Compliance Report','Patch Deployment Failed Systems','Systems with High Risk Software','Systems with No Agent Contact','Security Configurations Failed Systems','Systems with Misconfigured Antivirus Software','Deployed Security Configurations','Failed Software Uninstallation','Vulnerabilities','Zero Day Vulnerability Report','System Misconfigurations','Peer to peer Software','Remote Desktop Sharing Software','End of Life Software','Web Server Misconfiguration','Port Audit','Vulnerabilities No Fixes Report','Detected CVE Summary','Systems Affected by Vulnerabilities','Systems Affected by Misconfigurations','Web Servers Affected by Misconfigurations','Systems Affected by Zero-day Vulnerabilities','Security Configurations Summary','Software Uninstallation Summary','Failed Security Configurations','Excluded Misconfiguration','Zero-day Vulnerabilities','End of life software','Peer to peer software','Web Server Misconfigurations'],
+'Inventory Reports':['Computers by OS','Computers By Manufacturer','Computers By Memory','Computers by Disk Usage Summary','Computers by Disk Usage Detail Report','Computers By Age','Computers by Device Type','Mapped Logical Disks','Software by Manufacturer','All Installed Software','Software By Audit Action','Prohibited Software','Software Product Keys','Computers with/without a specific Software','User Specific Software','Mac devices vulnerable to Catalina upgrade','Software Metering rules summary','Computers with metered software','Users with metered software','AD Computers with local user accounts','Computers with disabled user accounts','Computers with user accounts having no password','Computers with default Guest Account enabled','Computers with default Administrator Account enabled','Computers with user account having non changeable password','License Compliance','License to be Renewed','System Group Users','Computers By Services','Share Details','Soon to expire Warranty','Expired Warranty','Un-identified Computers','Unmanaged Computers','Antivirus Details','TPM Details','TPM Avaliability Status Report','Bitlocker Details','FileVault Details','Disk Encryption','Firewall Details','File Details by Category','File Details by Extension','Expired certificates','Soon to expire certificates','Small Key Length certificates','Weak Algorithm certificates','Computers with/without a certificate','Windows 11 Incompatible devices','Windows 11 Compatible devices'],
+'USB Reports':['USB Usage Report'],
+'MDM Reports':['App Installation summary','Devices with/without Specific App','Blocklisted Apps Summary','Devices with Blocklisted Apps','New App detected','Apps by Devices','Apps By Licenses','App Feedback Summary','Data Usage by Devices','App Installation summary - Device-Specific Report','Devices by Model','Device SIM details','Devices by Enrollment Time','Inactive Devices','Shared Devices','Rooted Devices','Devices by Storage Encryption','Jail Broken Devices','Devices backed up in Cloud','Device Attestation','Device Battery History','Devices by MTD Threat Levels','Devices by Passcode Type','Devices by Lost Mode Status','Recent Locations','Geo-Tracking Status','Data Usage by devices','Data Usage by groups','Updates by OS Update','Device by OS Update','Network performance report','Filevault Encryption Report','Activation Lock Report'],
+'Application Control Reports':['Managed Systems','Discovered Products','Discovered Unverified Executables','Discovered Store Applications','Discovered Child Process','Unmanaged Products','Unmanaged Executables','Unmanaged Store Applications','Blocklisted Application Access','Blocklisted Store Applications Access','Applications Elevated with Reason','Applications running with Administrator Privileges'],
+'Device Control Reports':['Computer with device exemptions','Computer with device type exemptions','File Tracing','File Shadowing','Device Audit','Device Summary','Unauthorized Devices'],
+'BitLocker Reports':['Managed Systems','BitLocker Reports','TPM Reports'],
+'Browser Reports':['Recently installed potentially harmful extensions','Recently installed unauthroized plugins or ActiveX','Compliance report'],
+'DLP Reports':['Justification Summary','Enterprise Perimeter False Positives','Data Rules False Positives','Endpoint Activity Report'],
+'Malware Protection Reports':['Devices Report','Incidents Report','Alerts Report','Device Not Scanned (7days)'],
+'Custom Groups Reports':['Computers by Custom Groups','Computer Static Unique Group Membership','Users by Custom Groups','Static Unique Groups and Assigned Technicians'],
+};
+const ICO_FOR_CAT = {
+  'User Reports':I.user,'Computer Reports':I.pc,'Group Reports':I.grp,'OU Reports':I.tree,'Domain Reports':I.globe,'GPO Reports':I.shield,
+  'User Logon Reports':I.login,'Power Management Reports':I.power,'Threats & Patches Reports':I.shieldCheck,'Inventory Reports':I.box,
+  'USB Reports':I.usb,'MDM Reports':I.phone,'Application Control Reports':I.app,'Device Control Reports':I.usb,'BitLocker Reports':I.lock,
+  'Browser Reports':I.web,'DLP Reports':I.lock,'Malware Protection Reports':I.bug,'Custom Groups Reports':I.tag,
+};
+const PREDEF_TOTAL = Object.values(CATALOG).reduce((a,v)=>a+v.length,0);
+
+const CUSTOM = [
+  { n:'Count of Computers by Custom Group', type:'Funnel', status:'ok',  when:'Nov 25, 2025' },
+  { n:'Computer and its Total Co2 Emission', type:'Pie',   status:'bad', when:'Nov 25, 2025' },
+  { n:'Count of Computers by its Location',  type:'Pie',   status:'ok',  when:'Nov 25, 2025' },
+  { n:'Count of Computer by Operating System', type:'Pie', status:'ok',  when:'Nov 25, 2025' },
+  { n:'Count of Software based on Computer', type:'Pie',   status:'ok',  when:'Sep 10, 2025' },
+  { n:'Agent Live Status',                   type:'Bar',   status:'ok',  when:'Nov 25, 2025' },
+  { n:'Total Power Consumption by each computer', type:'Bar', status:'bad', when:'Nov 25, 2025' },
+  { n:'Count of computers by Manufacturer',  type:'Bar',   status:'ok',  when:'Nov 25, 2025' },
+  { n:'Monitor Report',                      type:'Table', status:'ok',  when:'Jan 29, 2021' },
+];
+const CUSTOM_TOTAL = 37;
+const QUERY = [
+  { n:'Endpoints missing critical patches (30d)', rows:214, when:'2 days ago' },
+  { n:'License seats by department',              rows:38,  when:'6 days ago' },
+  { n:'BitLocker status by OU',                    rows:120, when:'2 weeks ago' },
+  { n:'USB device usage — last 7 days',            rows:19,  when:'3 weeks ago' },
+  { n:'Domain admin accounts with stale passwords', rows:6,  when:'1 month ago' },
+];
+const QUERY_TOTAL = 56;
+const SCHEDULE = [{ n:'Inventory report', freq:'Daily', to:'dcsupport@zoho.com', next:'Tomorrow, 12:00 AM', bad:true }];
+const DASHBOARD_TOTAL = 0;
+/* ═══ derived indexes ═══ */
+const FLAT = [];
+Object.entries(CATALOG).forEach(([cat,list]) => list.forEach(n => FLAT.push({n,cat})));
+const CAT_KEYS = Object.keys(CATALOG);
+/* ICO_FOR_CAT stores function REFERENCES (I.user, not I.user()) — call it, or the
+   function source text gets stringified straight into the markup. */
+const icoFor = c => { const f = ICO_FOR_CAT[c]; return typeof f === 'function' ? f() : (f || I.grid()); };
+
+/* B1 — questions people actually arrive with, and the report that answers each */
+const ANSWERS = [
+  {q:'How many endpoints are missing critical patches?', v:'214', u:'endpoints, of 1,284 managed', d:'+37 since last week', up:1,
+   src:'Missing Patches', cat:'Threats & Patches Reports', spark:[38,44,41,52,61,58,74]},
+  {q:'How many systems are highly vulnerable?', v:'19', u:'systems at critical severity', d:'−6 since last week', up:0,
+   src:'Highly Vulnerable Systems', cat:'Threats & Patches Reports', spark:[41,38,34,30,27,25,19]},
+  {q:'Which endpoints have not contacted the server?', v:'7', u:'agents silent over 72 hours', d:'+2 since yesterday', up:1,
+   src:'Systems with No Agent Contact', cat:'Threats & Patches Reports', spark:[3,4,3,5,5,6,7]},
+  {q:'Are we short on software licences?', v:'38', u:'seats over entitlement', d:'unchanged', up:0,
+   src:'License Compliance', cat:'Inventory Reports', spark:[38,38,38,38,38,38,38]},
+  {q:'How much disk space is left across the estate?', v:'12%', u:'median free space on workstations', d:'−4 pts this month', up:1,
+   src:'Computers by Disk Usage Summary', cat:'Inventory Reports', spark:[22,20,19,17,15,14,12]},
+  {q:'How many devices are unencrypted?', v:'46', u:'devices without BitLocker or FileVault', d:'−11 this month', up:0,
+   src:'Disk Encryption', cat:'Inventory Reports', spark:[71,66,62,57,53,49,46]},
+];
+
+/* B2/B4 — what this admin has pinned, with the value from its last run */
+const PINS = [
+  {n:'Missing Patches', v:'214', d:'ran 20 min ago', cat:'Threats & Patches Reports'},
+  {n:'Highly Vulnerable Systems', v:'19', d:'ran 20 min ago', cat:'Threats & Patches Reports'},
+  {n:'Systems with No Agent Contact', v:'7', d:'ran 1 h ago', cat:'Threats & Patches Reports'},
+  {n:'License Compliance', v:'38', d:'ran today, 08:00', cat:'Inventory Reports'},
+  {n:'Expired Warranty', v:'23', d:'ran yesterday', cat:'Inventory Reports'},
+  {n:'Currently Logged on Users', v:'612', d:'live', cat:'User Logon Reports'},
+];
+const OPENED = [
+  {n:'Detected CVE Summary', when:'yesterday, 16:20', cat:'Threats & Patches Reports'},
+  {n:'All Installed Software', when:'yesterday, 11:04', cat:'Inventory Reports'},
+  {n:'Windows 11 Incompatible devices', when:'2 days ago', cat:'Inventory Reports'},
+  {n:'User Logon History', when:'3 days ago', cat:'User Logon Reports'},
+  {n:'Prohibited Software', when:'last week', cat:'Inventory Reports'},
+];
+
+/* B3 — what a new tenant should look at first */
+const STARTHERE = [
+  {n:'Missing Patches', why:'the most-opened report in the catalogue', cat:'Threats & Patches Reports'},
+  {n:'All Computers', why:'confirms what the server actually manages', cat:'Computer Reports'},
+  {n:'All Installed Software', why:'the base for licence and risk work', cat:'Inventory Reports'},
+  {n:'System Health Report', why:'one page, whole-estate posture', cat:'Threats & Patches Reports'},
+];
+
+/* B5 — obligations. Frameworks are a proposal; the schedule and failures are real. */
+const FRAMEWORKS = [
+  {n:'HIPAA', have:6, need:9}, {n:'GDPR', have:4, need:7},
+  {n:'PCI-DSS', have:7, need:11}, {n:'SOC 2', have:3, need:8},
+];
+
+const E = esc;
+const rowLink = n => 'reports-module-revamp.html?search=' + encodeURIComponent(n);
+
+/* ═══════════════ 1 · Answer-first ═══════════════ */
+function o1(){
+  return '<div class="page"><div class="stage">' +
+    '<div class="eyebrow">Reports</div><h1>Ask a question, get the number</h1>' +
+    '<p class="lede">The report is the source, not the destination. Type what you need to know and the value comes back here — ' +
+    'open the full report only if you need the rows behind it.</p>' +
+    '<div class="bigsearch"><div class="bigsearch-in">' + I.search() +
+      '<input id="o1q" placeholder="How many endpoints are missing critical patches?" autocomplete="off">' +
+      '<button class="clr" id="o1clr" hidden>' + I.x() + '</button><span class="kbd">/</span>' +
+    '</div></div>' +
+    '<div class="pills" id="o1sugg" style="justify-content:center;margin-top:14px"></div>' +
+    '</div><div id="o1out"></div></div>';
+}
+function o1Wire(root){
+  const q = root.querySelector('#o1q'), out = root.querySelector('#o1out'), clr = root.querySelector('#o1clr');
+  root.querySelector('#o1sugg').innerHTML = ANSWERS.slice(0,4)
+    .map((a,i) => '<button class="pill" data-i="' + i + '">' + I.question(13) + E(a.q) + '</button>').join('');
+
+  function answer(a){
+    const mx = Math.max(...a.spark);
+    return '<div class="ans"><div class="ans-top">' +
+      '<div><div class="ans-v">' + E(a.v) + '</div><div class="ans-u">' + E(a.u) + '</div></div>' +
+      '<div class="ans-body"><div class="ans-q">' + E(a.q) + '</div>' +
+      '<div class="ans-h">' + E(a.src) + '</div>' +
+      '<div class="ans-delta ' + (a.up?'up':'down') + '">' + E(a.d) + '</div>' +
+      '<div class="spark">' + a.spark.map(v => '<i style="height:' + Math.round(v/mx*100) + '%"></i>').join('') + '</div>' +
+      '</div></div>' +
+      '<div class="ans-src">' + I.info(13) + 'Answered from <b>' + E(a.src) + '</b> · ' + E(a.cat) +
+      '<span class="sp"></span><a class="btn ghost sm" href="' + rowLink(a.src) + '">Open full report</a></div></div>';
+  }
+  function paint(){
+    const v = q.value.trim().toLowerCase();
+    clr.hidden = !v;
+    if (!v){ out.innerHTML = ''; return; }
+    const hit = ANSWERS.find(a => a.q.toLowerCase().includes(v) || a.src.toLowerCase().includes(v)
+                              || v.split(/\s+/).filter(w=>w.length>3).some(w => a.q.toLowerCase().includes(w)));
+    if (hit){ out.innerHTML = answer(hit); return; }
+    const near = FLAT.filter(f => f.n.toLowerCase().includes(v)).slice(0,5);
+    out.innerHTML = '<div class="empty" style="max-width:660px;margin:20px auto 0">' +
+      '<b>No stored answer for that yet</b>' +
+      '<p>Only six questions carry a precomputed answer in this mock. ' +
+      (near.length ? 'These reports match the words you used:' : 'Nothing in the catalogue matches those words either.') + '</p>' +
+      (near.length ? '<div class="hits" style="text-align:left">' + near.map(f =>
+        '<a class="hit" href="' + rowLink(f.n) + '"><span class="gi">' + icoFor(f.cat) + '</span>' +
+        '<span class="body"><span class="nm">' + E(f.n) + '</span><span class="meta">' + E(f.cat) + '</span></span></a>').join('') + '</div>' : '') +
+      '</div>';
+  }
+  q.addEventListener('input', paint);
+  clr.onclick = () => { q.value=''; paint(); q.focus(); };
+  root.querySelectorAll('#o1sugg .pill').forEach(b => b.onclick = () => {
+    q.value = ANSWERS[+b.dataset.i].q; paint(); q.focus(); });
+  paint();
+}
+
+/* ═══════════════ 2 · Launchpad ═══════════════ */
+function o2(){
+  return '<div class="page">' +
+    '<div class="strip">' + I.clock(14) + '<b>Monday, 08:12</b> — your pinned set last ran 20 minutes ago.' +
+    '<span class="sp"></span><a class="btn ghost sm" href="#">Run all six</a></div>' +
+    '<div class="disc-sec"><div class="disc-h"><h2>Pinned</h2><div class="sp" style="flex:1"></div>' +
+    '<span style="font-size:12px;color:var(--muted)">values from the last run</span></div>' +
+    '<div class="lp">' + PINS.map(p =>
+      '<a class="lpc" href="' + rowLink(p.n) + '"><span class="pin">' + I.tag(13) + '</span>' +
+      '<div class="t">' + E(p.n) + '</div><div class="v">' + E(p.v) + '</div>' +
+      '<div class="d">' + E(p.d) + '</div></a>').join('') + '</div></div>' +
+    '<div class="disc-sec"><div class="disc-h"><h2>You opened recently</h2></div>' +
+    '<div class="hits">' + OPENED.map(o =>
+      '<a class="hit" href="' + rowLink(o.n) + '"><span class="gi">' + icoFor(o.cat) + '</span>' +
+      '<span class="body"><span class="nm">' + E(o.n) + '</span>' +
+      '<span class="meta">' + E(o.cat) + '</span></span>' +
+      '<span class="side" style="font-size:12px;color:var(--muted)">' + E(o.when) + '</span></a>').join('') + '</div></div>' +
+    '<div class="disc-sec"><div class="disc-h"><h2>Everything else</h2></div>' +
+    '<div class="pills"><a class="pill" href="reports-search-home.html">' + I.search(13) +
+    'Search all ' + PREDEF_TOTAL + ' reports</a>' +
+    '<a class="pill" href="reports-module-revamp.html">' + I.grid(13) + 'Browse the catalogue</a></div></div>' +
+    '</div>';
+}
+function o2Wire(){}
+
+/* ═══════════════ 3 · Guided catalogue ═══════════════ */
+function o3(){
+  return '<div class="page"><div class="stage" style="text-align:left;margin-bottom:22px">' +
+    '<div class="eyebrow">Reports</div><h1 style="font-size:24px">' + PREDEF_TOTAL + ' reports across ' +
+    CAT_KEYS.length + ' categories</h1>' +
+    '<p class="lede" style="margin:0">You do not have to know the names. Start with what most teams open first, ' +
+    'then widen into a category.</p></div>' +
+    '<div class="disc-sec"><div class="disc-h"><h2>Start here</h2><div class="sp" style="flex:1"></div>' +
+    '<span style="font-size:12px;color:var(--muted)">ranked, not alphabetical</span></div>' +
+    '<div class="startrow">' + STARTHERE.map((s,i) =>
+      '<a class="sc" href="' + rowLink(s.n) + '"><span class="gi">' + icoFor(s.cat) + '</span>' +
+      '<span><span class="nm">' + E(s.n) + '</span><span class="why">' + E(s.why) + '</span></span>' +
+      '<span class="rank">#' + (i+1) + '</span></a>').join('') + '</div></div>' +
+    '<div class="disc-sec"><div class="disc-h"><h2>Browse by category</h2></div>' +
+    '<div class="cgrid" id="o3grid"></div></div></div>';
+}
+function o3Wire(root){
+  const grid = root.querySelector('#o3grid');
+  const open = {};
+  function paint(){
+    grid.innerHTML = CAT_KEYS.map(c => {
+      const list = CATALOG[c], show = open[c] ? list : list.slice(0,4);
+      return '<div class="catcard2"><div class="ch"><span class="gi">' + icoFor(c) + '</span>' +
+        '<h4>' + E(c.replace(/ Reports$/,'')) + '</h4><span class="n">' + list.length + '</span></div><ul>' +
+        show.map(n => '<li><a href="' + rowLink(n) + '">' + E(n) + '</a></li>').join('') + '</ul>' +
+        (list.length > 4 ? '<button class="more" data-c="' + E(c) + '">' +
+          (open[c] ? 'Show fewer' : 'All ' + list.length + ' →') + '</button>' : '') + '</div>';
+    }).join('');
+    grid.querySelectorAll('.more').forEach(b => b.onclick = () => {
+      open[b.dataset.c] = !open[b.dataset.c]; paint(); });
+  }
+  paint();
+}
+
+/* ═══════════════ 4 · Obligations board ═══════════════ */
+function o4(){
+  const bad = CUSTOM.filter(c => c.status === 'bad');
+  const s = SCHEDULE[0];
+  return '<div class="page"><div class="stage" style="text-align:left;margin-bottom:20px">' +
+    '<div class="eyebrow">Reports</div><h1 style="font-size:24px">What is due, and what is broken</h1>' +
+    '<p class="lede" style="margin:0">For the weeks when reporting is an obligation with a date on it, ' +
+    'not a question you are curious about.</p></div>' +
+    '<div class="board">' +
+      '<div><div class="bcard" style="margin-bottom:14px"><h3>' + I.alert(14) +
+        'Needs action now<span class="sp"></span><span class="c">' + (1 + bad.length) + '</span></h3>' +
+        '<div class="brow alert"><span class="gi" style="width:30px;height:30px;border-radius:8px;display:grid;' +
+          'place-items:center;background:var(--err-bg);color:var(--err);flex-shrink:0">' + I.cal(14) + '</span>' +
+          '<span class="body"><span class="nm">' + E(s.n) + ' — delivery failed</span>' +
+          '<span class="meta">' + E(s.freq) + ' → ' + E(s.to) + ' · next attempt ' + E(s.next) + '</span></span>' +
+          '<a class="btn ghost sm" href="#">Fix</a></div>' +
+        bad.map(c => '<div class="brow alert"><span class="gi" style="width:30px;height:30px;border-radius:8px;' +
+          'display:grid;place-items:center;background:var(--err-bg);color:var(--err);flex-shrink:0">' + I.dash(14) + '</span>' +
+          '<span class="body"><span class="nm">' + E(c.n) + ' — last run failed</span>' +
+          '<span class="meta">Custom · ' + E(c.type) + ' · ' + E(c.when) + '</span></span>' +
+          '<a class="btn ghost sm" href="#">Retry</a></div>').join('') +
+      '</div>' +
+      '<div class="bcard"><h3>' + I.cal(14) + 'Scheduled deliveries<span class="sp"></span>' +
+        '<span class="c">1 configured</span></h3>' +
+        '<div class="brow"><span class="body"><span class="nm">' + E(s.n) + '</span>' +
+        '<span class="meta">' + E(s.freq) + ' · ' + E(s.to) + '</span></span>' +
+        '<span class="badge bad">Failed</span></div>' +
+        '<div class="brow"><span class="body"><span class="nm" style="color:var(--muted);font-weight:500">' +
+        'Nothing else is scheduled</span><span class="meta">' + PREDEF_TOTAL +
+        ' reports exist; one is automated</span></span>' +
+        '<a class="btn primary sm" href="#">New schedule</a></div></div></div>' +
+
+      '<div><div class="bcard" style="margin-bottom:14px"><h3>' + I.shieldCheck(14) +
+        'Framework coverage<span class="sp"></span><span class="c">proposed</span></h3>' +
+        FRAMEWORKS.map(f => '<div class="fw"><span class="nm">' + E(f.n) + '</span>' +
+          '<span class="fwbar"><i style="width:' + Math.round(f.have/f.need*100) + '%"></i></span>' +
+          '<span class="n">' + f.have + '/' + f.need + '</span></div>').join('') +
+        '<div class="fw"><span class="meta gap" style="font-size:11.5px">' + I.info(12) +
+        ' Framework tagging does not exist in the product yet</span></div></div>' +
+      '<div class="bcard"><h3>' + I.box(14) + 'Estate health<span class="sp"></span></h3>' +
+        '<div class="brow"><span class="body"><span class="nm">' + CUSTOM_TOTAL + ' custom reports</span>' +
+        '<span class="meta">' + bad.length + ' failing · ' + DASHBOARD_TOTAL + ' custom dashboards</span></span></div>' +
+        '<div class="brow"><span class="body"><span class="nm">' + QUERY_TOTAL + ' query reports</span>' +
+        '<span class="meta">SQL-authored, no validation in the builder</span></span></div>' +
+        '<div class="brow"><span class="body"><span class="nm">Retention</span>' +
+        '<span class="meta">Set at list level — scope is ambiguous (PRD D7)</span></span></div></div></div>' +
+    '</div></div>';
+}
+function o4Wire(){}
+
+/* ═══════════════ 5 · Composer ═══════════════ */
+function o5(){
+  return '<div class="page"><div class="stage"><div class="eyebrow">Reports</div>' +
+    '<h1>Nothing in the catalogue answers it</h1>' +
+    '<p class="lede">Three ways in, sized by how they are actually used in this tenant — ' +
+    'not by which one is newest.</p></div>' +
+    '<div class="doors">' +
+      '<button class="door" data-d="sql"><span class="gi">' + I.code(18) + '</span>' +
+        '<h4>Express it</h4><p>Write the SQL expression directly. Full control over joins, ' +
+        'filters and computed columns.</p>' +
+        '<span class="use"><b>' + QUERY_TOTAL + ' query reports</b> exist — the most-used path</span></button>' +
+      '<button class="door" data-d="build"><span class="gi">' + I.grid(18) + '</span>' +
+        '<h4>Assemble it</h4><p>Pick a module, choose columns and a chart type. No expression ' +
+        'language, but you decide every field.</p>' +
+        '<span class="use"><b>' + CUSTOM_TOTAL + ' custom reports</b> built this way</span></button>' +
+      '<button class="door" data-d="ai"><span class="gi">' + I.sparkle(18) + '</span>' +
+        '<h4>Describe it</h4><p>Say what you want in a sentence and let ZIA propose the report, ' +
+        'then adjust it.</p>' +
+        '<span class="use">Newest path — <b>no adoption data yet</b></span></button>' +
+    '</div>' +
+    '<div id="o5out"></div>' +
+    '<div class="disc-sec" style="margin-top:24px"><div class="disc-h"><h2>Or start from something that exists</h2>' +
+    '<div class="sp" style="flex:1"></div><span style="font-size:12px;color:var(--muted)">' +
+    'duplicate and edit</span></div><div class="hits">' +
+    QUERY.slice(0,4).map(r => '<a class="hit" href="#"><span class="gi">' + I.code() + '</span>' +
+      '<span class="body"><span class="nm">' + E(r.n) + '</span>' +
+      '<span class="meta">Query report · ' + r.rows + ' rows · edited ' + E(r.when) + '</span></span>' +
+      '<span class="side"><span class="btn ghost sm">Duplicate</span></span></a>').join('') +
+    '</div></div></div>';
+}
+function o5Wire(root){
+  const out = root.querySelector('#o5out');
+  const PANES = {
+    sql:{t:'Express it', b:'<div class="cmdshell" style="margin:0"><div class="cmdin" style="font-family:ui-monospace,Menlo,monospace;font-size:12.5px;color:var(--muted)">SELECT resource_name, patch_count FROM …</div></div>' +
+        '<p style="font-size:12.5px;color:var(--muted);margin:11px 0 0">No syntax highlighting, validation or result grid exists today (PRD GAP-10). That is the gap this door has to close.</p>'},
+    build:{t:'Assemble it', b:'<p style="font-size:12.5px;color:var(--muted);margin:0">Module → columns → chart type → filters, as four ordered steps. Closest to what the prototype already builds.</p>'},
+    ai:{t:'Describe it', b:'<p style="font-size:12.5px;color:var(--muted);margin:0">ZIA is fully simulated right now — four canned answers on a 2 s timer, cycling by index and ignoring your prompt entirely (PRD GAP-4). Presenting it as a peer to the other two overstates what it does.</p>'},
+  };
+  root.querySelectorAll('.door').forEach(b => b.onclick = () => {
+    const p = PANES[b.dataset.d];
+    root.querySelectorAll('.door').forEach(x => x.style.borderColor = '');
+    b.style.borderColor = 'var(--violet)';
+    out.innerHTML = '<div class="note" style="margin-top:16px;display:block"><b style="font-size:13px;' +
+      'color:var(--text);display:block;margin-bottom:7px">' + p.t + '</b>' + p.b + '</div>';
+  });
+}
+
+/* ═════════ mount / switcher ═════════ */
+const VARIANTS = [
+  { k:'o1', t:'1 · Answer-first', build:o1, wire:o1Wire, covers:'B1',
+    who:'B1 — answering a one-off question. Arrives with a question in plain language and no idea which surface holds it.',
+    fix:'Treats the report as the source and the number as the product: the value renders on this page, with the report named as provenance and a way through to the rows.',
+    off:'Every answer has to be precomputed or the page lies. Six are stored here; anything else degrades to a name search. It also presumes the report viewer that does not exist yet (GAP-6, D6).' },
+  { k:'o2', t:'2 · Launchpad', build:o2, wire:o2Wire, covers:'B2 + B4',
+    who:'B2 and B4 — re-finding a known report, and the habitual Monday check. The answer is something they have already opened.',
+    fix:'Pinned reports carry their last value, so the routine check needs no run and no search. Recently-opened sits under it; the 261-report catalogue is demoted to two links.',
+    off:'Empty on day one and it entrenches habit — a better report they have never opened stays invisible. Needs the pinning and persistence the build lacks (GAP-2, D8).' },
+  { k:'o3', t:'3 · Guided catalogue', build:o3, wire:o3Wire, covers:'B3',
+    who:'B3 — exploring what exists, with no vocabulary yet. New tenant, or a new problem domain.',
+    fix:'Leads with four ranked starting points rather than an alphabetical taxonomy, then lets each of the 14 categories expand in place so browsing never leaves the page.',
+    off:'The ranking is asserted, not measured — there is no telemetry behind “most-opened”. Still a wall of names once expanded.' },
+  { k:'o4', t:'4 · Obligations board', build:o4, wire:o4Wire, covers:'B5 + B7',
+    who:'B5 and B7 — producing evidence someone else has demanded, and keeping the estate healthy.',
+    fix:'Sorts by deadline and breakage instead of by name: the failing delivery is the first thing on the page, and framework coverage shows what evidence is missing rather than what reports exist.',
+    off:'Framework tagging is invented — no such metadata exists today, and the card says so. The real scheduler is a stub (GAP-11), so the board would currently describe one automated report out of 261.' },
+  { k:'o5', t:'5 · Composer', build:o5, wire:o5Wire, covers:'B6',
+    who:'B6 — authoring something that does not exist. Three separate sub-behaviours by skill, not one.',
+    fix:'Puts the three doors in the order the live data supports: SQL first (56 query reports), manual second (37 custom), AI last and explicitly unproven — rather than leading with the newest feature.',
+    off:'Inverts the PRD’s G3 premise of “self-serve without SQL”. If the 56:37 split reflects an old power-user base rather than current demand, this ordering entrenches the wrong thing.' },
+];
+
+document.getElementById('vtabs').innerHTML = VARIANTS.map((v,i) =>
+  '<button data-v="' + v.k + '"' + (i===0?' class="on"':'') + '>' + v.t + '</button>').join('');
+document.getElementById('views').innerHTML = VARIANTS.map((v,i) =>
+  '<div class="view' + (i===0?' on':'') + '" id="view-' + v.k + '"></div>').join('');
+
+const built = {};
+function show(k){
+  VARIANTS.forEach(v => document.getElementById('view-'+v.k).classList.toggle('on', v.k===k));
+  document.querySelectorAll('#vtabs button').forEach(b => b.classList.toggle('on', b.dataset.v===k));
+  const v = VARIANTS.find(x => x.k===k);
+  document.getElementById('why').innerHTML =
+    '<div class="fix"><b>Behaviour it serves</b>' + v.who + ' ' + v.fix + '</div>' +
+    '<div><b>Trade-off</b>' + v.off + '</div>';
+  document.getElementById('covers').innerHTML = 'Covers <b>' + v.covers + '</b> of the seven behaviours';
+  if (!built[k]){
+    const root = document.getElementById('view-'+k);
+    root.innerHTML = v.build();
+    v.wire(root);
+    built[k] = true;
+  }
+}
+document.getElementById('vtabs').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (b) show(b.dataset.v);
+});
+document.getElementById('theme').onclick = () => {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const dark = cur ? cur === 'dark' : matchMedia('(prefers-color-scheme:dark)').matches;
+  document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
+};
+show('o1');
+</script>
