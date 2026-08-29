@@ -1,0 +1,157 @@
+<meta charset="utf-8">
+<title>Support Chat Popover</title>
+<style>
+  :root{
+    /* the one knob for width — everything else sizes off it */
+    --pop-w:340px;
+
+    --blue:#2f62d8; --blue-2:#2a4fc0; --blue-hov:#2856c4; --blue-ring:#a8c5f5;
+    --surface:#fff; --page:#eef3ee;
+    --rail:#e4efe9;
+    --heading:#15181e; --body:#4a5568; --faint:#93a4bf;
+    --line:rgba(15,35,80,.10);
+    --shadow:0 14px 44px rgba(15,35,80,.16), 0 2px 8px rgba(15,35,80,.08);
+    --font:'Zoho Puvi',ui-sans-serif,system-ui,'Segoe UI',Roboto,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --blue:#3b82f6; --blue-2:#2563eb; --blue-hov:#60a5fa; --blue-ring:#2f5da8;
+    --surface:#161821; --page:#0b0d12;
+    --rail:#141821;
+    --heading:rgba(255,255,255,.94); --body:rgba(255,255,255,.62); --faint:rgba(255,255,255,.34);
+    --line:rgba(255,255,255,.10);
+    --shadow:0 14px 44px rgba(0,0,0,.6);
+  }}
+  :root[data-theme="dark"]{
+    --blue:#3b82f6; --blue-2:#2563eb; --blue-hov:#60a5fa; --blue-ring:#2f5da8;
+    --surface:#161821; --page:#0b0d12;
+    --rail:#141821;
+    --heading:rgba(255,255,255,.94); --body:rgba(255,255,255,.62); --faint:rgba(255,255,255,.34);
+    --line:rgba(255,255,255,.10);
+    --shadow:0 14px 44px rgba(0,0,0,.6);
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;background:var(--page);font:14px/1.5 var(--font);
+       color:var(--heading);-webkit-font-smoothing:antialiased}
+  button{font-family:inherit;cursor:pointer}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+  /* ── mock console chrome, so the popover is seen in context ── */
+  .stage{position:relative;min-height:100vh;padding:48px 96px 48px 48px}
+  .ghost{max-width:620px;opacity:.55}
+  .ghost .row{display:flex;align-items:center;justify-content:space-between;
+              padding:15px 4px;border-bottom:1px solid var(--line);font-size:17px}
+  .ghost .row b{font-weight:700}
+
+  .utilrail{position:fixed;top:0;right:0;bottom:0;width:56px;background:var(--rail);
+            display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px 0;z-index:2}
+  .utilrail button{width:38px;height:38px;border:none;background:none;border-radius:10px;
+                   display:grid;place-items:center;color:#5b6b86;transition:background .14s,color .14s}
+  .utilrail button:hover{background:rgba(15,35,80,.06);color:var(--heading)}
+  .utilrail button.on{background:var(--blue);color:#fff}
+
+  /* ── the popover ─────────────────────────────────────────── */
+  .pop{position:fixed;right:74px;top:0;width:var(--pop-w);background:var(--surface);
+       border-radius:14px;box-shadow:var(--shadow);padding:22px 24px 24px;z-index:3;
+       animation:in .18s cubic-bezier(.2,.8,.3,1)}
+  @keyframes in{from{opacity:0;transform:translateX(6px)}}
+  .pop[hidden]{display:none}
+
+  /* tail — vertical position set by JS to line up with the chat button */
+  .pop::after{content:'';position:absolute;right:-7px;top:var(--tail-y,50%);margin-top:-7px;
+              width:14px;height:14px;background:var(--surface);transform:rotate(45deg);
+              border-radius:2px}
+
+  .pop h3{margin:0 0 10px;font-size:21px;line-height:1.25;font-weight:700;
+          letter-spacing:-.02em;color:var(--heading)}
+  .pop p{margin:0 0 20px;font-size:14.5px;line-height:1.6;color:var(--body)}
+
+  .pop .cta{width:100%;border:none;border-radius:10px;padding:13px 20px;
+            font-size:15.5px;font-weight:600;color:#fff;
+            background:linear-gradient(180deg,var(--blue),var(--blue-2));
+            box-shadow:0 4px 12px rgba(47,98,216,.28);
+            transition:filter .15s,transform .12s,box-shadow .15s}
+  .pop .cta:hover{filter:brightness(1.06);box-shadow:0 6px 16px rgba(47,98,216,.34)}
+  .pop .cta:active{transform:scale(.985)}
+  .pop .cta:focus-visible{outline:none;box-shadow:0 0 0 3px var(--blue-ring),0 4px 12px rgba(47,98,216,.28)}
+
+  .pop .dismiss{position:absolute;top:10px;right:10px;width:26px;height:26px;border-radius:50%;
+                border:none;background:none;color:var(--faint);display:grid;place-items:center;
+                transition:background .14s,color .14s}
+  .pop .dismiss:hover{background:rgba(15,35,80,.07);color:var(--heading)}
+
+  /* ── width knob, for tuning the one number that matters ──── */
+  .knob{position:fixed;left:24px;bottom:24px;z-index:4;background:var(--surface);
+        border:1px solid var(--line);border-radius:11px;padding:12px 15px;
+        box-shadow:0 6px 20px rgba(15,35,80,.10);font-size:12.5px;color:var(--body)}
+  .knob label{display:flex;align-items:center;gap:10px;font-weight:600;color:var(--heading)}
+  .knob input{width:150px}
+  .knob b{font-variant-numeric:tabular-nums;color:var(--blue);min-width:52px}
+  .knob i{display:block;font-style:normal;margin-top:5px;color:var(--faint);font-size:11.5px}
+</style>
+
+<div class="stage">
+  <div class="ghost">
+    <div class="row"><span>Under Licensed</span><b>42</b></div>
+    <div class="row"><span>License Expired</span><b>15</b></div>
+    <div class="row"><span>Prohibited Software</span><b>13</b></div>
+    <div class="row"><span>System Health Graph</span><b></b></div>
+  </div>
+</div>
+
+<div class="utilrail">
+  <button title="Theme"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+  <button title="Announcement"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1zM17 9a4 4 0 0 1 0 6"/></svg></button>
+  <button title="Accessibility"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4" r="1.6"/><path d="M5 8h14M12 8v6M12 14l-3 6M12 14l3 6"/></svg></button>
+  <button title="Tags"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h8l10 10-8 8L3 11z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg></button>
+  <button title="Tickets"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2 2 2 0 0 0 0 4 2 2 0 0 1 0 4 2 2 0 0 1-2 2H6a2 2 0 0 1-2-2 2 2 0 0 0 0-4 2 2 0 0 1 0-4z"/></svg></button>
+  <button class="on" id="chatBtn" title="Chat"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4L3 21l1.1-4.1A8.4 8.4 0 1 1 21 11.5z"/></svg></button>
+</div>
+
+<div class="pop" id="pop" role="dialog" aria-labelledby="popTitle">
+  <button class="dismiss" id="popClose" aria-label="Dismiss">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+  </button>
+  <h3 id="popTitle">How can I help you?</h3>
+  <p>Live chat with our support team, right from the console — ask about anything you have just seen.</p>
+  <button class="cta">Let&rsquo;s talk</button>
+</div>
+
+<div class="knob">
+  <label>Popover width <input type="range" id="w" min="260" max="520" step="4" value="340"> <b id="wv">340px</b></label>
+  <i>Was ~790px with the illustration. Set the value you want and I will bake it in.</i>
+</div>
+
+<script>
+(function(){
+  var pop = document.getElementById('pop'),
+      w = document.getElementById('w'),
+      wv = document.getElementById('wv');
+
+  w.addEventListener('input', function(){
+    document.documentElement.style.setProperty('--pop-w', w.value + 'px');
+    wv.textContent = w.value + 'px';
+  });
+
+  var chatBtn = document.getElementById('chatBtn');
+
+  // keep the popover — and its tail — lined up with the chat button
+  function place(){
+    if(pop.hidden) return;
+    var b = chatBtn.getBoundingClientRect(),
+        h = pop.offsetHeight,
+        centre = b.top + b.height / 2,
+        margin = 12,
+        top = Math.min(Math.max(margin, centre - h / 2), window.innerHeight - h - margin);
+    pop.style.top = top + 'px';
+    pop.style.setProperty('--tail-y', (centre - top) + 'px');
+  }
+
+  document.getElementById('popClose').onclick = function(){ pop.hidden = true; };
+  chatBtn.onclick = function(){ pop.hidden = !pop.hidden; place(); };
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') pop.hidden = true; });
+  window.addEventListener('resize', place);
+  w.addEventListener('input', place);
+  place();
+})();
+</script>

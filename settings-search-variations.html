@@ -1,5 +1,5 @@
 <meta charset="utf-8">
-<title>Search settings · Endpoint Central</title>
+<title>Settings search variations · Endpoint Central</title>
 <style>
   :root {
     --violet:#2563eb; --violet-hov:#1d4ed8; --violet-soft:rgba(37,99,235,.08);
@@ -58,25 +58,41 @@
 
   .page{max-width:960px;margin:0 auto;padding:40px clamp(14px,3vw,30px) 80px}
 
-  /* ══ the page is a stage for one thing: the search bar ══ */
-  .shell{min-height:calc(100vh - 47px);display:flex;flex-direction:column;align-items:center;
-         padding:16vh 20px 40px;transition:padding-top .28s cubic-bezier(.4,0,.2,1)}
-  body.open .shell{padding-top:9vh}
+  /* ══ switcher / pitch chrome ══ */
+  .pitch{position:sticky;top:0;z-index:80;background:var(--surface);border-bottom:1px solid var(--border)}
+  .pitch-in{display:flex;align-items:center;gap:14px;padding:10px 18px;flex-wrap:wrap}
+  .pitch-t{font-weight:700;font-size:13px;letter-spacing:-.01em}
+  .pitch-t span{color:var(--muted);font-weight:500}
+  .vtabs{display:flex;gap:3px;background:var(--surface-2);padding:3px;border-radius:9px;flex-wrap:wrap}
+  .vtabs button{padding:6px 12px;border:none;border-radius:7px;background:none;cursor:pointer;
+                font:600 12.5px var(--font);color:var(--muted)}
+  .vtabs button:hover{color:var(--text)}
+  .vtabs button.on{background:var(--surface);color:var(--violet);box-shadow:var(--shadow)}
+  .why{display:grid;grid-template-columns:1fr 1fr;gap:0 22px;padding:0 18px 11px;font-size:12.5px;color:var(--muted)}
+  .why b{display:block;font-size:10.5px;font-weight:700;color:var(--faint);text-transform:uppercase;
+         letter-spacing:.06em;margin-bottom:2px}
+  .why .fix{border-right:1px solid var(--border-soft);padding-right:22px}
+  @media (max-width:760px){ .why{grid-template-columns:1fr;gap:9px} .why .fix{border:none;padding:0} }
 
-  .hero{width:100%;max-width:620px;text-align:center}
+  .view{display:none} .view.on{display:block}
+
+  /* ══ shared: the bar is the page ══ */
+  .shell{min-height:calc(100vh - 118px);display:flex;flex-direction:column;align-items:center;
+         padding:13vh 20px 40px;transition:padding-top .28s cubic-bezier(.4,0,.2,1)}
+  .view.open .shell{padding-top:7vh}
+  .hero{width:100%;max-width:640px;text-align:center}
   .hero .eyebrow{font-size:11.5px;font-weight:700;color:var(--violet);text-transform:uppercase;
                  letter-spacing:.08em;margin:0 0 10px}
-  .hero h1{font-size:26px;font-weight:700;letter-spacing:-.02em;margin:0 0 22px;text-wrap:balance}
+  .hero h1{font-size:25px;font-weight:700;letter-spacing:-.02em;margin:0 0 22px;text-wrap:balance}
 
-  /* the bar itself — anchor for the panel */
   .searchwrap{position:relative;z-index:40}
-  .bar{display:flex;align-items:center;gap:12px;padding:16px 19px;background:var(--surface);
+  .bar{display:flex;align-items:center;gap:12px;padding:15px 18px;background:var(--surface);
        border:1.5px solid var(--border);border-radius:14px;box-shadow:var(--shadow);transition:.18s}
   .bar:focus-within{border-color:var(--violet);box-shadow:0 0 0 5px var(--violet-soft)}
-  body.open .bar{border-color:var(--violet);box-shadow:0 0 0 5px var(--violet-soft),var(--pop);
-                 border-bottom-left-radius:0;border-bottom-right-radius:0}
+  .view.open .bar{border-color:var(--violet);box-shadow:0 0 0 5px var(--violet-soft),var(--pop);
+                  border-bottom-left-radius:0;border-bottom-right-radius:0}
   .bar>svg{color:var(--muted);flex-shrink:0}
-  .bar input{flex:1;min-width:0;border:none;background:none;outline:none;color:var(--text);font-size:16.5px}
+  .bar input{flex:1;min-width:0;border:none;background:none;outline:none;color:var(--text);font-size:16px}
   .bar input::placeholder{color:var(--faint)}
   .clr{background:none;border:none;color:var(--faint);cursor:pointer;padding:3px;border-radius:6px;line-height:0;flex-shrink:0}
   .clr:hover{color:var(--text);background:var(--surface-2)}
@@ -84,29 +100,26 @@
        border:1px solid var(--border);border-radius:5px;padding:2.5px 7px;flex-shrink:0}
 
   .hint{margin:14px 0 0;font-size:12.5px;color:var(--faint);transition:opacity .2s}
-  body.open .hint{opacity:0;pointer-events:none}
+  .view.open .hint{opacity:0;pointer-events:none}
   .hint b{color:var(--muted);font-weight:600}
 
-  /* ══ everything else lives in here, and only on click ══ */
   .panel{position:absolute;top:100%;left:0;right:0;text-align:left;background:var(--surface);
          border:1.5px solid var(--violet);border-top:none;border-radius:0 0 14px 14px;
          box-shadow:var(--pop);overflow:hidden;display:none}
-  body.open .panel{display:block}
-  .panel-scroll{max-height:min(58vh,470px);overflow-y:auto;overscroll-behavior:contain}
+  .view.open .panel{display:block}
+  .panel-scroll{max-height:min(56vh,450px);overflow-y:auto;overscroll-behavior:contain}
   .panel-head{display:flex;align-items:center;gap:8px;padding:9px 15px;border-bottom:1px solid var(--border-soft);
               background:var(--surface-2)}
   .panel-head .t{font-size:11.5px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:.06em}
-  .panel-head .sp{flex:1}
-  .panel-head .c{font-size:12px;color:var(--muted)}
+  .panel-head .sp{flex:1} .panel-head .c{font-size:12px;color:var(--muted)}
   .back{background:none;border:none;cursor:pointer;color:var(--violet);font:600 12px var(--font);
         display:inline-flex;align-items:center;gap:5px;padding:2px 6px;margin-left:-6px;border-radius:6px}
   .back:hover{background:var(--violet-soft)}
-
-  .sec{padding:7px 0}
-  .sec+.sec{border-top:1px solid var(--border-soft)}
+  .sec{padding:7px 0} .sec+.sec{border-top:1px solid var(--border-soft)}
   .sec-t{font-size:11px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:.06em;
          padding:6px 15px 5px;display:flex;align-items:center;gap:7px}
   .sec-t .n{font-weight:600;color:var(--muted);text-transform:none;letter-spacing:0;font-size:11.5px}
+  .sec-t .sp{flex:1}
 
   .row{display:flex;align-items:center;gap:12px;padding:9px 15px;text-decoration:none;color:var(--text);
        cursor:pointer;border:none;background:none;width:100%;text-align:left;font:inherit}
@@ -124,8 +137,7 @@
              overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .row .meta code{font-size:11px;color:var(--faint);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
   .row .via{color:var(--violet)}
-  .row .go{color:var(--faint);flex-shrink:0}
-  .row:hover .go,.row.cur .go{color:var(--violet)}
+  .row .go{color:var(--faint);flex-shrink:0} .row:hover .go,.row.cur .go{color:var(--violet)}
   .row .cnt{font-size:11.5px;color:var(--faint);font-weight:600;flex-shrink:0}
 
   .badge{display:inline-flex;align-items:center;padding:1px 7px;border-radius:999px;font-weight:600;flex-shrink:0}
@@ -144,50 +156,66 @@
   .panel-foot .sp{flex:1}
   .panel-foot kbd{font:600 10.5px var(--font);background:var(--surface);border:1px solid var(--border);
                   border-radius:4px;padding:1.5px 5px;color:var(--muted)}
+  .veil{position:fixed;inset:0;z-index:30;display:none} .view.open .veil{display:block}
 
-  /* click-away veil */
-  .veil{position:fixed;inset:0;z-index:30;display:none}
-  body.open .veil{display:block}
+  /* ══ A · intent rows ══ */
+  .irow{align-items:flex-start}
+  .irow .gi{background:var(--violet-soft);color:var(--violet);border-color:transparent}
+  .irow .q{font-size:13.5px;font-weight:600}
+  .irow .why2{font-size:11.5px;color:var(--muted);margin-top:1px}
+  .irow .maps{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+  .irow .maps span{font-size:11px;font-weight:600;color:var(--muted);background:var(--surface-2);
+                   border:1px solid var(--border);border-radius:999px;padding:1.5px 8px}
+
+  /* ══ B · habit rows ══ */
+  .pin{background:none;border:none;cursor:pointer;color:var(--faint);padding:4px;border-radius:6px;
+       line-height:0;flex-shrink:0}
+  .pin:hover{color:var(--violet);background:var(--surface-2)}
+  .pin.on{color:var(--violet)}
+  .freq{display:inline-flex;align-items:center;gap:5px;flex-shrink:0}
+  .freqbar{width:34px;height:4px;border-radius:2px;background:var(--surface-2);overflow:hidden}
+  .freqbar i{display:block;height:100%;background:var(--violet);border-radius:2px}
+  .freq .num{font-size:11px;color:var(--faint);font-weight:600;font-variant-numeric:tabular-nums;min-width:26px;text-align:right}
+  .rest{padding:9px 15px;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:7px;
+        cursor:pointer;background:none;border:none;width:100%;text-align:left;font-family:inherit}
+  .rest:hover{background:var(--violet-soft);color:var(--violet)}
+
+  /* ══ C · two-pane browser ══ */
+  /* 208px fits the longest category name ("Configuration Settings") without an ellipsis */
+  .twopane{display:grid;grid-template-columns:208px 1fr;min-height:300px}
+  .pane-l{border-right:1px solid var(--border-soft);background:var(--surface-2);
+          max-height:min(56vh,450px);overflow-y:auto}
+  .pane-r{max-height:min(56vh,450px);overflow-y:auto}
+  .crow{display:flex;align-items:center;gap:9px;padding:8px 13px;cursor:pointer;border:none;background:none;
+        width:100%;text-align:left;font:inherit;color:var(--muted);border-left:2px solid transparent}
+  .crow:hover{background:var(--violet-soft);color:var(--text)}
+  .crow.on{background:var(--surface);color:var(--violet);border-left-color:var(--violet);font-weight:600}
+  .crow .nm2{flex:1;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .crow .cnt{font-size:11px;color:var(--faint);font-weight:600}
+  @media (max-width:620px){ .twopane{grid-template-columns:1fr} .pane-l{max-height:150px;border-right:none;
+                            border-bottom:1px solid var(--border-soft)} }
 </style>
 
-<div class="chrome">
-  <div class="brand">Admin settings <span>· search home</span></div>
-  <div class="sp"></div>
-  <button class="btn ghost sm" id="theme" title="Toggle theme" aria-label="Toggle theme">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-  </button>
-</div>
-
-<div class="veil" id="veil"></div>
-
-<div class="shell">
-  <div class="hero">
-    <div class="eyebrow">Admin</div>
-    <h1>What do you want to change?</h1>
-
-    <div class="searchwrap">
-      <div class="bar">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        <input id="q" placeholder="Search settings…" autocomplete="off" aria-label="Search settings"
-               role="combobox" aria-expanded="false" aria-controls="panel">
-        <button class="clr" id="clr" hidden aria-label="Clear search">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
-        </button>
-        <span class="kbd">/</span>
-      </div>
-
-      <div class="panel" id="panel" role="listbox" aria-label="Settings"></div>
-    </div>
-
-    <p class="hint">70 settings across 14 categories · search by intent — <b>smtp</b>, <b>sso</b>, <b>2fa</b>, <b>gdpr</b></p>
+<div class="pitch">
+  <div class="pitch-in">
+    <div class="pitch-t">Settings search, three ways<span> · same 70 settings, three different habits</span></div>
+    <div class="sp" style="flex:1"></div>
+    <div class="vtabs" id="vtabs"></div>
+    <button class="btn ghost sm" id="theme" title="Toggle theme" aria-label="Toggle theme">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </button>
   </div>
+  <div class="why" id="why"></div>
 </div>
+
+<div id="views"></div>
 
 <script>
 const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const DEMO = 'https://demo.endpointcentralplus.com/webclient';
 
 /* ═══ icon set ═══ */
+
 
 const I = {
   globe:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/></svg>',
@@ -205,6 +233,7 @@ const I = {
   log:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>',
   chart:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l3-4 3 3 4-6"/></svg>',
   left:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>',
+  search2:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>',
   go:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>',
   bolt:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>',
   clock:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
@@ -317,18 +346,40 @@ const CATS = [
 const ITEMS = [];
 CATS.forEach(c => c.items.forEach(it => ITEMS.push({...it, cat:c.id, catName:c.name, icon:c.icon})));
 const TOTAL = ITEMS.length;
-const RECENT = ['Agent Settings','Mail Server','Role','Patch Download','Security Settings'];
+const byName = n => ITEMS.find(i => i.n === n);
+const href = it => it.r.startsWith('#') ? DEMO + it.r : 'https://demo.endpointcentralplus.com' + it.r;
 
-/* ═══ scoring ═══ */
+/* ═══ A · what admins actually type when something is wrong ═══ */
+const INTENTS = [
+  {q:'Email notifications aren’t going out', why:'Check the relay, then who is subscribed', items:['Mail Server','Alerts']},
+  {q:'Someone new joined the team', why:'Create the account, then scope what they can see', items:['Users','Role']},
+  {q:'Agents stopped checking in', why:'Usually contact interval, scope, or the route out', items:['Agent Settings','SoM Settings','NAT Settings','Proxy Server']},
+  {q:'The server is running out of disk', why:'Patch storage is almost always the culprit', items:['Patch Download','Central Server Maintenance','Database Settings']},
+  {q:'Make logins stronger', why:'Password policy locally, or hand auth to the IdP', items:['Security Settings','SAML Authentication']},
+  {q:'Send our logs to the SIEM', why:'Three transports, pick what the SIEM speaks', items:['Syslog','Splunk Integration','Log360 - EventLog Analyzer']},
+  {q:'A certificate is expiring', why:'Two different certs, two different jobs', items:['Manage SSL Certificate','APNS Certificate']},
+  {q:'Patches installed at the wrong time', why:'Deployment window and reboot behaviour', items:['Deployment Policies','N-1 Patch Settings']},
+  {q:'We have a GDPR audit coming', why:'Retention, the officer view, and the standards report', items:['Privacy Settings','DPO Dashboard','Product Compliance']},
+  {q:'Stop people using USB drives', why:'Audit first, then restrict', items:['USB Audit Settings','Device Privacy']},
+  {q:'Connect our helpdesk', why:'Whichever ITSM you actually run', items:['ServiceDesk Plus Settings','ServiceNow Settings','Help Desk Settings']},
+];
+
+/* ═══ B · simulated usage — what this admin keeps coming back to ═══ */
+const PINNED = ['Agent Settings','Deployment Policies'];
+const FREQ = [['Mail Server',12],['Users',9],['Patch Download',7],['Security Settings',5],
+              ['Role',4],['Alerts',3],['Proxy Server',2],['Custom Group',2]];
+const FREQ_MAX = 12;
+
+/* ═══ scoring (shared) ═══ */
 function score(it, q){
   const n = it.n.toLowerCase(), a = (it.alt||'').toLowerCase(), c = it.catName.toLowerCase();
   if (n === q) return {s:0};
   if (n.startsWith(q)) return {s:1};
   if (new RegExp('\\b' + q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).test(n)) return {s:2};
   if (n.includes(q)) return {s:3};
-  const words = a.split(/\s+/);
-  const exact = words.find(w => w === q);           if (exact) return {s:4, via:exact};
-  const pre   = words.find(w => w.startsWith(q));   if (pre)   return {s:5, via:pre};
+  const w = a.split(/\s+/);
+  const e = w.find(x => x === q);          if (e) return {s:4, via:e};
+  const p = w.find(x => x.startsWith(q));  if (p) return {s:5, via:p};
   if (a.includes(q)) return {s:6, via:q};
   if (c.includes(q)) return {s:7, via:it.catName};
   return null;
@@ -338,147 +389,265 @@ function hl(name, q){
   if (i < 0 || !q) return esc(name);
   return esc(name.slice(0,i)) + '<mark>' + esc(name.slice(i,i+q.length)) + '</mark>' + esc(name.slice(i+q.length));
 }
-
-/* ═══ state ═══ */
-let state = {q:'', cat:null, cur:-1, open:false};
-const el = {q:document.getElementById('q'), clr:document.getElementById('clr'),
-            panel:document.getElementById('panel'), veil:document.getElementById('veil')};
-const href = it => it.r.startsWith('#') ? DEMO + it.r : 'https://demo.endpointcentralplus.com' + it.r;
-
-function settingRow(it, q, via, hideCat){
-  // inside a category drill-in the header already names the category, so don't repeat it
+function search(q){
+  const out = [];
+  ITEMS.forEach(it => { const r = score(it,q); if (r) out.push({it, ...r}); });
+  return out.sort((a,b) => a.s - b.s || a.it.n.localeCompare(b.it.n));
+}
+function settingRow(it, q, via, opts){
+  opts = opts || {};
   const meta = via ? '<span class="via">matched “' + esc(via) + '”</span> · ' + esc(it.catName)
-             : hideCat ? '<code>' + esc(it.r) + '</code>'
-                       : esc(it.catName) + ' · <code>' + esc(it.r) + '</code>';
+             : opts.hideCat ? '<code>' + esc(it.r) + '</code>'
+                            : esc(it.catName) + ' · <code>' + esc(it.r) + '</code>';
   return '<a class="row" role="option" href="' + esc(href(it)) + '" target="_blank" rel="noopener">' +
     '<span class="gi">' + I[it.icon] + '</span>' +
-    '<span class="body"><span class="nm">' + hl(it.n, q) +
+    '<span class="body"><span class="nm">' + hl(it.n, q||'') +
       (it.nw ? '<span class="badge new">New</span>' : '') + '</span>' +
       '<span class="meta">' + meta + '</span></span>' +
-    '<span class="go">' + I.go + '</span></a>';
+    (opts.right || '') + '<span class="go">' + I.go + '</span></a>';
 }
-
-/* ═══ panel contents ═══ */
-function panelHTML(){
-  const q = state.q.trim().toLowerCase();
-
-  /* 1 — a category was picked: show just that category */
-  if (!q && state.cat){
-    const c = CATS.find(x => x.id === state.cat);
-    return '<div class="panel-head"><button class="back" id="back">' + I.left + 'All categories</button>' +
-      '<span class="sp"></span><span class="c">' + c.items.length + ' settings</span></div>' +
-      '<div class="panel-scroll"><div class="sec"><div class="sec-t">' + esc(c.name) + '</div>' +
-      c.items.map(it => settingRow({...it, cat:c.id, catName:c.name, icon:c.icon}, '', null, true)).join('') +
-      '</div></div>' + foot();
-  }
-
-  /* 2 — no query: recents + categories, nothing more */
-  if (!q){
-    let h = '<div class="panel-scroll">';
-    h += '<div class="sec"><div class="sec-t">' + I.clock + 'Recent</div>';
-    RECENT.forEach(nm => { const it = ITEMS.find(i => i.n === nm); if (it) h += settingRow(it,'',null); });
-    h += '</div>';
-    h += '<div class="sec"><div class="sec-t">' + I.sliders + 'Browse by category <span class="n">' + CATS.length + '</span></div>';
-    CATS.forEach(c => {
-      h += '<button class="row" role="option" data-cat="' + c.id + '">' +
-           '<span class="gi">' + I[c.icon] + '</span>' +
-           '<span class="body"><span class="nm">' + esc(c.name) + '</span></span>' +
-           '<span class="cnt">' + c.items.length + '</span><span class="go">' + I.go + '</span></button>';
-    });
-    h += '</div></div>' + foot();
-    return h;
-  }
-
-  /* 3 — a query: grouped results */
-  const scored = [];
-  ITEMS.forEach(it => { const r = score(it,q); if (r) scored.push({it, ...r}); });
-  scored.sort((a,b) => a.s - b.s || a.it.n.localeCompare(b.it.n));
-
+function resultsPanel(q, foot){
+  const scored = search(q);
   if (!scored.length){
     return '<div class="none"><b>Nothing matches “' + esc(q) + '”</b>' +
-      '<p>Try what you want to change rather than its label — the index also matches synonyms.</p>' +
-      '<div class="try">' + ['smtp','sso','gdpr','disk space','wake on lan']
-        .map(t => '<button class="chip" data-q="' + t + '">' + t + '</button>').join('') +
-      '</div></div>' + foot();
+      '<p>Try what you want to change rather than its label.</p><div class="try">' +
+      ['smtp','sso','gdpr','disk space'].map(t => '<button class="chip" data-q="' + t + '">' + t + '</button>').join('') +
+      '</div></div>' + foot;
   }
-
   const groups = [];
-  scored.forEach(s => {
-    let g = groups.find(x => x.id === s.it.cat);
-    if (!g){ g = {id:s.it.cat, name:s.it.catName, rows:[]}; groups.push(g); }
-    g.rows.push(s);
-  });
+  scored.forEach(s => { let g = groups.find(x => x.id === s.it.cat);
+    if (!g){ g = {id:s.it.cat, name:s.it.catName, rows:[]}; groups.push(g); } g.rows.push(s); });
   const direct = scored.filter(s => s.s <= 3).length, syn = scored.length - direct;
-
   let h = '<div class="panel-head"><span class="t">' + scored.length + ' result' + (scored.length>1?'s':'') +
           '</span><span class="sp"></span><span class="c">' + direct + ' by name' +
           (syn ? ' · ' + syn + ' by synonym' : '') + '</span></div><div class="panel-scroll">';
-  groups.forEach(g => {
-    h += '<div class="sec"><div class="sec-t">' + esc(g.name) + ' <span class="n">' + g.rows.length + '</span></div>' +
-         g.rows.map(s => settingRow(s.it, q, s.via)).join('') + '</div>';
-  });
-  return h + '</div>' + foot();
+  groups.forEach(g => h += '<div class="sec"><div class="sec-t">' + esc(g.name) +
+    ' <span class="n">' + g.rows.length + '</span></div>' +
+    g.rows.map(s => settingRow(s.it, q, s.via)).join('') + '</div>');
+  return h + '</div>' + foot;
+}
+const foot = extra => '<div class="panel-foot"><kbd>↑↓</kbd> move <kbd>↵</kbd> open <kbd>esc</kbd> close' +
+  '<span class="sp"></span>' + (extra || TOTAL + ' settings · ' + CATS.length + ' categories') + '</div>';
+
+/* ═══ shared shell: one bar, one panel, per-variant contents ═══ */
+function stage(k, o){
+  return '<div class="veil" data-veil></div><div class="shell"><div class="hero">' +
+    '<div class="eyebrow">Admin</div><h1>' + o.h1 + '</h1>' +
+    '<div class="searchwrap"><div class="bar">' +
+      '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>' +
+      '<input id="' + k + 'q" placeholder="' + o.ph + '" autocomplete="off" role="combobox" aria-expanded="false">' +
+      '<button class="clr" data-clr hidden aria-label="Clear search">' +
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>' +
+      '</button><span class="kbd">/</span></div>' +
+    '<div class="panel" id="' + k + 'panel" role="listbox"></div></div>' +
+    '<p class="hint">' + o.hint + '</p></div></div>';
 }
 
-function foot(){
-  return '<div class="panel-foot"><kbd>↑↓</kbd> move <kbd>↵</kbd> open <kbd>esc</kbd> close' +
-         '<span class="sp"></span>' + TOTAL + ' settings · ' + CATS.length + ' categories</div>';
-}
+function wire(root, k, render){
+  const view = root, q = root.querySelector('#' + k + 'q'), panel = root.querySelector('#' + k + 'panel');
+  const clr = root.querySelector('[data-clr]'), veil = root.querySelector('[data-veil]');
+  const st = {q:'', cur:-1, open:false, cat:null, expanded:false};
+  const rows = () => [...panel.querySelectorAll('.row,.crow,.rest')];
 
-/* ═══ open / close ═══ */
-function open(){ if (state.open) return; state.open = true; document.body.classList.add('open');
-                 el.q.setAttribute('aria-expanded','true'); paint(); }
-function close(){ state.open = false; state.cur = -1; state.cat = null;
-                  document.body.classList.remove('open'); el.q.setAttribute('aria-expanded','false'); }
-
-function paint(){
-  el.clr.hidden = !state.q;
-  if (!state.open) return;
-  el.panel.innerHTML = panelHTML();
-
-  el.panel.querySelectorAll('[data-cat]').forEach(b => b.onclick = () => {
-    state.cat = b.dataset.cat; state.cur = -1; paint(); el.q.focus();
-  });
-  el.panel.querySelectorAll('[data-q]').forEach(b => b.onclick = () => {
-    state.q = b.dataset.q; el.q.value = b.dataset.q; state.cur = -1; paint(); el.q.focus();
-  });
-  const bk = document.getElementById('back');
-  if (bk) bk.onclick = () => { state.cat = null; state.cur = -1; paint(); el.q.focus(); };
-  mark();
-}
-
-const rows = () => [...el.panel.querySelectorAll('.row')];
-function mark(){
-  rows().forEach((r,i) => r.classList.toggle('cur', i === state.cur));
-  if (state.cur >= 0) rows()[state.cur]?.scrollIntoView({block:'nearest'});
-}
-
-/* ═══ events ═══ */
-el.q.addEventListener('focus', open);
-el.q.addEventListener('click', open);
-el.q.addEventListener('input', e => { state.q = e.target.value; state.cat = null; state.cur = -1; open(); paint(); });
-el.clr.onclick = () => { state.q = ''; el.q.value = ''; state.cur = -1; paint(); el.q.focus(); };
-el.veil.onclick = () => { close(); el.q.blur(); };
-
-document.addEventListener('keydown', e => {
-  if (e.key === '/' && document.activeElement !== el.q){ e.preventDefault(); el.q.focus(); return; }
-  if (e.key === 'Escape'){
-    if (state.cat){ state.cat = null; paint(); return; }
-    if (state.q){ state.q = ''; el.q.value = ''; paint(); return; }
-    close(); el.q.blur(); return;
+  function mark(){ const l = rows(); l.forEach((r,i) => r.classList.toggle('cur', i === st.cur));
+                   if (st.cur >= 0) l[st.cur]?.scrollIntoView({block:'nearest'}); }
+  function paint(){
+    clr.hidden = !st.q;
+    if (!st.open) return;
+    panel.innerHTML = render(st);
+    panel.querySelectorAll('[data-q]').forEach(b => b.onclick = () => {
+      st.q = b.dataset.q; q.value = b.dataset.q; st.cur = -1; paint(); q.focus(); });
+    panel.querySelectorAll('[data-cat]').forEach(b => b.onclick = () => {
+      st.cat = b.dataset.cat; st.cur = -1; paint(); q.focus(); });
+    panel.querySelectorAll('[data-back]').forEach(b => b.onclick = () => {
+      st.cat = null; st.cur = -1; paint(); q.focus(); });
+    panel.querySelectorAll('[data-expand]').forEach(b => b.onclick = () => {
+      st.expanded = true; st.cur = -1; paint(); q.focus(); });
+    panel.querySelectorAll('[data-pin]').forEach(b => b.onclick = e => {
+      e.preventDefault(); e.stopPropagation();
+      const n = b.dataset.pin, i = PINNED.indexOf(n);
+      i < 0 ? PINNED.push(n) : PINNED.splice(i,1);
+      paint(); });
+    mark();
   }
-  if (!state.open) return;
-  const list = rows(); if (!list.length) return;
-  if (e.key === 'ArrowDown'){ e.preventDefault(); state.cur = Math.min(state.cur+1, list.length-1); mark(); }
-  if (e.key === 'ArrowUp'){ e.preventDefault(); state.cur = Math.max(state.cur-1, 0); mark(); }
-  if (e.key === 'Enter' && state.cur >= 0){ e.preventDefault(); list[state.cur].click(); }
-});
+  function open(){ if (st.open) return; st.open = true; view.classList.add('open');
+                   q.setAttribute('aria-expanded','true'); paint(); }
+  function close(){ st.open = false; st.cur = -1; st.cat = null; st.expanded = false;
+                    view.classList.remove('open'); q.setAttribute('aria-expanded','false'); }
 
+  q.addEventListener('focus', open);
+  q.addEventListener('click', open);
+  q.addEventListener('input', e => { st.q = e.target.value; st.cat = null; st.cur = -1; open(); paint(); });
+  clr.onclick = () => { st.q = ''; q.value = ''; st.cur = -1; paint(); q.focus(); };
+  veil.onclick = () => { close(); q.blur(); };
+
+  root.addEventListener('keydown', e => {
+    if (e.key === 'Escape'){
+      if (st.cat){ st.cat = null; paint(); return; }
+      if (st.q){ st.q = ''; q.value = ''; paint(); return; }
+      close(); q.blur(); return;
+    }
+    if (!st.open) return;
+    const l = rows(); if (!l.length) return;
+    if (e.key === 'ArrowDown'){ e.preventDefault(); st.cur = Math.min(st.cur+1, l.length-1); mark(); }
+    if (e.key === 'ArrowUp'){ e.preventDefault(); st.cur = Math.max(st.cur-1, 0); mark(); }
+    if (e.key === 'Enter' && st.cur >= 0){ e.preventDefault(); l[st.cur].click(); }
+  });
+  return {focus:() => q.focus(), q};
+}
+
+/* ═══════════════ A · symptom-led ═══════════════ */
+function a(){ return stage('a', {
+  h1:'What’s going wrong?',
+  ph:'Describe the problem…',
+  hint:'Type a symptom, not a setting name — <b>email not sending</b>, <b>agents offline</b>, <b>out of disk</b>' }); }
+
+function aPanel(st){
+  const q = st.q.trim().toLowerCase();
+  if (q){
+    const hits = INTENTS.filter(x => (x.q + ' ' + x.items.join(' ')).toLowerCase().includes(q));
+    if (hits.length){
+      let h = '<div class="panel-head"><span class="t">' + hits.length + ' likely cause' +
+              (hits.length>1?'s':'') + '</span><span class="sp"></span>' +
+              '<span class="c">then ' + search(q).length + ' settings by name</span></div><div class="panel-scroll">';
+      h += '<div class="sec">' + hits.map(intentRow).join('') + '</div>';
+      const s = search(q);
+      if (s.length) h += '<div class="sec"><div class="sec-t">Matching settings <span class="n">' +
+        s.length + '</span></div>' + s.slice(0,6).map(x => settingRow(x.it, q, x.via)).join('') + '</div>';
+      return h + '</div>' + foot();
+    }
+    return resultsPanel(q, foot());
+  }
+  return '<div class="panel-scroll"><div class="sec"><div class="sec-t">' + I.bolt +
+    'Start from a symptom <span class="n">' + INTENTS.length + '</span></div>' +
+    INTENTS.map(intentRow).join('') + '</div></div>' +
+    foot('symptoms → settings, curated');
+}
+function intentRow(x){
+  const items = x.items.filter(byName);
+  return '<button class="row irow" data-q="' + esc(x.items[0].toLowerCase()) + '">' +
+    '<span class="gi">' + I.bolt + '</span><span class="body">' +
+    '<span class="q">' + esc(x.q) + '</span>' +
+    '<span class="why2">' + esc(x.why) + '</span>' +
+    '<span class="maps">' + items.map(n => '<span>' + esc(n) + '</span>').join('') + '</span>' +
+    '</span><span class="go">' + I.go + '</span></button>';
+}
+
+/* ═══════════════ B · habit-led ═══════════════ */
+function b(){ return stage('b', {
+  h1:'Pick up where you left off',
+  ph:'Search settings…',
+  hint:'Your pinned and most-opened settings come first — searching is the fallback, not the first move' }); }
+
+function bPanel(st){
+  const q = st.q.trim().toLowerCase();
+  if (q) return resultsPanel(q, foot());
+
+  const pinRow = n => { const it = byName(n); if (!it) return '';
+    return settingRow(it, '', null, {right: pinBtn(n)}); };
+  let h = '<div class="panel-scroll">';
+
+  h += '<div class="sec"><div class="sec-t">' + I.star + 'Pinned <span class="n">' + PINNED.length + '</span>' +
+       '<span class="sp"></span></div>' +
+       (PINNED.length ? PINNED.map(pinRow).join('')
+                      : '<div style="padding:8px 15px;font-size:12px;color:var(--faint)">Nothing pinned — use the pin on any row.</div>') +
+       '</div>';
+
+  const freq = FREQ.filter(([n]) => !PINNED.includes(n));
+  h += '<div class="sec"><div class="sec-t">' + I.clock + 'You open these most <span class="n">last 30 days</span></div>' +
+    freq.slice(0, st.expanded ? freq.length : 5).map(([n,c]) => {
+      const it = byName(n); if (!it) return '';
+      const right = '<span class="freq"><span class="freqbar"><i style="width:' +
+        Math.round(c/FREQ_MAX*100) + '%"></i></span><span class="num">' + c + '×</span></span>' + pinBtn(n);
+      return settingRow(it, '', null, {right});
+    }).join('');
+  if (!st.expanded && freq.length > 5)
+    h += '<button class="rest" data-expand>' + I.go + 'Show ' + (freq.length-5) + ' more you have opened</button>';
+  h += '</div>';
+
+  h += '<div class="sec"><div class="sec-t">' + I.sliders + 'Everything else</div>' +
+       '<button class="rest" data-q="">' + I.search2 + 'Search all ' + TOTAL + ' settings</button></div>';
+  return h + '</div>' + foot('ranked by your own usage');
+}
+function pinBtn(n){
+  const on = PINNED.includes(n);
+  return '<button class="pin' + (on?' on':'') + '" data-pin="' + esc(n) + '" title="' +
+    (on?'Unpin':'Pin') + '" aria-label="' + (on?'Unpin':'Pin') + '">' +
+    '<svg width="14" height="14" viewBox="0 0 24 24" fill="' + (on?'currentColor':'none') +
+    '" stroke="currentColor" stroke-width="2"><path d="m12 3 2.7 5.6 6.3.9-4.5 4.4 1 6.1L12 17l-5.5 3 1-6.1L3 9.5l6.3-.9z"/></svg></button>';
+}
+
+/* ═══════════════ C · structure-led ═══════════════ */
+function c(){ return stage('c', {
+  h1:'Where in Admin are you going?',
+  ph:'Filter settings…',
+  hint:'The same 14 categories as the Admin page — traverse with <b>↑↓</b>, no typing needed' }); }
+
+function cPanel(st){
+  const q = st.q.trim().toLowerCase();
+  if (q) return resultsPanel(q, foot());
+  const active = st.cat || CATS[0].id;
+  const cat = CATS.find(x => x.id === active);
+  let l = '<div class="pane-l">' + CATS.map(x =>
+    '<button class="crow' + (x.id===active?' on':'') + '" data-cat="' + x.id + '">' +
+    I[x.icon] + '<span class="nm2">' + esc(x.name) + '</span><span class="cnt">' + x.items.length + '</span></button>'
+  ).join('') + '</div>';
+  let r = '<div class="pane-r"><div class="sec"><div class="sec-t">' + esc(cat.name) +
+    ' <span class="n">' + cat.items.length + '</span></div>' +
+    cat.items.map(it => settingRow({...it, cat:cat.id, catName:cat.name, icon:cat.icon}, '', null, {hideCat:true})).join('') +
+    '</div></div>';
+  return '<div class="twopane">' + l + r + '</div>' + foot('browse first, search only if needed');
+}
+
+/* ═════════ mount / switcher ═════════ */
+const VARIANTS = [
+  { k:'a', t:'A · Symptom-led', build:a, panel:aPanel,
+    who:'The occasional admin — in Admin a few times a month, usually because something broke.',
+    fix:'They arrive with a symptom, not a setting name, so the panel opens on symptoms and each one names the two or three settings it actually spans. Typing matches the symptom phrasing first, then falls back to names.',
+    off:'The symptom list is hand-curated — eleven scenarios. Anything outside them drops straight back to ordinary name search, and curation has to be maintained as settings change.' },
+  { k:'b', t:'B · Habit-led', build:b, panel:bPanel,
+    who:'The daily operator — same handful of settings, week after week.',
+    fix:'Assumes the answer is something they have already opened: pinned first, then usage-ranked with visible counts, so the common case is zero typing. Search is demoted to a row at the bottom.',
+    off:'Useless on day one — a new admin sees an empty pinned list and no history. It also entrenches habit: a better setting they have never opened stays buried.' },
+  { k:'c', t:'C · Structure-led', build:c, panel:cPanel,
+    who:'The power user who already knows the product map and navigates by position.',
+    fix:'Mirrors the real Admin page: 14 categories on the left, settings on the right, fully keyboard-traversable. Nothing is hidden behind a query you have to guess.',
+    off:'Rewards existing knowledge and teaches none — if you do not know Endpoint Central calls SMTP “Mail Server”, the structure will not tell you. Widest panel of the three.' },
+];
+
+document.getElementById('vtabs').innerHTML = VARIANTS.map((v,i) =>
+  '<button data-v="' + v.k + '"' + (i===0?' class="on"':'') + '>' + v.t + '</button>').join('');
+document.getElementById('views').innerHTML = VARIANTS.map((v,i) =>
+  '<div class="view' + (i===0?' on':'') + '" id="view-' + v.k + '"></div>').join('');
+
+const built = {};
+function show(k){
+  VARIANTS.forEach(v => document.getElementById('view-'+v.k).classList.toggle('on', v.k===k));
+  document.querySelectorAll('#vtabs button').forEach(b => b.classList.toggle('on', b.dataset.v===k));
+  const v = VARIANTS.find(x => x.k===k);
+  document.getElementById('why').innerHTML =
+    '<div class="fix"><b>Behaviour it assumes</b>' + v.who + ' ' + v.fix + '</div>' +
+    '<div><b>Trade-off</b>' + v.off + '</div>';
+  if (!built[k]){
+    const root = document.getElementById('view-'+k);
+    root.innerHTML = v.build();
+    built[k] = wire(root, k, v.panel);
+  }
+}
+document.getElementById('vtabs').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (b) show(b.dataset.v);
+});
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && !/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)){
+    e.preventDefault();
+    const on = VARIANTS.find(v => document.getElementById('view-'+v.k).classList.contains('on'));
+    built[on.k]?.focus();
+  }
+});
 document.getElementById('theme').onclick = () => {
   const cur = document.documentElement.getAttribute('data-theme');
   const dark = cur ? cur === 'dark' : matchMedia('(prefers-color-scheme:dark)').matches;
   document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
 };
-
-paint();
+show('a');
 </script>

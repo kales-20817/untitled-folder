@@ -1,0 +1,301 @@
+<meta charset="utf-8">
+<title>Welcome — What's New</title>
+<style>
+  :root{
+    --blue:#1a5dc6; --blue-hov:#164ea8; --blue-deep:#0f3f8f;
+    --ink:#0f2f6b; --ink-2:#1e52bb;
+    --surface:#fff; --page:#eef2f9;
+    --card-a:#eaf1fd; --card-b:#f7fafe;
+    --line:rgba(26,93,198,.14); --line-soft:rgba(26,93,198,.08);
+    --wire:#dbe6f8; --wire-2:#c8d9f4; --wire-3:#eaf0fb;
+    --text:#15181e; --muted:#5b6b86; --faint:#93a4bf;
+    --shadow:0 24px 70px rgba(15,35,80,.22);
+    --font:'Zoho Puvi',ui-sans-serif,system-ui,'Segoe UI',Roboto,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --blue:#3b82f6; --blue-hov:#60a5fa; --blue-deep:#2563eb;
+    --ink:#cfe0ff; --ink-2:#9dc0ff;
+    --surface:#12131a; --page:#08090d;
+    --card-a:#161c2b; --card-b:#12151f;
+    --line:rgba(255,255,255,.10); --line-soft:rgba(255,255,255,.06);
+    --wire:#222a3b; --wire-2:#2c3648; --wire-3:#1a2030;
+    --text:rgba(255,255,255,.92); --muted:rgba(255,255,255,.55); --faint:rgba(255,255,255,.34);
+    --shadow:0 24px 70px rgba(0,0,0,.6);
+  }}
+  :root[data-theme="dark"]{
+    --blue:#3b82f6; --blue-hov:#60a5fa; --blue-deep:#2563eb;
+    --ink:#cfe0ff; --ink-2:#9dc0ff;
+    --surface:#12131a; --page:#08090d;
+    --card-a:#161c2b; --card-b:#12151f;
+    --line:rgba(255,255,255,.10); --line-soft:rgba(255,255,255,.06);
+    --wire:#222a3b; --wire-2:#2c3648; --wire-3:#1a2030;
+    --text:rgba(255,255,255,.92); --muted:rgba(255,255,255,.55); --faint:rgba(255,255,255,.34);
+    --shadow:0 24px 70px rgba(0,0,0,.6);
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--page);font:14px/1.5 var(--font);color:var(--text);
+       -webkit-font-smoothing:antialiased}
+  button{font-family:inherit;color:inherit;cursor:pointer}
+  :focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+  /* ── backdrop ─────────────────────────────────────────────── */
+  .veil{position:fixed;inset:0;background:rgba(10,22,48,.42);backdrop-filter:blur(1.5px);
+        display:grid;place-items:center;padding:24px;overflow:auto;z-index:100}
+  .veil[hidden]{display:none}
+
+  /* ── the outer div — close button lives here, top right ───── */
+  .welcome{position:relative;width:min(1060px,100%);background:var(--surface);
+           border-radius:18px;box-shadow:var(--shadow);padding:20px;
+           animation:pop .22s cubic-bezier(.2,.8,.3,1)}
+  @keyframes pop{from{opacity:0;transform:translateY(8px) scale(.985)}}
+
+  .wc-close{position:absolute;top:14px;right:14px;z-index:5;
+            width:36px;height:36px;border-radius:50%;
+            background:#fff;border:1px solid rgba(15,35,80,.22);
+            box-shadow:0 3px 10px rgba(15,35,80,.20),0 0 0 4px rgba(255,255,255,.9);
+            display:grid;place-items:center;color:#1b2740;
+            transition:background .15s,color .15s,box-shadow .15s,transform .15s}
+  .wc-close:hover{background:#eef2f9;color:#0f2f6b;
+                  box-shadow:0 5px 16px rgba(15,35,80,.28),0 0 0 4px rgba(255,255,255,.9)}
+  .wc-close:active{transform:scale(.94)}
+  .wc-close:focus-visible{outline:none;
+            box-shadow:0 0 0 3px var(--blue),0 3px 10px rgba(15,35,80,.2)}
+
+  /* ── bento grid ───────────────────────────────────────────── */
+  .wc-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+  .wc-card{position:relative;overflow:hidden;border-radius:13px;padding:18px;
+           background:linear-gradient(158deg,var(--card-a) 0%,var(--card-b) 62%);
+           border:1px solid var(--line-soft)}
+  .wc-card h3{margin:0;font-size:19px;line-height:1.28;font-weight:700;
+              letter-spacing:-.02em;color:var(--ink)}
+  .wc-card.c-util  {grid-column:1/4;  grid-row:1/3; min-height:300px}
+  .wc-card.c-fresh {grid-column:4/10; grid-row:1}
+  .wc-card.c-theme {grid-column:10/13;grid-row:1}
+  .wc-card.c-supp  {grid-column:4/8;  grid-row:2}
+  .wc-card.c-admin {grid-column:8/13; grid-row:2}
+  @media(max-width:840px){
+    .wc-grid{grid-template-columns:1fr}
+    .wc-card.c-util,.wc-card.c-fresh,.wc-card.c-theme,.wc-card.c-supp,.wc-card.c-admin
+      {grid-column:1;grid-row:auto;min-height:0}
+  }
+
+  /* wireframe primitives shared by the illustrations */
+  .wf{background:var(--wire);border-radius:4px}
+  .wf.d{background:var(--wire-2)}
+  .wf.l{background:var(--wire-3)}
+
+  /* 1 · right utility panel tools */
+  .c-util .stage{position:absolute;left:26px;right:0;bottom:0;top:96px}
+  .c-util .sheet{position:absolute;inset:0 0 0 0;background:var(--surface);
+                 border-radius:10px 0 0 0;opacity:.75}
+  .c-util .colA{position:absolute;left:14px;top:18px;width:56px;bottom:18px;border-radius:6px}
+  .c-util .colB{position:absolute;left:80px;top:18px;right:74px;height:16px;border-radius:5px}
+  .c-util .rail{position:absolute;right:16px;top:8px;bottom:8px;width:56px;background:var(--surface);
+                border:1px solid var(--line-soft);border-radius:28px;
+                box-shadow:0 6px 20px rgba(15,35,80,.10);
+                display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+  .c-util .rail i{width:34px;height:34px;border-radius:50%;background:var(--surface);
+                  border:1px solid var(--line-soft);display:grid;place-items:center;color:var(--blue)}
+
+  /* 2 · fresh look */
+  .c-fresh h3{margin-bottom:14px}
+  .c-fresh .nav{position:relative;display:flex;align-items:center;gap:14px;background:var(--surface);
+                border-radius:10px;padding:9px 12px;box-shadow:0 4px 14px rgba(15,35,80,.08)}
+  .c-fresh .nav .lg{flex-shrink:0;line-height:0}
+  .c-fresh .nav a{font-size:12.5px;font-weight:600;color:var(--ink-2);white-space:nowrap}
+  .c-fresh .nav a.on{background:var(--card-a);padding:5px 9px;border-radius:7px}
+  .c-fresh .cur{position:absolute;left:64px;top:26px;color:var(--blue)}
+  .c-fresh .body{margin-top:12px;display:flex;gap:10px;height:118px}
+  .c-fresh .side{width:130px;background:var(--surface);border-radius:9px;padding:10px;opacity:.8}
+  .c-fresh .side .dots{display:flex;gap:5px;margin-bottom:10px}
+  .c-fresh .side .dots i{width:7px;height:7px;border-radius:50%;background:var(--wire-2)}
+  .c-fresh .side .row{display:flex;align-items:center;gap:7px;margin-bottom:8px}
+  .c-fresh .side .row i{width:9px;height:9px;border-radius:50%;background:var(--wire-2);flex-shrink:0}
+  .c-fresh .side .row span{height:7px;border-radius:4px;background:var(--wire);flex:1}
+  .c-fresh .main{flex:1;background:var(--surface);border-radius:9px;opacity:.8}
+
+  /* 3 · themes and density */
+  .c-theme{min-height:0}
+  .c-theme .stage{position:relative;height:132px;margin-top:14px}
+  .c-theme .win{position:absolute;border-radius:9px;overflow:hidden}
+  /* the light window stays light in both themes — it is depicting the light theme */
+  .c-theme .win.light{left:0;top:14px;width:118px;height:92px;background:#fff;
+                      box-shadow:0 6px 18px rgba(15,35,80,.12);padding:9px}
+  .c-theme .win.light .bar{display:flex;gap:4px;margin-bottom:9px}
+  .c-theme .win.light .bar i{width:6px;height:6px;border-radius:50%;background:#c8d9f4}
+  .c-theme .win.light .ln{height:6px;border-radius:3px;background:#dbe6f8;margin-bottom:6px}
+  .c-theme .win.dark{right:0;top:0;width:126px;height:98px;background:#1b2340;
+                     box-shadow:0 10px 24px rgba(15,35,80,.28);padding:9px}
+  .c-theme .win.dark .bar{display:flex;gap:4px;margin-bottom:9px}
+  .c-theme .win.dark .bar i{width:6px;height:6px;border-radius:50%;background:#4d5f8d}
+  .c-theme .win.dark .ln{height:6px;border-radius:3px;background:#33406b;margin-bottom:6px}
+  .c-theme .toggle{position:absolute;right:16px;bottom:2px;display:flex;align-items:center;gap:7px;
+                   background:var(--surface);border-radius:999px;padding:7px 11px;
+                   box-shadow:0 6px 18px rgba(15,35,80,.16)}
+  .c-theme .toggle i{width:13px;height:13px;border-radius:50%}
+  .c-theme .toggle i.b{background:#1a5dc6}
+  .c-theme .toggle i.g{background:#16a34a}
+
+  /* 4 · support */
+  .c-supp{display:flex;flex-direction:column;justify-content:space-between;min-height:172px}
+  .c-supp h3{order:2;margin-top:16px}
+  .c-supp .stage{order:1;position:relative;height:96px}
+  .c-supp .bub{position:absolute;left:0;top:10px;background:var(--surface);border-radius:9px;
+               padding:9px 13px;font-size:12.5px;font-weight:500;color:var(--ink);
+               box-shadow:0 5px 16px rgba(15,35,80,.13)}
+  .c-supp .chat{position:absolute;right:26px;top:44px;width:46px;height:46px;border-radius:13px;
+                background:var(--blue);display:grid;place-items:center;color:#fff;
+                box-shadow:0 8px 20px rgba(26,93,198,.38)}
+
+  /* 5 · admin is now settings */
+  .c-admin{min-height:172px}
+  .c-admin .stage{position:relative;height:104px;margin-top:16px}
+  .c-admin .sheet{position:absolute;inset:0;background:var(--surface);border-radius:9px;
+                  opacity:.8;padding:12px;display:flex;gap:10px}
+  .c-admin .sheet .col{flex:1;display:flex;flex-direction:column;gap:8px}
+  .c-admin .sheet .ln{height:8px;border-radius:4px;background:var(--wire)}
+  .c-admin .sheet .ln.s{width:62%}
+  .c-admin .gear{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+                 width:52px;height:52px;border-radius:14px;background:var(--blue);
+                 display:grid;place-items:center;color:#fff;
+                 box-shadow:0 8px 22px rgba(26,93,198,.38)}
+
+  /* ── footer banner ────────────────────────────────────────── */
+  .wc-foot{margin-top:14px;border-radius:13px;padding:20px 22px;
+           background:linear-gradient(120deg,var(--card-a),var(--card-b));
+           border:1px solid var(--line-soft);
+           display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+  .wc-foot .txt{flex:1;min-width:260px}
+  .wc-foot h2{margin:0 0 5px;font-size:19px;font-weight:700;letter-spacing:-.02em;color:var(--ink)}
+  .wc-foot p{margin:0;font-size:13.5px;color:var(--muted)}
+  .wc-cta{background:var(--blue);color:#fff;border:none;border-radius:9px;
+          padding:13px 34px;font-size:14.5px;font-weight:600;
+          box-shadow:0 6px 18px rgba(26,93,198,.32);transition:background .15s,transform .15s}
+  .wc-cta:hover{background:var(--blue-hov)}
+  .wc-cta:active{transform:scale(.985)}
+
+  /* reopen affordance so the demo is not a one-way door */
+  .reopen{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
+          background:var(--surface);border:1px solid var(--line);border-radius:10px;
+          padding:12px 20px;font-size:13.5px;font-weight:600;color:var(--blue);
+          box-shadow:0 8px 26px rgba(15,35,80,.14)}
+</style>
+
+<button class="reopen" id="reopen" hidden>Show the welcome dialog again</button>
+
+<div class="veil" id="veil">
+  <div class="welcome" role="dialog" aria-modal="true" aria-labelledby="wc-title">
+
+    <!-- close button — outer div, top right, white background -->
+    <button class="wc-close" id="wcClose" aria-label="Close welcome dialog" title="Close">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+
+    <div class="wc-grid">
+
+      <!-- 1 -->
+      <section class="wc-card c-util">
+        <h3>Right utility panel<br>tools</h3>
+        <div class="stage">
+          <div class="sheet"></div>
+          <div class="colA wf l"></div>
+          <div class="colB wf l"></div>
+          <div class="rail">
+            <i><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg></i>
+            <i><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></i>
+            <i><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 6v6c0 5 3.4 9.4 8 10 4.6-.6 8-5 8-10V6z"/></svg></i>
+            <i><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></i>
+            <i><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.2 9a3 3 0 1 1 5.5 1.7c-.7.9-1.7 1.3-1.7 2.3v.6M12 17h.01"/></svg></i>
+            <i><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4L3 21l1.1-4.1A8.4 8.4 0 1 1 21 11.5z"/></svg></i>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2 -->
+      <section class="wc-card c-fresh">
+        <h3>Fresh look for smarter experience.</h3>
+        <div class="nav">
+          <span class="lg"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M12 2v8M12 14v8M2 12h8M14 12h8" stroke="#e8582d" stroke-width="2.6" stroke-linecap="round"/><path d="M5.6 5.6 11 11M13 13l5.4 5.4" stroke="#f5b700" stroke-width="2.6" stroke-linecap="round"/><path d="M18.4 5.6 13 11M11 13l-5.4 5.4" stroke="#2b9e4b" stroke-width="2.6" stroke-linecap="round"/></svg></span>
+          <a class="on">Home</a><a>Configuration</a><a>Threats &amp; Patch</a><a>Software Deployn</a>
+          <span class="cur"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="m5 3 14 8-6 1.6L9.6 19z"/></svg></span>
+        </div>
+        <div class="body">
+          <div class="side">
+            <div class="dots"><i></i><i></i><i></i></div>
+            <div class="row"><i></i><span></span></div>
+            <div class="row"><i></i><span></span></div>
+            <div class="row"><i></i><span></span></div>
+            <div class="row"><i></i><span></span></div>
+          </div>
+          <div class="main"></div>
+        </div>
+      </section>
+
+      <!-- 3 -->
+      <section class="wc-card c-theme">
+        <h3>Themes and<br>density</h3>
+        <div class="stage">
+          <div class="win light">
+            <div class="bar"><i></i><i></i><i></i></div>
+            <div class="ln"></div><div class="ln" style="width:72%"></div>
+            <div class="ln" style="width:84%"></div><div class="ln" style="width:60%"></div>
+          </div>
+          <div class="win dark">
+            <div class="bar"><i></i><i></i><i></i></div>
+            <div class="ln"></div><div class="ln" style="width:70%"></div>
+            <div class="ln" style="width:86%"></div><div class="ln" style="width:56%"></div>
+          </div>
+          <div class="toggle"><i class="b"></i><i class="g"></i></div>
+        </div>
+      </section>
+
+      <!-- 4 -->
+      <section class="wc-card c-supp">
+        <div class="stage">
+          <div class="bub">How can i help you?</div>
+          <div class="chat"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4L3 21l1.1-4.1A8.4 8.4 0 1 1 21 11.5z"/></svg></div>
+        </div>
+        <h3>Support, one click away</h3>
+      </section>
+
+      <!-- 5 -->
+      <section class="wc-card c-admin">
+        <h3>Admin is now Settings</h3>
+        <div class="stage">
+          <div class="sheet">
+            <div class="col"><div class="ln"></div><div class="ln s"></div><div class="ln"></div><div class="ln s"></div></div>
+            <div class="col"><div class="ln s"></div><div class="ln"></div><div class="ln s"></div><div class="ln"></div></div>
+          </div>
+          <div class="gear"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></div>
+        </div>
+      </section>
+    </div>
+
+    <div class="wc-foot">
+      <div class="txt">
+        <h2 id="wc-title">Your workspace, reimagined!</h2>
+        <p>The same power you rely on, now faster and easier to use. See what's new.</p>
+      </div>
+      <button class="wc-cta">Get started</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var veil = document.getElementById('veil'),
+      reopen = document.getElementById('reopen');
+
+  function close(){ veil.hidden = true; reopen.hidden = false; reopen.focus(); }
+  function open(){ veil.hidden = false; reopen.hidden = true; document.getElementById('wcClose').focus(); }
+
+  document.getElementById('wcClose').onclick = close;
+  reopen.onclick = open;
+  // backdrop click closes; clicks inside the dialog do not
+  veil.addEventListener('click', function(e){ if(e.target === veil) close(); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && !veil.hidden) close(); });
+})();
+</script>
