@@ -1,0 +1,325 @@
+<title>Endpoint Central Reports Index</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap">
+<style>
+  :root{
+    --page:#f4f6fa;
+    --surface:#ffffff;
+    --surface-2:#eef1f7;
+    --line:#dfe4ee;
+    --line-soft:#e9edf4;
+    --ink:#141a26;
+    --ink-2:#43506a;
+    --ink-3:#6d7a93;
+    --accent:#2c66dd;
+    --accent-soft:rgba(44,102,221,.09);
+    --sheet:#ffffff;
+    --shadow:0 1px 2px rgba(20,26,38,.05), 0 8px 24px -18px rgba(20,26,38,.35);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --page:#0d1119;
+      --surface:#141a25;
+      --surface-2:#1a212e;
+      --line:#242d3d;
+      --line-soft:#1e2634;
+      --ink:#e8ecf4;
+      --ink-2:#a9b4c7;
+      --ink-3:#7d8aa0;
+      --accent:#7fa7f2;
+      --accent-soft:rgba(127,167,242,.13);
+      --sheet:#e7ebf2;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -20px rgba(0,0,0,.9);
+    }
+  }
+  :root[data-theme="dark"]{
+    --page:#0d1119;
+    --surface:#141a25;
+    --surface-2:#1a212e;
+    --line:#242d3d;
+    --line-soft:#1e2634;
+    --ink:#e8ecf4;
+    --ink-2:#a9b4c7;
+    --ink-3:#7d8aa0;
+    --accent:#7fa7f2;
+    --accent-soft:rgba(127,167,242,.13);
+    --sheet:#e7ebf2;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -20px rgba(0,0,0,.9);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--page);
+    color:var(--ink);
+    font-family:"IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size:15px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1000px;margin:0 auto;padding:56px 24px 80px}
+
+  header.masthead{
+    display:flex;flex-direction:column;gap:14px;
+    padding-bottom:30px;margin-bottom:14px;
+    border-bottom:1px solid var(--line);
+  }
+  .eyebrow{
+    font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);
+  }
+  h1{
+    font-family:"Newsreader", Georgia, "Times New Roman", serif;
+    font-weight:400;font-size:clamp(34px,5.2vw,50px);line-height:1.08;
+    letter-spacing:-.015em;margin:0;text-wrap:balance;
+  }
+  h1 em{font-style:italic;color:var(--accent)}
+  .lede{max-width:62ch;color:var(--ink-2);font-size:16px;margin:0}
+  .meta{
+    display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:4px;
+    font-family:"IBM Plex Mono", ui-monospace, monospace;font-size:12px;color:var(--ink-3);
+    font-variant-numeric:tabular-nums;
+  }
+
+  section{margin-top:44px}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:6px}
+  h2{
+    font-family:"Newsreader", Georgia, serif;font-weight:500;font-size:23px;
+    letter-spacing:-.01em;margin:0;
+  }
+  .count{
+    font-family:"IBM Plex Mono", ui-monospace, monospace;font-size:11.5px;
+    color:var(--ink-3);font-variant-numeric:tabular-nums;
+  }
+  .sec-deck{color:var(--ink-2);font-size:14px;margin:0 0 16px;max-width:62ch}
+
+  .list{
+    display:flex;flex-direction:column;
+    background:var(--surface);border:1px solid var(--line);border-radius:10px;
+    overflow:hidden;box-shadow:var(--shadow);
+  }
+  a.row{
+    display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:6px 22px;
+    padding:14px 18px;text-decoration:none;color:inherit;
+    border-top:1px solid var(--line-soft);
+    transition:background .12s ease;
+  }
+  a.row:first-child{border-top:0}
+  a.row:hover, a.row:focus-visible{background:var(--accent-soft);outline:none}
+  a.row:focus-visible{box-shadow:inset 0 0 0 2px var(--accent)}
+  .row-name{font-weight:600;font-size:15px;letter-spacing:-.005em}
+  a.row:hover .row-name{color:var(--accent)}
+  .row-desc{grid-column:1;color:var(--ink-2);font-size:13.5px}
+  .row-file{
+    grid-column:2;grid-row:1 / span 2;align-self:center;
+    font-family:"IBM Plex Mono", ui-monospace, monospace;font-size:11.5px;color:var(--ink-3);
+    background:var(--surface-2);border-radius:5px;padding:3px 8px;white-space:nowrap;
+  }
+  @media (max-width:620px){
+    a.row{grid-template-columns:minmax(0,1fr)}
+    .row-file{grid-column:1;grid-row:auto;justify-self:start;margin-top:4px}
+  }
+
+  .icons{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:2px;
+    background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;
+  }
+  .icon{
+    /* the studies were drawn for a light canvas — keep one, dimmed slightly in dark */
+    background:var(--sheet);display:flex;flex-direction:column;align-items:center;gap:10px;
+    padding:18px 8px 12px;color:#141a26;
+  }
+  .icon svg{width:34px;height:34px;display:block}
+  .icon-label{
+    font-family:"IBM Plex Mono", ui-monospace, monospace;font-size:10px;color:#6d7a93;
+    text-align:center;word-break:break-word;line-height:1.35;
+  }
+  .icon-note{font-size:13px;color:var(--ink-3);margin:10px 0 0}
+
+  footer{
+    margin-top:52px;padding-top:20px;border-top:1px solid var(--line);
+    color:var(--ink-3);font-size:13px;
+  }
+  footer code{font-family:"IBM Plex Mono", ui-monospace, monospace;font-size:12px}
+</style>
+
+<div class="wrap">
+  <header class="masthead">
+    <div class="eyebrow">Endpoint Central · design source</div>
+    <h1>Reports, searched, built and <em>re-imagined</em></h1>
+    <p class="lede">Every standalone design page in the reports-design repository, hosted and clickable. The prototypes are self-contained HTML with mock data — click through them the way a customer would.</p>
+    <div class="meta">
+      <span>15 prototypes</span>
+      <span>4 flow diagrams</span>
+      <span>26 icon studies</span>
+    </div>
+  </header>
+
+  <section>
+    <div class="sec-head"><h2>Reports home</h2><span class="count">4</span></div>
+    <p class="sec-deck">The landing surface: what a customer sees before they know which report they want.</p>
+    <div class="list">
+      <a class="row" href="https://claude.ai/code/artifact/de75b4c5-0149-42b5-9639-fd27b6b6b6f9">
+        <span class="row-name">Reports home</span>
+        <span class="row-desc">The core concept — catalog, recents and scheduled reports in one view.</span>
+        <code class="row-file">reports-home.html</code>
+      </a>
+      <a class="row" href="https://claude.ai/code/artifact/30905aaf-da28-4211-b9bd-d44e1a84ed6c">
+        <span class="row-name">Reports home, five ways</span>
+        <span class="row-desc">Five layouts for the same page, stacked for comparison.</span>
+        <code class="row-file">reports-home-variations.html</code>
+      </a>
+      <a class="row" href="https://claude.ai/code/artifact/bc698640-4070-41e8-bd76-a4bce3388eb1">
+        <span class="row-name">Reports home — export</span>
+        <span class="row-desc">The settled layout rebuilt against product tokens.</span>
+        <code class="row-file">reports-home-export.html</code>
+      </a>
+      <a class="row" href="https://claude.ai/code/artifact/06bcddcd-19d2-4a3c-b4b6-55d33b38334c">
+        <span class="row-name">Reports home — live export</span>
+        <span class="row-desc">Full Prism shell, real design-system CSS, closest to shipping.</span>
+        <code class="row-file">reports-home-live-export.html</code>
+      </a>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Finding a report</h2><span class="count">4</span></div>
+    <p class="sec-deck">Search as the way in, for admins who know the answer they want but not the report that holds it.</p>
+    <div class="list">
+      <a class="row" href="https://claude.ai/code/artifact/b7ad0c4c-60ff-40cb-83a9-8ea0343fc019">
+        <span class="row-name">Search reports</span>
+        <span class="row-desc">Search-first entry point across every module.</span>
+        <code class="row-file">reports-search-home.html</code>
+      </a>
+      <a class="row" href="https://claude.ai/code/artifact/0456e5ee-9209-4f55-9f38-caca74b0be3c">
+        <span class="row-name">Search reports, five ways</span>
+        <span class="row-desc">First round of search explorations.</span>
+        <code class="row-file">reports-search-variations.html</code>
+      </a>
+      <a class="row" href="https://claude.ai/code/artifact/f98ec113-5270-446c-a4ee-0f4a8b0cc618">
+        <span class="row-name">Search reports, five more ways</span>
+        <span class="row-desc">Second round, pushing result grouping and previews further.</span>
+        <code class="row-file">reports-search-variations-2.html</code>
+      </a>
+      <a class="row" href="https://claude.ai/code/artifact/3b2e7f0c-adc3-4496-a5db-5fa3cd2564d6">
+        <span class="row-name">Search hub — live export</span>
+        <span class="row-desc">The hub in the Prism shell, with live design-system styling.</span>
+        <code class="row-file">reports-search-hub-export.html</code>
+      </a>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Catalog, dashboards and builders</h2><span class="count">4</span></div>
+    <p class="sec-deck">What happens after the click — browsing the catalog, reading a dashboard, composing something new.</p>
+    <div class="list">
+      <a class="row" href="https://claude.ai/code/artifact/262a82ec-0771-4d6a-978c-1e9609a5e918">
+        <span class="row-name">User reports, five ways</span>
+        <span class="row-desc">Catalog presentations for one report family, side by side.</span>
+        <code class="row-file">reports-catalog-variations.html</code>
+      </a>
+      <a class="row" href="https://claude.ai/code/artifact/79c93b9d-b541-4083-995b-2e94f8d7c95b">
+        <span class="row-name">Dashboards</span>
+        <span class="row-desc">Charts, KPIs and drill-through for the reports dashboard surface.</span>
+        <code class="row-file">reports-dashboard.html</code>
+      </a>
+      <a class="row" href="https://claude.ai/code/artifact/0a96e4fc-38fd-48dc-8c14-2506a9078a33">
+        <span class="row-name">Custom reports — revamp</span>
+        <span class="row-desc">The query builder rebuilt on Prism 3.0 tokens.</span>
+        <code class="row-file">reports-custom-revamp.html</code>
+      </a>
+      <a class="row" href="https://claude.ai/code/artifact/561880e4-2495-455a-b391-20efffb09bec">
+        <span class="row-name">Report module revamp</span>
+        <span class="row-desc">The module end to end: navigation, list, viewer, builder.</span>
+        <code class="row-file">reports-module-revamp.html</code>
+      </a>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Adjacent surfaces</h2><span class="count">3</span></div>
+    <p class="sec-deck">Where the same patterns were tested outside reports — settings search, and a dark-theme EDR console.</p>
+    <div class="list">
+      <a class="row" href="https://claude.ai/code/artifact/acacb10b-c86b-4d75-a897-f9e1a54f3893">
+        <span class="row-name">Search settings</span>
+        <span class="row-desc">The search pattern applied to admin settings.</span>
+        <code class="row-file">settings-search-home.html</code>
+      </a>
+      <a class="row" href="https://claude.ai/code/artifact/299a27f0-ab85-4d5c-b38b-6cac8a157515">
+        <span class="row-name">Incident queue</span>
+        <span class="row-desc">Triage list for the Sentinel EDR console, dark theme.</span>
+        <code class="row-file">incidents-home.html</code>
+      </a>
+      <a class="row" href="https://claude.ai/code/artifact/3adc9913-54ab-4efb-b237-82eb84045461">
+        <span class="row-name">INC-2041 · Credential dumping</span>
+        <span class="row-desc">A single incident opened up: timeline, process tree, response.</span>
+        <code class="row-file">incident-edr-security.html</code>
+      </a>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Flow diagrams</h2><span class="count">4</span></div>
+    <p class="sec-deck">Agent and distribution-server lifecycles, published earlier and linked here so the set stays together.</p>
+    <div class="list">
+      <a class="row" href="https://claude.ai/code/artifact/025d0659-bce8-43bb-a90b-69ae5a248ad6">
+        <span class="row-name">Agent installation</span>
+        <span class="row-desc">Eight steps from server details to a registered agent.</span>
+        <code class="row-file">agent-installation-flow.svg</code>
+      </a>
+      <a class="row" href="https://claude.ai/code/artifact/b04d07bb-35ad-466a-a9f0-78dced473aa6">
+        <span class="row-name">Agent refresh policy</span>
+        <span class="row-desc">Metadata comparison and the branches that follow it.</span>
+        <code class="row-file">agent-refresh-policy-flow.svg</code>
+      </a>
+      <a class="row" href="https://claude.ai/code/artifact/025b2949-6c19-4c31-b8d7-874e65769a14">
+        <span class="row-name">DS enrollment and approval</span>
+        <span class="row-desc">Approval token, status transitions, and what gates each one.</span>
+        <code class="row-file">ds-approval-flow.svg</code>
+      </a>
+      <a class="row" href="https://claude.ai/code/artifact/1b99ef01-bd56-4cd2-8878-71d31594bf91">
+        <span class="row-name">DS replication cycle</span>
+        <span class="row-desc">Validation, upgrade check, and the two replication paths.</span>
+        <code class="row-file">ds-replication-flow.svg</code>
+      </a>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Icon studies</h2><span class="count">26</span></div>
+    <p class="sec-deck">Marks explored for clustering, grouping and similarity in the reports catalog — three weights of the same idea.</p>
+    <div class="icons">
+      <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"> <circle cx="8" cy="8.5" r="5.8" stroke-dasharray="2.4 2"/> <circle cx="16" cy="16.5" r="5.2" stroke-dasharray="2.4 2"/> <circle cx="6" cy="7" r="1.3" fill="currentColor" stroke="none"/> <circle cx="10.2" cy="7" r="1.3" fill="currentColor" stroke="none"/> <circle cx="8" cy="11" r="1.3" fill="currentColor" stroke="none"/> <circle cx="14.6" cy="15" r="1.3" fill="currentColor" stroke="none"/> <circle cx="18.2" cy="16.6" r="1.3" fill="currentColor" stroke="none"/> <circle cx="15.6" cy="18.9" r="1.3" fill="currentColor" stroke="none"/> </svg><span class="icon-label">analysis-01-clusters</span></div>
+      <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"> <rect x="2.5" y="3" width="9" height="4" rx="1"/> <rect x="2.5" y="10" width="9" height="4" rx="1"/> <rect x="2.5" y="17" width="9" height="4" rx="1"/> <path d="M11.5 5H15M11.5 12H15M11.5 19H15M15 5V19M15 12H19"/> <circle cx="21" cy="12" r="1.6" fill="currentColor" stroke="none"/> </svg><span class="icon-label">analysis-02-merge-to-one</span></div>
+      <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"> <circle cx="9" cy="12" r="5.6"/> <circle cx="15" cy="12" r="5.6"/> <circle cx="12" cy="9.4" r="1.2" fill="currentColor" stroke="none"/> <circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/> <circle cx="12" cy="14.6" r="1.2" fill="currentColor" stroke="none"/> </svg><span class="icon-label">analysis-03-overlap</span></div>
+      <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"> <circle cx="10.5" cy="10.5" r="6.8"/> <path d="M15.4 15.4L20.6 20.6"/> <circle cx="8.2" cy="9" r="1.3" fill="currentColor" stroke="none"/> <circle cx="12.4" cy="8.6" r="1.3" fill="currentColor" stroke="none"/> <circle cx="10.2" cy="12.8" r="1.3" fill="currentColor" stroke="none"/> <circle cx="20.2" cy="5.4" r="1" fill="currentColor" stroke="none" opacity="0.45"/> <circle cx="17.4" cy="2.6" r="1" fill="currentColor" stroke="none" opacity="0.45"/> </svg><span class="icon-label">analysis-04-scan-groups</span></div>
+      <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"> <circle cx="9" cy="9" r="7" stroke-dasharray="2.4 2"/> <circle cx="7" cy="7.5" r="1.3" fill="currentColor" stroke="none"/> <circle cx="11.6" cy="7.2" r="1.3" fill="currentColor" stroke="none"/> <circle cx="8.6" cy="12.6" r="1.3" fill="currentColor" stroke="none"/> <circle cx="12.2" cy="11.2" r="1.3" fill="currentColor" stroke="none"/> <circle cx="18.5" cy="18.5" r="4.6"/> <path d="M16.2 18.6L17.9 20.4L20.8 16.4"/> </svg><span class="icon-label">analysis-05-group-decide</span></div>
+      <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none" stroke="#000000" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"> <path d="M48 40V464H472"/> <path d="M22 66L48 40L74 66"/> <path d="M446 438L472 464L446 490"/> <circle cx="335" cy="155" r="108" fill="#9CE5F5"/> <circle cx="300" cy="118" r="27" fill="#FFFFFF" stroke-width="20"/> <circle cx="378" cy="150" r="34" fill="#FFFFFF" stroke-width="20"/> <circle cx="320" cy="205" r="27" fill="#FFFFFF" stroke-width="20"/> <circle cx="195" cy="310" r="105" fill="#FFFFFF"/> <rect x="150" y="245" width="52" height="52" rx="6" fill="#868DB0" stroke-width="20"/> <rect x="196" y="318" width="58" height="58" rx="6" fill="#868DB0" stroke-width="20"/> </svg><span class="icon-label">duotone-01-scatter-clusters</span></div>
+      <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none" stroke="#000000" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"> <path d="M48 40V464H472"/> <path d="M22 66L48 40L74 66"/> <path d="M446 438L472 464L446 490"/> <circle cx="250" cy="215" r="130" fill="#9CE5F5"/> <circle cx="205" cy="170" r="32" fill="#FFFFFF" stroke-width="20"/> <circle cx="300" cy="200" r="38" fill="#FFFFFF" stroke-width="20"/> <circle cx="235" cy="275" r="28" fill="#FFFFFF" stroke-width="20"/> <circle cx="395" cy="385" r="62" fill="#868DB0"/> <path d="M367 387L387 409L425 361"/> </svg><span class="icon-label">duotone-02-decide</span></div>
+      <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none" stroke="#000000" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"> <circle cx="215" cy="215" r="150" fill="#9CE5F5"/> <circle cx="170" cy="175" r="34" fill="#FFFFFF" stroke-width="20"/> <circle cx="255" cy="205" r="40" fill="#FFFFFF" stroke-width="20"/> <circle cx="200" cy="270" r="30" fill="#FFFFFF" stroke-width="20"/> <path d="M330 330L455 455" stroke-width="34"/> <circle cx="435" cy="100" r="24" fill="#868DB0" stroke-width="20"/> <circle cx="365" cy="70" r="24" fill="#868DB0" stroke-width="20"/> </svg><span class="icon-label">duotone-03-analyze-cluster</span></div>
+      <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none" stroke="#000000" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"> <rect x="30" y="62" width="150" height="88" rx="18" fill="#FFFFFF"/> <rect x="56" y="92" width="98" height="28" rx="14" fill="#868DB0" stroke="none"/> <rect x="30" y="212" width="150" height="88" rx="18" fill="#FFFFFF"/> <rect x="56" y="242" width="98" height="28" rx="14" fill="#868DB0" stroke="none"/> <rect x="30" y="362" width="150" height="88" rx="18" fill="#FFFFFF"/> <rect x="56" y="392" width="98" height="28" rx="14" fill="#868DB0" stroke="none"/> <path d="M180 106H240M180 256H240M180 406H240M240 106V406M240 256H300"/> <circle cx="395" cy="256" r="92" fill="#9CE5F5"/> <circle cx="365" cy="225" r="26" fill="#FFFFFF" stroke-width="20"/> <circle cx="428" cy="252" r="28" fill="#FFFFFF" stroke-width="20"/> <circle cx="378" cy="300" r="24" fill="#FFFFFF" stroke-width="20"/> </svg><span class="icon-label">duotone-04-requests-merged</span></div>
+      <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none" stroke="#000000" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"> <path d="M48 40V464H472"/> <path d="M22 66L48 40L74 66"/> <path d="M446 438L472 464L446 490"/> <circle cx="210" cy="230" r="130" fill="#9CE5F5"/> <circle cx="150" cy="190" r="30" fill="#FFFFFF" stroke-width="20"/> <circle cx="305" cy="290" r="130" fill="#FFFFFF"/> <rect x="335" y="315" width="52" height="52" rx="6" fill="#868DB0" stroke-width="20"/> <circle cx="257" cy="260" r="34" fill="#868DB0" stroke-width="20"/> </svg><span class="icon-label">duotone-05-shared-overlap</span></div>
+      <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"> <path d="M48 40V464H472"/> <path d="M22 66L48 40L74 66"/> <path d="M446 438L472 464L446 490"/> <circle cx="335" cy="150" r="98"/> <circle cx="300" cy="115" r="26"/> <circle cx="378" cy="140" r="30"/> <circle cx="325" cy="200" r="24"/> <circle cx="170" cy="325" r="96"/> <rect x="122" y="277" width="42" height="42" rx="5"/> <rect x="163" y="340" width="44" height="44" rx="5"/> </svg><span class="icon-label">stroke-01-clusters</span></div>
+      <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"> <path d="M48 40V464H472"/> <path d="M22 66L48 40L74 66"/> <path d="M446 438L472 464L446 490"/> <circle cx="240" cy="210" r="120"/> <circle cx="200" cy="170" r="28"/> <circle cx="292" cy="196" r="34"/> <circle cx="228" cy="282" r="26"/> <circle cx="392" cy="382" r="58"/> <path d="M366 384L385 404L419 359"/> </svg><span class="icon-label">stroke-02-decide</span></div>
+      <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"> <circle cx="205" cy="205" r="142"/> <circle cx="165" cy="168" r="30"/> <circle cx="248" cy="196" r="36"/> <circle cx="192" cy="262" r="26"/> <path d="M310 310L450 450" stroke-width="30"/> <circle cx="435" cy="100" r="22"/> <circle cx="362" cy="72" r="22"/> </svg><span class="icon-label">stroke-03-analyze</span></div>
+      <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"> <rect x="32" y="64" width="146" height="84" rx="16"/> <path d="M58 94H154M58 120H130" stroke-width="16"/> <rect x="32" y="214" width="146" height="84" rx="16"/> <path d="M58 244H154M58 270H130" stroke-width="16"/> <rect x="32" y="364" width="146" height="84" rx="16"/> <path d="M58 394H154M58 420H130" stroke-width="16"/> <path d="M178 106H238M178 256H238M178 406H238M238 106V406M238 256H298"/> <circle cx="392" cy="256" r="94"/> <circle cx="356" cy="224" r="26"/> <circle cx="430" cy="248" r="28"/> <circle cx="376" cy="302" r="24"/> </svg><span class="icon-label">stroke-04-merge</span></div>
+      <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"> <path d="M48 40V464H472"/> <path d="M22 66L48 40L74 66"/> <path d="M446 438L472 464L446 490"/> <circle cx="215" cy="235" r="125"/> <circle cx="300" cy="285" r="125"/> <circle cx="155" cy="195" r="18"/> <circle cx="360" cy="340" r="18"/> <circle cx="258" cy="260" r="28"/> </svg><span class="icon-label">stroke-05-overlap</span></div>
+      <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"> <path d="M256 208V142M300 236L373 203M294 285L366 342M219 286L163 331M214 233L146 195"/> <circle cx="256" cy="256" r="48"/> <circle cx="256" cy="112" r="30"/> <circle cx="400" cy="190" r="30"/> <circle cx="390" cy="360" r="30"/> <circle cx="140" cy="350" r="30"/> <circle cx="120" cy="180" r="30"/> </svg><span class="icon-label">stroke-06-hub-group</span></div>
+      <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"> <circle cx="155" cy="140" r="100"/> <circle cx="128" cy="112" r="26"/> <circle cx="186" cy="168" r="26"/> <circle cx="380" cy="215" r="100"/> <rect x="325" y="170" width="42" height="42" rx="5"/> <rect x="382" y="228" width="42" height="42" rx="5"/> <circle cx="205" cy="385" r="95"/> <path d="M168 368H208L188 333Z"/> <path d="M192 424H232L212 389Z"/> </svg><span class="icon-label">stroke-07-three-groups</span></div>
+      <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"> <path d="M48 40V464H472"/> <path d="M22 66L48 40L74 66"/> <path d="M446 438L472 464L446 490"/> <circle cx="330" cy="150" r="100" stroke-dasharray="34 26"/> <circle cx="295" cy="112" r="20"/> <circle cx="365" cy="128" r="20"/> <circle cx="312" cy="196" r="20"/> <circle cx="374" cy="190" r="20"/> <circle cx="172" cy="322" r="96" stroke-dasharray="34 26"/> <circle cx="140" cy="292" r="20"/> <circle cx="200" cy="300" r="20"/> <circle cx="152" cy="352" r="20"/> </svg><span class="icon-label">stroke-08-dashed-hulls</span></div>
+      <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"> <path d="M72 104H440L296 272V400L216 356V272Z"/> <circle cx="200" cy="150" r="22"/> <circle cx="300" cy="160" r="22"/> <circle cx="250" cy="215" r="22"/> <circle cx="256" cy="455" r="28"/> </svg><span class="icon-label">stroke-09-funnel</span></div>
+      <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"> <rect x="44" y="150" width="168" height="232" rx="22"/> <path d="M78 210H178M78 254H178M78 298H146" stroke-width="16"/> <rect x="300" y="150" width="168" height="232" rx="22"/> <path d="M334 210H434M334 254H434M334 298H402" stroke-width="16"/> <path d="M226 234C236 216 246 252 256 234C266 216 276 252 286 234"/> <path d="M226 298C236 280 246 316 256 298C266 280 276 316 286 298"/> </svg><span class="icon-label">stroke-10-similar-pair</span></div>
+      <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"> <path d="M90 404V320H200V404"/> <path d="M312 404V270H422V404"/> <path d="M145 320V150H367V270"/> <path d="M256 150V106"/> <circle cx="256" cy="80" r="26"/> <circle cx="90" cy="430" r="26"/> <circle cx="200" cy="430" r="26"/> <circle cx="312" cy="430" r="26"/> <circle cx="422" cy="430" r="26"/> </svg><span class="icon-label">stroke-11-hierarchy</span></div>
+      <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"> <circle cx="256" cy="256" r="150"/> <path d="M232 232L280 280M280 232L232 280" stroke-width="26"/> <circle cx="176" cy="190" r="24"/> <circle cx="330" cy="200" r="24"/> <circle cx="196" cy="330" r="24"/> <circle cx="336" cy="326" r="24"/> </svg><span class="icon-label">stroke-12-centroid</span></div>
+      <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"> <path d="M149 133L211 117M228 138L192 222M134 166L166 224"/> <path d="M356 285L404 255M424 269L406 371M347 325L383 375"/> <path d="M208 259L302 291" stroke-dasharray="30 24"/> <circle cx="120" cy="140" r="30"/> <circle cx="240" cy="110" r="30"/> <circle cx="180" cy="250" r="30"/> <circle cx="330" cy="300" r="30"/> <circle cx="430" cy="240" r="30"/> <circle cx="400" cy="400" r="30"/> </svg><span class="icon-label">stroke-13-linked-groups</span></div>
+      <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"> <rect x="76" y="76" width="104" height="104" rx="12"/> <rect x="204" y="76" width="104" height="104" rx="12"/> <rect x="332" y="76" width="104" height="104" rx="12"/> <rect x="76" y="204" width="104" height="104" rx="12"/> <rect x="204" y="204" width="104" height="104" rx="12"/> <rect x="332" y="204" width="104" height="104" rx="12"/> <rect x="76" y="332" width="104" height="104" rx="12"/> <rect x="204" y="332" width="104" height="104" rx="12"/> <rect x="332" y="332" width="104" height="104" rx="12"/> <circle cx="128" cy="128" r="22"/> <circle cx="256" cy="256" r="22"/> <circle cx="384" cy="384" r="22"/> </svg><span class="icon-label">stroke-14-match-matrix</span></div>
+      <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"> <path d="M120 210C130 120 250 70 340 110C430 150 440 300 370 370C300 440 150 420 115 330C95 280 110 240 120 210Z"/> <circle cx="200" cy="180" r="26"/> <circle cx="300" cy="190" r="26"/> <circle cx="230" cy="300" r="26"/> <circle cx="330" cy="300" r="26"/> </svg><span class="icon-label">stroke-15-lasso-hull</span></div>
+      <div class="icon"><svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"> <circle cx="160" cy="240" r="110"/> <circle cx="125" cy="205" r="26"/> <circle cx="200" cy="220" r="26"/> <circle cx="150" cy="300" r="26"/> <path d="M286 240H356"/> <path d="M330 214L356 240L330 266"/> <circle cx="430" cy="180" r="34"/> <path d="M382 300C382 216 478 216 478 300"/> </svg><span class="icon-label">stroke-16-route-to-tech</span></div>
+    </div>
+    <p class="icon-note">Drawn at 24px, 512px stroke and 512px duotone; all three recolor with the surrounding text.</p>
+  </section>
+
+  <footer>
+    Source: <code>kales-20817/untitled-folder</code>, branch <code>claude/host-this-3lzn41</code>. The written spec, <code>PRD-Endpoint-Central-Reports.md</code>, stays in the repository.
+  </footer>
+</div>
