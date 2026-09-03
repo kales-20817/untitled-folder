@@ -1,0 +1,1218 @@
+<title>Endpoint Central Reports PRD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap">
+<style>
+  :root{
+    --page:#f4f6fa; --surface:#ffffff; --surface-2:#eef1f7;
+    --line:#dfe4ee; --line-soft:#e9edf4;
+    --ink:#141a26; --ink-2:#43506a; --ink-3:#6d7a93;
+    --accent:#2c66dd; --accent-soft:rgba(44,102,221,.09);
+    --flag:#a55b09; --flag-bg:rgba(214,158,46,.12); --flag-line:rgba(214,158,46,.5);
+    --decide:#7c4dbe; --decide-bg:rgba(124,77,190,.09); --decide-line:rgba(124,77,190,.42);
+    --shadow:0 1px 2px rgba(20,26,38,.05), 0 8px 24px -18px rgba(20,26,38,.35);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --page:#0d1119; --surface:#141a25; --surface-2:#1a212e;
+      --line:#242d3d; --line-soft:#1e2634;
+      --ink:#e8ecf4; --ink-2:#a9b4c7; --ink-3:#7d8aa0;
+      --accent:#7fa7f2; --accent-soft:rgba(127,167,242,.13);
+      --flag:#e0ac52; --flag-bg:rgba(224,172,82,.11); --flag-line:rgba(224,172,82,.4);
+      --decide:#b79cf0; --decide-bg:rgba(183,156,240,.11); --decide-line:rgba(183,156,240,.38);
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -20px rgba(0,0,0,.9);
+    }
+  }
+  :root[data-theme="dark"]{
+    --page:#0d1119; --surface:#141a25; --surface-2:#1a212e;
+    --line:#242d3d; --line-soft:#1e2634;
+    --ink:#e8ecf4; --ink-2:#a9b4c7; --ink-3:#7d8aa0;
+    --accent:#7fa7f2; --accent-soft:rgba(127,167,242,.13);
+    --flag:#e0ac52; --flag-bg:rgba(224,172,82,.11); --flag-line:rgba(224,172,82,.4);
+    --decide:#b79cf0; --decide-bg:rgba(183,156,240,.11); --decide-line:rgba(183,156,240,.38);
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -20px rgba(0,0,0,.9);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--page); color:var(--ink);
+    font-family:"IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size:15px; line-height:1.62; -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--accent)}
+
+  .shell{max-width:1180px;margin:0 auto;padding:44px 24px 96px;display:grid;grid-template-columns:216px minmax(0,1fr);gap:56px;align-items:start}
+  @media (max-width:900px){ .shell{grid-template-columns:minmax(0,1fr);gap:26px;padding-top:32px} }
+
+  /* ---- contents rail ---- */
+  nav.toc{position:sticky;top:24px;max-height:calc(100vh - 48px);overflow-y:auto}
+  .toc-title{
+    font-family:"IBM Plex Mono", ui-monospace, monospace;font-size:11px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--ink-3);margin:0 0 12px;padding-left:12px;
+  }
+  nav.toc ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
+  nav.toc a{
+    display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;align-items:baseline;
+    padding:5px 12px;border-radius:6px;text-decoration:none;color:var(--ink-2);
+    font-size:13.5px;line-height:1.35;border-left:2px solid transparent;
+  }
+  nav.toc a:hover{background:var(--accent-soft);color:var(--ink)}
+  nav.toc a.on{color:var(--accent);border-left-color:var(--accent);background:var(--accent-soft);font-weight:500}
+  .toc-num{
+    font-family:"IBM Plex Mono", ui-monospace, monospace;font-size:11.5px;color:var(--ink-3);
+    font-variant-numeric:tabular-nums;
+  }
+  nav.toc a.on .toc-num{color:var(--accent)}
+  @media (max-width:900px){
+    nav.toc{position:static;max-height:none;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px}
+    nav.toc ol{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
+  }
+
+  /* ---- document ---- */
+  article{min-width:0}
+  .doc-head{border-bottom:1px solid var(--line);padding-bottom:26px;margin-bottom:8px}
+  .eyebrow{
+    font-family:"IBM Plex Mono", ui-monospace, monospace;font-size:11.5px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--ink-3);
+  }
+  h1{
+    font-family:"Newsreader", Georgia, "Times New Roman", serif;font-weight:400;
+    font-size:clamp(32px,4.6vw,46px);line-height:1.08;letter-spacing:-.015em;
+    margin:12px 0 0;text-wrap:balance;
+  }
+  .doc-sub{color:var(--ink-2);font-size:16.5px;margin:8px 0 0;font-family:"Newsreader", Georgia, serif;font-style:italic}
+  dl.meta{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1px;
+    margin:26px 0 0;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;
+  }
+  .meta-row{background:var(--surface);padding:10px 14px;display:flex;flex-direction:column;gap:2px}
+  dl.meta dt{
+    font-family:"IBM Plex Mono", ui-monospace, monospace;font-size:10.5px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--ink-3);
+  }
+  dl.meta dd{margin:0;font-size:13.5px;color:var(--ink)}
+
+  article h2{
+    font-family:"Newsreader", Georgia, serif;font-weight:500;font-size:27px;letter-spacing:-.012em;
+    line-height:1.2;margin:52px 0 14px;padding-top:14px;border-top:1px solid var(--line);
+    display:flex;gap:14px;align-items:baseline;scroll-margin-top:20px;text-wrap:balance;
+  }
+  article h3{
+    font-size:16px;font-weight:600;letter-spacing:-.005em;margin:32px 0 10px;
+    display:flex;gap:12px;align-items:baseline;scroll-margin-top:20px;
+  }
+  .sec-num{
+    font-family:"IBM Plex Mono", ui-monospace, monospace;font-size:.62em;color:var(--ink-3);
+    font-variant-numeric:tabular-nums;flex:none;padding-top:.15em;
+  }
+  article h4{font-size:14px;font-weight:600;margin:22px 0 8px}
+  article p{margin:0 0 14px;max-width:72ch}
+  article hr{display:none}
+
+  article ul, article ol{margin:0 0 16px;padding-left:20px;max-width:74ch}
+  article li{margin:0 0 7px}
+  li.req{list-style:none;margin-left:-20px;padding-left:0;display:block}
+  .req-id{
+    font-family:"IBM Plex Mono", ui-monospace, monospace;font-size:11px;font-weight:500;
+    color:var(--accent);background:var(--accent-soft);border-radius:4px;padding:2px 6px;
+    margin-right:8px;white-space:nowrap;letter-spacing:.02em;
+  }
+  strong{font-weight:600}
+
+  code{
+    font-family:"IBM Plex Mono", ui-monospace, monospace;font-size:12.5px;
+    background:var(--surface-2);border-radius:4px;padding:1.5px 5px;
+  }
+  pre{
+    background:var(--surface);border:1px solid var(--line);border-radius:10px;
+    padding:16px 18px;overflow-x:auto;margin:0 0 18px;box-shadow:var(--shadow);
+  }
+  pre code{background:none;padding:0;font-size:12.5px;line-height:1.65;color:var(--ink-2)}
+
+  .table-wrap{
+    overflow-x:auto;margin:0 0 20px;border:1px solid var(--line);border-radius:10px;
+    background:var(--surface);box-shadow:var(--shadow);
+  }
+  table{border-collapse:collapse;width:100%;font-size:13.5px}
+  th,td{text-align:left;padding:9px 14px;border-top:1px solid var(--line-soft);vertical-align:top}
+  thead th{
+    border-top:0;background:var(--surface-2);color:var(--ink-2);font-weight:600;
+    font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;
+  }
+  tbody tr:hover{background:var(--accent-soft)}
+  td:first-child{color:var(--ink);font-variant-numeric:tabular-nums}
+
+  .note{
+    display:block;margin:0 0 20px;padding:14px 18px;border-radius:10px;font-size:14px;
+    background:var(--flag-bg);border:1px solid var(--flag-line);color:var(--ink);
+  }
+  .note p{margin:0 0 8px;max-width:none}
+  .note p:last-child{margin:0}
+  .note-tag{
+    display:inline-block;font-family:"IBM Plex Mono", ui-monospace, monospace;font-size:10.5px;
+    letter-spacing:.12em;text-transform:uppercase;color:var(--flag);margin-bottom:6px;
+  }
+  .note--decision{background:var(--decide-bg);border-color:var(--decide-line)}
+  .note--decision .note-tag{color:var(--decide)}
+  blockquote.pull{
+    margin:0 0 20px;padding:2px 0 2px 20px;border-left:2px solid var(--accent);
+    font-family:"Newsreader", Georgia, serif;font-size:19px;font-style:italic;color:var(--ink-2);
+  }
+  blockquote.pull p{margin:0;max-width:60ch}
+
+  footer{
+    margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
+    color:var(--ink-3);font-size:13px;
+  }
+  footer code{font-size:12px}
+  a.back{text-decoration:none;font-weight:500}
+  a.back:hover{text-decoration:underline}
+</style>
+
+<div class="shell">
+  <nav class="toc" aria-label="Contents">
+    <p class="toc-title">Contents</p>
+    <ol>
+<li><a href="#1-document-purpose-method"><span class="toc-num">1</span><span>Document purpose &amp; method</span></a></li>
+<li><a href="#2-product-overview"><span class="toc-num">2</span><span>Product overview</span></a></li>
+<li><a href="#3-goals-non-goals-success-metrics"><span class="toc-num">3</span><span>Goals, non-goals &amp; success metrics</span></a></li>
+<li><a href="#4-users-personas"><span class="toc-num">4</span><span>Users &amp; personas</span></a></li>
+<li><a href="#5-information-architecture-navigation"><span class="toc-num">5</span><span>Information architecture &amp; navigation</span></a></li>
+<li><a href="#6-screen-by-screen-functional-requirements"><span class="toc-num">6</span><span>Screen-by-screen functional requirements</span></a></li>
+<li><a href="#7-cross-cutting-requirements"><span class="toc-num">7</span><span>Cross-cutting requirements</span></a></li>
+<li><a href="#8-design-system"><span class="toc-num">8</span><span>Design system</span></a></li>
+<li><a href="#9-data-model-proposed-backend-contract"><span class="toc-num">9</span><span>Data model (proposed backend contract)</span></a></li>
+<li><a href="#10-non-functional-requirements"><span class="toc-num">10</span><span>Non-functional requirements</span></a></li>
+<li><a href="#11-prototype-gaps-defects"><span class="toc-num">11</span><span>Prototype gaps &amp; defects</span></a></li>
+<li><a href="#12-open-questions"><span class="toc-num">12</span><span>Open questions</span></a></li>
+<li><a href="#13-phased-scope-recommendation"><span class="toc-num">13</span><span>Phased scope recommendation</span></a></li>
+<li><a href="#14-appendix-technology-inventory"><span class="toc-num">14</span><span>Appendix — technology inventory</span></a></li>
+    </ol>
+  </nav>
+
+  <article>
+    <header class="doc-head">
+      <div class="eyebrow">Product requirements · draft for review</div>
+      <h1>Reports &amp; Dashboards</h1>
+      <p class="doc-sub">Endpoint Central — Reports Module</p>
+      <dl class="meta">
+<div class="meta-row"><dt>Product</dt><dd>ManageEngine Endpoint Central — Reports &amp; Dashboards</dd></div>
+<div class="meta-row"><dt>Document type</dt><dd>PRD (reverse-engineered from working prototype)</dd></div>
+<div class="meta-row"><dt>Source artifact</dt><dd><code>index 4.html</code> — single-file React SPA build, 470 KB, all assets inlined</dd></div>
+<div class="meta-row"><dt>Prototype date context</dt><dd>Seed data uses Aug 2026 timestamps; "today" in-prototype ≈ Aug 1–5, 2026</dd></div>
+<div class="meta-row"><dt>Status</dt><dd>Draft — for review</dd></div>
+<div class="meta-row"><dt>Author</dt><dd>Derived from prototype analysis</dd></div>
+<div class="meta-row"><dt>Date</dt><dd>Aug 13, 2026</dd></div>
+      </dl>
+    </header>
+
+<hr />
+<h2 id="1-document-purpose-method"><span class="sec-num">1</span>Document purpose &amp; method</h2>
+<p>This PRD was written by decompiling and analyzing a shipped click-through prototype (<code>index 4.html</code>). Every requirement below is traceable to behavior or data present in that build. Where the prototype is deliberately non-functional (mocked, stubbed, or hardcoded), it is called out explicitly in §11 rather than being silently promoted into a requirement.</p>
+<p><strong>Two things this document is not:</strong> it is not a record of an agreed-upon business case (no goals, metrics, or stakeholder inputs exist in the artifact — §3 states inferred goals as assumptions), and it is not a backend specification (the prototype has no server contract — §9 proposes one).</p>
+<hr />
+<h2 id="2-product-overview"><span class="sec-num">2</span>Product overview</h2>
+<h3 id="21-what-it-is"><span class="sec-num">2.1</span>What it is</h3>
+<p>A consolidated <strong>Reports workspace</strong> for Endpoint Central, an endpoint management platform. It is the single destination where an IT admin finds, runs, builds, schedules, and shares operational reporting across patching, vulnerabilities, compliance, inventory, Active Directory, device control, DLP, malware protection, BitLocker, USB, and MDM.</p>
+<p>Product tagline present in the build:</p>
+<blockquote class="pull"><p>"All your endpoint reports, dashboards, and schedules — in one place."</p></blockquote>
+<h3 id="22-the-core-proposition"><span class="sec-num">2.2</span>The core proposition</h3>
+<p>Today's reporting surfaces in endpoint-management tools are fragmented: canned reports live in one place, custom builders in another, schedules in a third, and there is no way to extend the catalog. This module unifies them behind <strong>one navigation spine, one search, and one visual language</strong>, and adds two growth vectors:</p>
+<ol>
+<li><strong>Extensions marketplace</strong> — report/dashboard packs installable from ManageEngine and community authors.</li>
+<li><strong>ZIA AI generation</strong> — describe a report or dashboard in natural language and have it built.</li>
+</ol>
+<h3 id="23-content-surfaces-six"><span class="sec-num">2.3</span>Content surfaces (six)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Surface</th>
+<th>Nature</th>
+<th>Prototype volume</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Predefined Reports</td>
+<td>Vendor-shipped, read-only catalog</td>
+<td>74 reports / 20 modules / 21 sub-categories</td>
+</tr>
+<tr>
+<td>Predefined Dashboards</td>
+<td>Vendor-shipped, read-only catalog</td>
+<td>23 dashboards / 7 modules / 2 categories</td>
+</tr>
+<tr>
+<td>Custom Reports</td>
+<td>User-owned, created 3 ways</td>
+<td>10 seeded</td>
+</tr>
+<tr>
+<td>Custom Dashboards</td>
+<td>User-owned, widget-based</td>
+<td>6 seeded</td>
+</tr>
+<tr>
+<td>Query Reports</td>
+<td>SQL-expression-driven</td>
+<td>6 seeded</td>
+</tr>
+<tr>
+<td>Schedule Reports</td>
+<td>Automated delivery jobs</td>
+<td>7 seeded</td>
+</tr>
+<tr>
+<td>Extensions</td>
+<td>Installable packs</td>
+<td>12 listed (4 installed)</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="3-goals-non-goals-success-metrics"><span class="sec-num">3</span>Goals, non-goals &amp; success metrics</h2>
+<aside class="note note--flag"><span class="note-tag">Assumption</span><p> The artifact contains no stated business objectives. The goals below are inferred from the feature set and information architecture, and must be confirmed with product ownership before this section is treated as authoritative.</p></aside>
+<h3 id="31-product-goals-inferred"><span class="sec-num">3.1</span>Product goals (inferred)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Goal</th>
+<th>Rationale visible in the build</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>G1</td>
+<td>Reduce time-to-answer for endpoint questions</td>
+<td>Global ⌘K-style search spans all six surfaces; home surfaces recent activity</td>
+</tr>
+<tr>
+<td>G2</td>
+<td>Make the report catalog discoverable at scale</td>
+<td>Three-level taxonomy + per-module submenu with its own search field</td>
+</tr>
+<tr>
+<td>G3</td>
+<td>Let admins self-serve custom reporting without SQL</td>
+<td>AI-assisted builder + manual column/widget picker as peers</td>
+</tr>
+<tr>
+<td>G4</td>
+<td>Turn reporting into an extensible platform</td>
+<td>Marketplace with third-party/community authorship, ratings, install counts, versioning</td>
+</tr>
+<tr>
+<td>G5</td>
+<td>Automate recurring compliance evidence</td>
+<td>Schedule wizard with multi-format, multi-recipient, retention policy</td>
+</tr>
+<tr>
+<td>G6</td>
+<td>Establish one visual system across all report surfaces</td>
+<td>Single <code>ec-*</code> design token set applied uniformly</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="32-non-goals-for-this-module"><span class="sec-num">3.2</span>Non-goals (for this module)</h3>
+<ul>
+<li>Report <strong>execution engine</strong> and data warehouse — consumed, not owned, by this module.</li>
+<li>Endpoint agent management, patch deployment, remediation actions.</li>
+<li>Identity/RBAC administration (this module consumes roles; it does not define them).</li>
+<li>Mail server configuration (linked out to, not owned — see the "Configure Mail Server Settings" link).</li>
+<li>Export-security / data-masking configuration (linked out to as "Export Setting to secure personal data").</li>
+</ul>
+<h3 id="33-proposed-success-metrics"><span class="sec-num">3.3</span>Proposed success metrics</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Target hypothesis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Median time from landing → report rendered</td>
+<td>&lt; 20 s</td>
+</tr>
+<tr>
+<td>% of sessions using global search</td>
+<td>&gt; 40%</td>
+</tr>
+<tr>
+<td>Custom reports created via AI vs manual</td>
+<td>Establish baseline; AI ≥ 30% within 2 quarters</td>
+</tr>
+<tr>
+<td>Extension install rate per active tenant</td>
+<td>≥ 1.5 packs</td>
+</tr>
+<tr>
+<td>Scheduled reports with ≥ 1 successful delivery in 30 days</td>
+<td>&gt; 90%</td>
+</tr>
+<tr>
+<td>Schedule failure rate</td>
+<td>&lt; 2% (prototype seeds 1 failed of 7 — 14% — as a UI state, not a target)</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="4-users-personas"><span class="sec-num">4</span>Users &amp; personas</h2>
+<p>Derived from the <code>createdBy</code>, <code>recipients</code>, and <code>sharedWith</code> fields in the seed data.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Persona</th>
+<th>Evidence in build</th>
+<th>Primary jobs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>IT Administrator</strong> (primary)</td>
+<td><code>createdBy: "Bharath"</code>, <code>"Admin"</code>, <code>admin@acme.com</code></td>
+<td>Run predefined reports, build custom ones, manage schedules, install extensions</td>
+</tr>
+<tr>
+<td><strong>Security Analyst / CISO</strong></td>
+<td><code>security@acme.com</code>, <code>ciso@acme.com</code>, <code>sharedWith: ["CISO","Security Team"]</code></td>
+<td>Threat &amp; vulnerability dashboards, patch SLA, ransomware and Zero Trust posture</td>
+</tr>
+<tr>
+<td><strong>Compliance / Audit</strong></td>
+<td><code>audit@acme.com</code>, <code>sharedWith: ["Auditors"]</code>, "Q2 Compliance Audit"</td>
+<td>Scheduled evidence packs (HIPAA/GDPR/PCI-DSS), retention policy, PDF export</td>
+</tr>
+<tr>
+<td><strong>IT Operations</strong></td>
+<td><code>it-ops@acme.com</code></td>
+<td>Inventory, disk space, endpoint health, hardware refresh planning</td>
+</tr>
+<tr>
+<td><strong>Finance / SAM</strong></td>
+<td><code>finance@acme.com</code>, <code>sharedWith: ["Finance"]</code></td>
+<td>License compliance, software metering, cost reclamation</td>
+</tr>
+<tr>
+<td><strong>Power user / analyst</strong></td>
+<td><code>John D.</code>, <code>Sarah K.</code> on query reports</td>
+<td>Direct SQL-expression reports</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="5-information-architecture-navigation"><span class="sec-num">5</span>Information architecture &amp; navigation</h2>
+<h3 id="51-route-map"><span class="sec-num">5.1</span>Route map</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Route</th>
+<th>Screen</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/</code></td>
+<td>Home</td>
+<td>Stat tiles, recent activity, newly added</td>
+</tr>
+<tr>
+<td><code>/predefined-reports</code></td>
+<td>Predefined Reports catalog</td>
+<td>Defaults to first module</td>
+</tr>
+<tr>
+<td><code>/predefined-reports/:moduleId</code></td>
+<td>Module-scoped catalog</td>
+<td>20 module IDs</td>
+</tr>
+<tr>
+<td><code>/predefined-dashboard</code></td>
+<td>Predefined Dashboards catalog</td>
+<td>Defaults to first module</td>
+</tr>
+<tr>
+<td><code>/predefined-dashboard/:moduleId</code></td>
+<td>Module-scoped catalog</td>
+<td><code>sec-patch</code>, <code>sec-threats</code>, <code>sec-compliance</code>, <code>ep-health</code>, <code>ep-inventory</code>, <code>ep-users</code>, <code>ep-mdm</code></td>
+</tr>
+<tr>
+<td><code>/custom-reports</code></td>
+<td>Custom Reports list</td>
+<td>Also the 404 fallback (<code>path: "*"</code>)</td>
+</tr>
+<tr>
+<td><code>/custom-dashboards</code></td>
+<td>Custom Dashboards list</td>
+<td></td>
+</tr>
+<tr>
+<td><code>/query-reports</code></td>
+<td>Query Reports list</td>
+<td></td>
+</tr>
+<tr>
+<td><code>/schedule-reports</code></td>
+<td>Schedule Reports list</td>
+<td></td>
+</tr>
+<tr>
+<td><code>/extensions</code></td>
+<td>Extensions Marketplace</td>
+<td></td>
+</tr>
+<tr>
+<td><code>/create-report</code></td>
+<td>Report creation (full-shell takeover)</td>
+<td>Accepts <code>?prompt=</code> deep link</td>
+</tr>
+<tr>
+<td><code>/create-dashboard</code></td>
+<td>Dashboard creation (full-shell takeover)</td>
+<td>Accepts <code>?prompt=</code> deep link</td>
+</tr>
+<tr>
+<td><code>/create-query-report</code></td>
+<td>Query builder</td>
+<td></td>
+</tr>
+<tr>
+<td><code>/create-schedule-report</code></td>
+<td>Schedule wizard</td>
+<td></td>
+</tr>
+<tr>
+<td><code>/ask-zia</code></td>
+<td><strong>Feature-flagged off</strong> → redirects to <code>/</code></td>
+<td><code>featureFlags.askZia.enabled = false</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>All list routes also accept <code>?search=&lt;term&gt;</code> to arrive pre-filtered — this is how global search navigates.</p>
+<h3 id="52-left-rail-72-px-icon-rail-collapsible"><span class="sec-num">5.2</span>Left rail (72 px icon rail, collapsible)</h3>
+<pre><code>[Logo → /]
+Home
+Predefined Report      ▸ hover submenu (20 modules, 2 groups, searchable)
+Predefined Dashboard   ▸ hover submenu (7 modules, 2 groups, searchable)
+──────────────
+Custom Report
+Custom Dashboard
+Query Report
+Schedule Report
+Ask ZIA  [AI badge]    ← hidden by feature flag
+</code></pre>
+<p><strong>Requirements</strong></p>
+<ul>
+<li class="req"><span class="req-id">NAV-1</span> Rail collapses to 0 px and expands to 72 px with a 300 ms ease-in-out transition; state persists for the session.</li>
+<li class="req"><span class="req-id">NAV-2</span> Below <code>lg</code>, the rail becomes an overlay drawer (<code>fixed</code>, <code>z-50</code>, translate-X) dismissed on item selection.</li>
+<li class="req"><span class="req-id">NAV-3</span> Active state = 2 px left accent bar + primary color + tinted background. Active detection includes creation routes (e.g. <code>/create-report</code> marks <em>Custom Report</em> active).</li>
+<li class="req"><span class="req-id">NAV-4</span> Predefined submenus open on hover (200 ms close delay to survive pointer travel) and on click; each contains its own type-ahead filter over module labels.</li>
+<li class="req"><span class="req-id">NAV-5</span> Items with a <code>featureKey</code> render only when that flag is enabled.</li>
+</ul>
+<h3 id="53-global-search"><span class="sec-num">5.3</span>Global search</h3>
+<ul>
+<li class="req"><span class="req-id">SRCH-1</span> Single search field in the app header queries a flattened index over <strong>all</strong> predefined reports, predefined dashboards, custom reports, custom dashboards, query reports, schedule reports, and extensions.</li>
+<li class="req"><span class="req-id">SRCH-2</span> Matching is case-insensitive substring across <code>name</code>, <code>description</code>, and <code>category</code>.</li>
+<li class="req"><span class="req-id">SRCH-3</span> Results group by type in fixed order: Predefined Report → Predefined Dashboard → Custom Report → Custom Dashboard → Query Report → Schedule Report → Extension.</li>
+<li class="req"><span class="req-id">SRCH-4</span> A type filter chip restricts results to one type and, when set, shows that type's full list on an empty query.</li>
+<li class="req"><span class="req-id">SRCH-5</span> Recent searches persist in <code>localStorage</code> under <code>ec_recent_searches</code>, capped at <strong>6</strong> entries, most-recent-first, de-duplicated.</li>
+<li class="req"><span class="req-id">SRCH-6</span> Empty-query panel shows Recent Searches, Recent Report Activity (with live status icon), and Newly Added.</li>
+<li class="req"><span class="req-id">SRCH-7</span> Selecting a result navigates to <code>{path}?search={encodeURIComponent(name)}</code>, pre-filtering the destination list.</li>
+<li class="req"><span class="req-id">SRCH-8</span> Dismissal: <code>Escape</code> key, outside click.</li>
+<li class="req"><span class="req-id">SRCH-9</span> ⌘K affordance is displayed on Home. <strong>Gap:</strong> no keyboard handler is bound in the prototype (§11, GAP-3).</li>
+</ul>
+<hr />
+<h2 id="6-screen-by-screen-functional-requirements"><span class="sec-num">6</span>Screen-by-screen functional requirements</h2>
+<h3 id="61-home"><span class="sec-num">6.1</span>Home (<code>/</code>)</h3>
+<p>Six clickable stat tiles in a responsive grid (2 / 3 / 6 columns):</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Tile</th>
+<th>Value source</th>
+<th>Navigates to</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Total Reports</td>
+<td>computed from custom reports</td>
+<td><code>/custom-reports</code></td>
+</tr>
+<tr>
+<td>Dashboards</td>
+<td>computed from custom dashboards</td>
+<td><code>/custom-dashboards</code></td>
+</tr>
+<tr>
+<td>Predefined Reports</td>
+<td><strong>hardcoded "23"</strong> (actual catalog: 74)</td>
+<td><code>/predefined-reports</code></td>
+</tr>
+<tr>
+<td>Predefined Dashboards</td>
+<td><strong>hardcoded "14"</strong> (actual catalog: 23)</td>
+<td><code>/predefined-dashboard</code></td>
+</tr>
+<tr>
+<td>Scheduled</td>
+<td>computed (<code>status === "Scheduled"</code>)</td>
+<td><code>/schedule-reports</code></td>
+</tr>
+<tr>
+<td>Extensions</td>
+<td>computed (<code>isInstalled</code>)</td>
+<td><code>/extensions</code></td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li class="req"><span class="req-id">HOME-1</span> All six tiles must derive counts from live data. The two hardcoded values are a defect (§11, GAP-1).</li>
+<li class="req"><span class="req-id">HOME-2</span> Predefined tiles carry a "+2 New" hover-peek popover listing recently added items, deep-linking to the owning module.</li>
+<li class="req"><span class="req-id">HOME-3</span> "Create new" dropdown offers four entry points: Custom Report, Custom Dashboard, Query Report, Schedule Report — each with description and colored icon.</li>
+<li class="req"><span class="req-id">HOME-4</span> "Recent Report Activity" lists recent items with live status (Ready / Running / Scheduled / Failed) and a "View all" link.</li>
+<li class="req"><span class="req-id">HOME-5</span> "All Sections" strip provides jump links to each surface.</li>
+</ul>
+<h3 id="62-predefined-reports-predefined-reportsmoduleid"><span class="sec-num">6.2</span>Predefined Reports (<code>/predefined-reports[/:moduleId]</code>)</h3>
+<p><strong>Taxonomy</strong> — three levels: Category → Module → Sub-category → Report.</p>
+<ul>
+<li><strong>Active Directory</strong> (6 modules): User Reports (5 sub-categories: General, Password Based, Account Status, Privileged, Logon Based), Computer Reports, Group Reports, OU Reports, Domain Reports, GPO Reports.</li>
+<li><strong>Other Reports</strong> (14 modules): User Logon, Power Management, Configuration, Threats &amp; Patches, Self Service Portal, Inventory, Browser, Device Control, DLP, Malware Protection, Application Control, BitLocker, USB, Custom Groups, MDM.</li>
+</ul>
+<p><strong>Requirements</strong></p>
+<ul>
+<li class="req"><span class="req-id">PDR-1</span> Each report record carries <code>id</code>, <code>name</code>, <code>description</code>, <code>type</code> ∈ {Table, Chart, KPI}.</li>
+<li class="req"><span class="req-id">PDR-2</span> Filters: sub-category chips (derived from the active module), type filter (All / Table / Chart / KPI), free-text search over name + description.</li>
+<li class="req"><span class="req-id">PDR-3</span> Dual view mode — grid (cards with SVG type-preview thumbnail) and table — toggled and remembered.</li>
+<li class="req"><span class="req-id">PDR-4</span> Table columns: Name, Description, Type, Actions. Sortable by name/type, ascending default, with direction toggle and a sort indicator.</li>
+<li class="req"><span class="req-id">PDR-5</span> Grid groups by sub-category with collapsible section headers.</li>
+<li class="req"><span class="req-id">PDR-6</span> Row actions: <strong>Run</strong>, <strong>Export</strong>.</li>
+<li class="req"><span class="req-id">PDR-7</span> Pagination with a "Rows per page" control.</li>
+<li class="req"><span class="req-id">PDR-8</span> Empty states distinguish <em>no results for filters</em> ("No reports match your filters.") from <em>no results for search</em> ("No reports found / Try a different search term").</li>
+<li class="req"><span class="req-id">PDR-9</span> On mount, <code>?search=</code> from the URL seeds the search field and resets collapsed groups.</li>
+</ul>
+<h3 id="63-predefined-dashboards-predefined-dashboardmoduleid"><span class="sec-num">6.3</span>Predefined Dashboards (<code>/predefined-dashboard[/:moduleId]</code>)</h3>
+<p>Two categories:
+- <strong>Security</strong> — Patch Management (Overview, Detailed Views), Threat &amp; Vulnerability (Overview, Malware Protection), Compliance (Overview).
+- <strong>Endpoint Management</strong> — Endpoint Health (Overview, Performance), Inventory (Hardware, Software), User Activity, MDM.</p>
+<ul>
+<li class="req"><span class="req-id">PDD-1</span> Each dashboard carries <code>name</code>, <code>description</code>, <code>widgets</code> (count), <code>lastViewed</code> (relative time), accent <code>color</code>, <code>icon</code>.</li>
+<li class="req"><span class="req-id">PDD-2</span> Same filter / dual-view / sort / pagination / empty-state contract as §6.2.</li>
+<li class="req"><span class="req-id">PDD-3</span> Cards render a color-tinted SVG preview thumbnail derived from the dashboard's accent color.</li>
+<li class="req"><span class="req-id">PDD-4</span> Table rows are click-through to the dashboard.</li>
+</ul>
+<h3 id="64-custom-reports-custom-reports"><span class="sec-num">6.4</span>Custom Reports (<code>/custom-reports</code>)</h3>
+<p><strong>Data contract per report:</strong> <code>name</code>, <code>description</code>, <code>category</code>, <code>source</code>, <code>type</code>, <code>schedule</code>, <code>lastRun</code>, <code>lastModified</code>, <code>createdBy</code>, <code>status</code>, <code>remarks</code>, <code>installedFrom</code>.</p>
+<p><strong>Provenance (<code>source</code>) — a first-class concept:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Label</th>
+<th>Color</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>manual</code></td>
+<td>Manual</td>
+<td><code>#475569</code></td>
+<td>Hand-built in the report builder</td>
+</tr>
+<tr>
+<td><code>extension</code></td>
+<td>Extension</td>
+<td><code>#1a5dc6</code></td>
+<td>Came from an installed pack; <code>installedFrom</code> names the pack</td>
+</tr>
+<tr>
+<td><code>zia</code></td>
+<td>ZIA AI</td>
+<td><code>#7c3aed</code></td>
+<td>Generated from a natural-language prompt</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Status vocabulary:</strong> Ready (green, "Active") · Running (blue) · Scheduled (amber) · Failed (red).</p>
+<ul>
+<li class="req"><span class="req-id">CR-1</span> Filter by source (All / Manual / Extension / ZIA (AI)), by category, and by free text over name + description.</li>
+<li class="req"><span class="req-id">CR-2</span> Sortable table — default sort <code>lastModified</code> descending. Columns: Name, Category, Type, Source, Schedule, Last Run, Created By, Status, Remarks, Action.</li>
+<li class="req"><span class="req-id">CR-3</span> Grid cards show source badge, type badge, status pill, schedule, and a type-appropriate SVG preview.</li>
+<li class="req"><span class="req-id">CR-4</span> Row actions include <strong>Copy link</strong>; grid cards expose a "More" overflow.</li>
+<li class="req"><span class="req-id">CR-5</span> Extension-sourced reports must visibly attribute their originating pack.</li>
+<li class="req"><span class="req-id">CR-6</span> "Create Report" CTA routes to <code>/create-report</code>.</li>
+</ul>
+<h3 id="65-custom-dashboards-custom-dashboards"><span class="sec-num">6.5</span>Custom Dashboards (<code>/custom-dashboards</code>)</h3>
+<p>Same list contract as §6.4, with dashboard-specific fields: <code>widgets</code> (count) and <code>sharedWith</code> (array of groups: IT Team, CISO, Security Team, Finance, Auditors).</p>
+<ul>
+<li class="req"><span class="req-id">CD-1</span> Table columns: Name, Category, Source, Widgets, Shared With, Last Modified, Created By, Action.</li>
+<li class="req"><span class="req-id">CD-2</span> <code>sharedWith</code> renders as chips; overflow collapses to a "+N" indicator.</li>
+<li class="req"><span class="req-id">CD-3</span> Category accent colors: Patch (green), Vulnerability (red), Compliance (amber), Inventory (purple), Security, Software, USB.</li>
+</ul>
+<h3 id="66-report-dashboard-creation-create-report-create-dashboard"><span class="sec-num">6.6</span>Report / Dashboard creation (<code>/create-report</code>, <code>/create-dashboard</code>)</h3>
+<p>This screen takes over the full shell (no page chrome) and offers <strong>two peer modes</strong>.</p>
+<h4 id="mode-a-zia-ai-conversational">Mode A — ZIA AI (conversational)</h4>
+<ul>
+<li class="req"><span class="req-id">AI-1</span> Chat transcript with user/AI turns, each timestamped <code>HH:MM</code>.</li>
+<li class="req"><span class="req-id">AI-2</span> Type-appropriate starter suggestions, e.g. for reports: <em>"Show all endpoints missing critical patches from the last 30 days"</em>, <em>"List endpoints with unauthorized software installed"</em>, <em>"Generate a USB device usage report for this month"</em>, HIPAA compliance.</li>
+<li class="req"><span class="req-id">AI-3</span> AI responses are <strong>structured specifications</strong>, not prose — they enumerate Data source, Filter, Columns, Group by, Sort, and closing guidance. Dashboard responses enumerate numbered widgets and refresh behavior.</li>
+<li class="req"><span class="req-id">AI-4</span> A generating state with a spinner is shown while the response is pending (prototype: fixed 2 s).</li>
+<li class="req"><span class="req-id">AI-5</span> <code>Enter</code> sends; the input is disabled while generating.</li>
+<li class="req"><span class="req-id">AI-6</span> Accepts an <code>initialPrompt</code> from <code>?prompt=</code> for deep-linked generation.</li>
+<li class="req"><span class="req-id">AI-7</span> Switching modes with content present raises a <strong>"Discard &amp; Switch"</strong> confirmation.</li>
+</ul>
+<h4 id="mode-b-manual-builder">Mode B — Manual builder</h4>
+<ul>
+<li class="req"><span class="req-id">MB-1</span> Fields: Name, Description, Category (Patch / Vulnerability / Compliance / Inventory / Security / Browser / Software), Output Format (PDF / XLSX / CSV / HTML), Refresh Interval (Real-time / Every 5 min / Every 15 min / Hourly), Schedule (On-demand / Daily / Weekly / Monthly).</li>
+<li class="req"><span class="req-id">MB-2</span> <strong>Reports:</strong> multi-select column chips — Endpoint Name, IP Address, OS, User, Department, Patch ID, Severity, Status, Last Seen, Agent Version, MAC Address, Location.</li>
+<li class="req"><span class="req-id">MB-3</span> <strong>Dashboards:</strong> multi-select widget chips — Donut Chart, Bar Chart, Line Chart, KPI Card, Data Table, Heatmap, Gauge, Pie Chart, World Map, Stacked Bar, Trend Line, Alert List.</li>
+<li class="req"><span class="req-id">MB-4</span> Selected chips render in the primary fill; unselected are outlined.</li>
+<li class="req"><span class="req-id">MB-5</span> Primary action is labelled contextually ("Create Report" / "Create Dashboard"); Cancel returns to the owning list.</li>
+</ul>
+<h3 id="67-query-reports-query-reports-create-query-report"><span class="sec-num">6.7</span>Query Reports (<code>/query-reports</code>, <code>/create-query-report</code>)</h3>
+<p><strong>List</strong></p>
+<ul>
+<li class="req"><span class="req-id">QR-1</span> Records carry <code>name</code>, <code>query</code> (SQL string, rendered monospace), <code>description</code>, <code>lastRun</code>, <code>duration</code>, <code>rowCount</code>, <code>status</code>, <code>createdBy</code>, <code>category</code>.</li>
+<li class="req"><span class="req-id">QR-2</span> Status vocabulary: Success (green) · Running (blue, animated) · Failed (red) · Never Run (grey).</li>
+<li class="req"><span class="req-id">QR-3</span> Filter by status and category; sort default <code>lastRun</code> descending.</li>
+<li class="req"><span class="req-id">QR-4</span> Row actions: Run, Download, Copy link, More.</li>
+</ul>
+<p><strong>Builder</strong></p>
+<ul>
+<li class="req"><span class="req-id">QR-5</span> Fields: report name, query expression (textarea), Records per page (25 / 50 / 100 / 200 / 500, default 100).</li>
+<li class="req"><span class="req-id">QR-6</span> Actions: <strong>Run Report</strong> (execute without persisting), <strong>Run &amp; Save</strong>, <strong>Reset</strong>.</li>
+</ul>
+<h3 id="68-schedule-reports-schedule-reports-create-schedule-report"><span class="sec-num">6.8</span>Schedule Reports (<code>/schedule-reports</code>, <code>/create-schedule-report</code>)</h3>
+<p><strong>List</strong></p>
+<ul>
+<li class="req"><span class="req-id">SR-1</span> Records carry <code>reportName</code>, <code>frequency</code> (Daily / Weekly / Monthly / Once), <code>nextRun</code>, <code>lastRun</code>, <code>recipients[]</code>, <code>format</code> (PDF / Excel / CSV), <code>status</code>, <code>category</code>.</li>
+<li class="req"><span class="req-id">SR-2</span> Status vocabulary: Active · Paused · Failed · Completed. Frequency has its own color coding.</li>
+<li class="req"><span class="req-id">SR-3</span> Row actions: <strong>Pause</strong> / <strong>Resume</strong> (mutually exclusive on status), <strong>Delete</strong>, Copy link, More.</li>
+<li class="req"><span class="req-id">SR-4</span> <strong>Report Retention Period</strong> is a list-level setting: "Maintain last <strong>N</strong> Days / Reports", with Save / Cancel.</li>
+<li class="req"><span class="req-id">SR-5</span> Recipients render as an email chip list with overflow.</li>
+<li class="req"><span class="req-id">SR-6</span> Grid card preview visualizes the frequency as a calendar heat-grid tinted by status; paused/failed schedules render desaturated.</li>
+</ul>
+<p><strong>Wizard (<code>/create-schedule-report</code>)</strong> — four fielded sections, ManageEngine classic form styling:</p>
+<ol>
+<li><strong>Create Scheduled Reports</strong> — Scheduler Name (<strong>required</strong>), Description.</li>
+<li><strong>Select Reports</strong> — dual-pane picker. Left: expandable report tree (Active Directory, User Logon, Power Management, Patch [Missing Patches / Patch Status Summary / Patch Compliance], Vulnerability, Inventory [Hardware / Software / Disk Space], USB, Application Control, Device Control, BitLocker). Right: "Selected Reports (N)" with per-item removal and an illustrated empty state.</li>
+<li><strong>Specify Delivery Format and Recipients</strong>
+   - Export settings — links out to secure-personal-data configuration.
+   - Report Formats — multi-check PDF / XLSX / CSV (default CSV).
+   - "Receive emails even when no data is available" — Yes / No radio (default Yes).
+   - Action — <em>Send each report as an attachment</em> (default) / <em>Send reports as a zipped file</em> / <em>Publish reports on the Central server and send the URL</em>.
+   - <strong>Size-threshold override:</strong> if total size exceeds <strong>N MB</strong> (default 5), publish to the server and send a URL regardless of the option above.
+   - To (<strong>required</strong>, comma-separated), CC, Subject (<strong>required</strong>), Content.
+   - Inline link to Mail Server Settings.</li>
+<li><strong>Specify the Frequency</strong> — links to the scheduler configuration; renders "Scheduler has not been configured yet." until set.</li>
+<li><strong>User Consent</strong> — explicit consent checkbox.</li>
+</ol>
+<ul>
+<li><strong>SR-7 (validation)</strong> The <strong>Schedule</strong> action stays disabled until Scheduler Name is non-empty <strong>AND</strong> To is non-empty <strong>AND</strong> User Consent is checked.</li>
+</ul>
+<h3 id="69-extensions-marketplace-extensions"><span class="sec-num">6.9</span>Extensions Marketplace (<code>/extensions</code>)</h3>
+<p><strong>Data contract:</strong> <code>name</code>, <code>description</code>, <code>category</code>, <code>author</code> (ManageEngine | Community), <code>version</code> (semver), <code>rating</code> (0–5), <code>installs</code>, <code>tags[]</code>, <code>isInstalled</code>, <code>type</code> (report | dashboard), <code>lastUpdated</code>, <code>size</code>, <code>thumbnailColor</code>, <code>thumbnailIcon</code>.</p>
+<p><strong>Catalog (12):</strong> USB Security Audit Pack · Browser Security Toolkit · Compliance Trend Pack · License Compliance Pack <em>(installed)</em> · Ransomware Defense Report · Remote Work Endpoint Health · Patch SLA Tracker · Privileged Account Activity · Software Metering Dashboard · Mobile Device Compliance · Endpoint Performance Index · Zero Trust Readiness Report.</p>
+<ul>
+<li class="req"><span class="req-id">EXT-1</span> Filter by type and category; search over name and tags.</li>
+<li class="req"><span class="req-id">EXT-2</span> Sort by <strong>Most Installed</strong> (default) / <strong>Highest Rated</strong> / <strong>Recently Updated</strong>.</li>
+<li class="req"><span class="req-id">EXT-3</span> Cards show icon, rating, install count, author, version, and an install/installed state.</li>
+<li class="req"><span class="req-id">EXT-4</span> <strong>Details</strong> opens a modal with full description, tags, version, size, last-updated, author, and the install action.</li>
+<li class="req"><span class="req-id">EXT-5</span> Install shows a progress state (prototype: 1.8 s) then flips to installed; the installed pack's reports/dashboards appear in Custom Reports/Dashboards with <code>source: extension</code> and <code>installedFrom</code> set.</li>
+<li class="req"><span class="req-id">EXT-6</span> A "How Extensions Work" explainer and a "NEW" badge are present on the page.</li>
+<li class="req"><span class="req-id">EXT-7</span> Empty state: "No extensions found / Try adjusting your filters or search query."</li>
+</ul>
+<hr />
+<h2 id="7-cross-cutting-requirements"><span class="sec-num">7</span>Cross-cutting requirements</h2>
+<h3 id="71-list-behavior-contract-applies-to-all-six-list-surfaces"><span class="sec-num">7.1</span>List behavior contract (applies to all six list surfaces)</h3>
+<p>Every list surface implements the same contract. This is the module's strongest consistency asset and must be preserved.</p>
+<ul>
+<li class="req"><span class="req-id">LIST-1</span> Free-text search with a "Clear filter" affordance.</li>
+<li class="req"><span class="req-id">LIST-2</span> "Filter By :" chip row, always including a category or status dimension.</li>
+<li class="req"><span class="req-id">LIST-3</span> Grid ⇄ Table toggle, both fully featured.</li>
+<li class="req"><span class="req-id">LIST-4</span> Column sort with three-state indicator (unsorted 30% opacity / asc / desc) and click-to-toggle direction.</li>
+<li class="req"><span class="req-id">LIST-5</span> Pagination with configurable rows per page.</li>
+<li class="req"><span class="req-id">LIST-6</span> Distinct empty states for <em>no data</em>, <em>no filter match</em>, and <em>no search match</em>.</li>
+<li class="req"><span class="req-id">LIST-7</span> URL <code>?search=</code> parameter seeds the search field on mount.</li>
+<li class="req"><span class="req-id">LIST-8</span> Row hover reveals actions; actions never occupy layout space when idle.</li>
+</ul>
+<h3 id="72-status-badge-system"><span class="sec-num">7.2</span>Status &amp; badge system</h3>
+<p>A single status vocabulary is reused across surfaces with fixed colors — Success/Ready/Active <code>#16a34a</code>, Running/In-progress <code>#1a5dc6</code>, Scheduled/Paused <code>#d97706</code>, Failed <code>#dc2626</code>, Never Run/Completed <code>#6b7280</code>.</p>
+<ul>
+<li class="req"><span class="req-id">BADGE-1</span> Every status pill = icon + label + tinted background; never color alone (accessibility).</li>
+<li class="req"><span class="req-id">BADGE-2</span> Running states animate (spin) to signal liveness.</li>
+</ul>
+<h3 id="73-preview-thumbnails"><span class="sec-num">7.3</span>Preview thumbnails</h3>
+<ul>
+<li class="req"><span class="req-id">THUMB-1</span> Grid cards render inline SVG previews (120 × 72 viewBox) synthesized per item type — table previews draw header + rows, chart previews draw bars, KPI previews draw stat blocks, dashboard previews tint to the item's accent color.</li>
+<li class="req"><span class="req-id">THUMB-2</span> No raster assets; previews must remain resolution-independent and zero-network.</li>
+</ul>
+<hr />
+<h2 id="8-design-system"><span class="sec-num">8</span>Design system</h2>
+<h3 id="81-tokens"><span class="sec-num">8.1</span>Tokens</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Token</th>
+<th>Value</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ec-primary</code></td>
+<td><code>rgb(26, 93, 198)</code> — <code>#1a5dc6</code></td>
+<td>Brand, active state, links, primary buttons</td>
+</tr>
+<tr>
+<td><code>ec-primary-light</code></td>
+<td><code>#e8f1fd</code></td>
+<td>Active backgrounds, tinted chips</td>
+</tr>
+<tr>
+<td><code>ec-bg</code></td>
+<td><code>rgb(244, 246, 249)</code> — <code>#f4f6f9</code></td>
+<td>App canvas</td>
+</tr>
+<tr>
+<td><code>ec-surface</code></td>
+<td><code>#ffffff</code></td>
+<td>Cards, panels, rails</td>
+</tr>
+<tr>
+<td><code>ec-border</code> / <code>ec-border-strong</code></td>
+<td>greys</td>
+<td>Hairlines, hover borders</td>
+</tr>
+<tr>
+<td><code>ec-text</code> / <code>ec-text-muted</code> / <code>ec-text-subtle</code></td>
+<td>3-step hierarchy</td>
+<td>Body / secondary / label</td>
+</tr>
+<tr>
+<td><code>ec-success</code> <code>#16a34a</code> · <code>ec-error</code> <code>#dc2626</code> · <code>ec-purple</code> <code>#7c3aed</code></td>
+<td>+ <code>-light</code> tints</td>
+<td>Semantic states</td>
+</tr>
+<tr>
+<td><code>shadow-ec-card</code></td>
+<td><code>0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04)</code></td>
+<td>Resting card</td>
+</tr>
+<tr>
+<td><code>shadow-ec-hover</code></td>
+<td>elevated</td>
+<td>Hover card</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Category accents:</strong> Patch <code>#16a34a</code> · Vulnerability <code>#dc2626</code> · Compliance <code>#d97706</code> · Inventory <code>#7c3aed</code> · Security · Software <code>#9333ea</code> · USB · Browser <code>#0ea5e9</code> · Performance <code>#0891b2</code>.</p>
+<h3 id="82-typography-shape"><span class="sec-num">8.2</span>Typography &amp; shape</h3>
+<ul>
+<li>Font: <strong>Inter</strong> (400/500/600/700), Google Fonts with <code>preconnect</code>; fallback <code>system-ui, -apple-system, sans-serif</code>. Monospace stack reserved for query expressions.</li>
+<li>Scale is deliberately dense: <code>text-[10px]</code> nav labels, <code>text-xs</code> (12 px) table/form body, <code>text-sm</code> (14 px) controls, <code>text-base</code> page titles, <code>text-2xl</code> stat values.</li>
+<li>Radii: <code>rounded-xl</code> cards, <code>rounded-lg</code> icon tiles/buttons, <code>rounded-md</code> small chips, <code>rounded-full</code> status pills.</li>
+<li>Icons: <strong>lucide-react</strong> v0.453.0 throughout; standard sizes 3.5 / 4 / 5 / 9 units.</li>
+</ul>
+<h3 id="83-motion"><span class="sec-num">8.3</span>Motion</h3>
+<p>Five keyframe families — <code>fade</code>, <code>scale</code>, <code>slide</code>, <code>spin</code>, <code>pulse</code>. Rail transition 300 ms ease-in-out; hover/color transitions ~200 ms; cards use <code>active:scale-[0.98]</code> for press feedback; hover submenus use a 120–200 ms close delay to tolerate pointer travel.</p>
+<h3 id="84-two-coexisting-visual-idioms-a-decision-this-prd-flags"><span class="sec-num">8.4</span>Two coexisting visual idioms — <strong>a decision this PRD flags</strong></h3>
+<p>The build contains <strong>two</strong> form languages:
+- <strong>Modern</strong> — rounded cards, soft shadows, generous spacing (all list, catalog, home, marketplace screens).
+- <strong>Classic ManageEngine</strong> — square-cornered bordered sections, 208 px left-aligned labels, dense 12 px fields (the schedule wizard only, at §6.8).</p>
+<p>The schedule wizard also uses raw <code>blue-50/blue-600/gray-*</code> Tailwind utilities in its submenu instead of <code>ec-*</code> tokens.</p>
+<aside class="note note--decision"><span class="note-tag">Open decision · D1</span><p>Is the classic idiom intentional — preserving muscle memory for admins migrating from the existing product — or is it unmigrated legacy? Resolve before build; it changes the wizard's entire implementation.</p></aside>
+<h3 id="85-responsive"><span class="sec-num">8.5</span>Responsive</h3>
+<ul>
+<li>Breakpoint spine at Tailwind <code>lg</code> (1024 px): rail becomes an overlay drawer below it.</li>
+<li>Home stat grid: 2 → 3 → 6 columns at <code>sm</code> / <code>lg</code>.</li>
+<li>Long text truncates rather than wraps in dense rows; icon-only buttons carry <code>title</code> tooltips.</li>
+</ul>
+<hr />
+<h2 id="9-data-model-proposed-backend-contract"><span class="sec-num">9</span>Data model (proposed backend contract)</h2>
+<p>The prototype has no server. The following contract is derived from the shapes it consumes.</p>
+<pre><code class="language-ts">type Source   = 'manual' | 'extension' | 'zia';
+type ItemType = 'Table' | 'Chart' | 'KPI';
+type Status   = 'Ready' | 'Running' | 'Scheduled' | 'Failed';
+
+interface PredefinedReport {
+  id: string; name: string; description: string; type: ItemType;
+  // parent chain: category → module → subCategory
+}
+
+interface CustomReport {
+  id: string; name: string; description: string;
+  category: string; source: Source; type: ItemType;
+  schedule: 'On-demand' | 'Daily' | 'Weekly' | 'Monthly';
+  lastRun: string;        // ISO datetime
+  lastModified: string;   // ISO datetime
+  createdBy: string; status: Status; remarks: string;
+  installedFrom?: string; // extension pack name; required when source === 'extension'
+}
+
+interface CustomDashboard {
+  id: string; name: string; description: string;
+  category: string; source: Source;
+  widgets: number; lastModified: string; createdBy: string;
+  sharedWith: string[]; installedFrom?: string;
+}
+
+interface QueryReport {
+  id: string; name: string; query: string; description: string;
+  lastRun: string; duration: string; rowCount: number;
+  status: 'Success' | 'Running' | 'Failed' | 'Never Run';
+  createdBy: string; category: string;
+}
+
+interface ScheduledReport {
+  id: string; reportName: string;
+  frequency: 'Daily' | 'Weekly' | 'Monthly' | 'Once';
+  nextRun: string; lastRun: string;
+  recipients: string[]; format: 'PDF' | 'Excel' | 'CSV';
+  status: 'Active' | 'Paused' | 'Failed' | 'Completed';
+  category: string;
+}
+
+interface Extension {
+  id: string; name: string; description: string; category: string;
+  author: 'ManageEngine' | 'Community' | string;
+  version: string; rating: number; installs: number;
+  tags: string[]; isInstalled: boolean;
+  type: 'report' | 'dashboard';
+  lastUpdated: string; size: string;
+  thumbnailColor: string; thumbnailIcon: string;
+}
+</code></pre>
+<h3 id="91-required-api-surface-to-be-built"><span class="sec-num">9.1</span>Required API surface (to be built)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Endpoints</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Catalog</td>
+<td><code>GET /predefined/reports</code>, <code>GET /predefined/dashboards</code> (taxonomy-shaped)</td>
+</tr>
+<tr>
+<td>Custom</td>
+<td>full CRUD on <code>/reports</code> and <code>/dashboards</code>; <code>POST /reports/:id/run</code>, <code>POST /reports/:id/export</code></td>
+</tr>
+<tr>
+<td>Query</td>
+<td>CRUD; <code>POST /queries/run</code> (ad-hoc), <code>POST /queries/:id/run</code></td>
+</tr>
+<tr>
+<td>Schedules</td>
+<td>CRUD; <code>POST /schedules/:id/pause</code> · <code>/resume</code> · <code>/run-now</code>; <code>GET/PUT /schedules/retention</code></td>
+</tr>
+<tr>
+<td>Extensions</td>
+<td><code>GET /extensions</code>, <code>POST /extensions/:id/install</code>, <code>DELETE /extensions/:id</code></td>
+</tr>
+<tr>
+<td>AI</td>
+<td><code>POST /zia/generate</code> <code>{ type, prompt, history[] }</code> → structured report/dashboard spec</td>
+</tr>
+<tr>
+<td>Search</td>
+<td><code>GET /search?q=&amp;type=</code> — cross-surface index</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="10-non-functional-requirements"><span class="sec-num">10</span>Non-functional requirements</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NFR-1</td>
+<td><strong>Bundle</strong> — the prototype ships as one self-contained 470 KB HTML file with zero runtime network dependency except the Inter webfont. Production must code-split per route; target &lt; 200 KB initial JS gzipped.</td>
+</tr>
+<tr>
+<td>NFR-2</td>
+<td><strong>Font resilience</strong> — Inter is fetched from Google Fonts. Air-gapped and China-region deployments are common for endpoint management; the font must be self-hosted with a system fallback.</td>
+</tr>
+<tr>
+<td>NFR-3</td>
+<td><strong>Catalog scale</strong> — the flattened search index spans 74 + 23 predefined items plus all user content. At enterprise volume (thousands of custom reports), search and list filtering must move server-side with debounced querying.</td>
+</tr>
+<tr>
+<td>NFR-4</td>
+<td><strong>Accessibility</strong> — status is never conveyed by color alone (already satisfied via icon+label). Outstanding: focus-visible rings on all interactive elements, keyboard operation of hover submenus, <code>aria-expanded</code>/<code>aria-controls</code> on disclosures, <code>aria-sort</code> on sortable headers, and contrast verification of muted text at 10–12 px. Target WCAG 2.1 AA.</td>
+</tr>
+<tr>
+<td>NFR-5</td>
+<td><strong>Localization</strong> — all strings are currently hardcoded English. Externalize before GA; note that the 72 px rail assumes short two-line labels that will overflow in German/Finnish.</td>
+</tr>
+<tr>
+<td>NFR-6</td>
+<td><strong>Performance</strong> — list virtualization required beyond ~200 rows; the prototype renders all rows.</td>
+</tr>
+<tr>
+<td>NFR-7</td>
+<td><strong>RBAC</strong> — <code>sharedWith</code> and <code>createdBy</code> exist as display fields with no enforcement. Production must enforce read/edit/share/schedule permissions per role.</td>
+</tr>
+<tr>
+<td>NFR-8</td>
+<td><strong>Multi-tenancy</strong> — seed data uses one tenant (<code>acme.com</code>). Tenant scoping is unmodeled.</td>
+</tr>
+<tr>
+<td>NFR-9</td>
+<td><strong>Browser support</strong> — modern evergreen (ES2020 modules, CSS custom properties, <code>:has</code>-free).</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="11-prototype-gaps-defects"><span class="sec-num">11</span>Prototype gaps &amp; defects</h2>
+<p>Everything in this section is a <strong>known limitation of the artifact</strong>, not a product requirement. These are the items that must be closed to move from prototype to shippable.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Severity</th>
+<th>Finding</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GAP-1</td>
+<td><strong>Defect</strong></td>
+<td>Home "Predefined Reports" tile is hardcoded to <strong>23</strong> and "Predefined Dashboards" to <strong>14</strong>; the actual catalogs contain <strong>74</strong> and <strong>23</strong>. Both must be computed.</td>
+</tr>
+<tr>
+<td>GAP-2</td>
+<td>High</td>
+<td><strong>No persistence.</strong> All data lives in in-memory JS arrays. Creating, editing, pausing, deleting, or installing anything is lost on refresh. Only <code>ec_recent_searches</code> survives, via <code>localStorage</code>.</td>
+</tr>
+<tr>
+<td>GAP-3</td>
+<td>Medium</td>
+<td><strong>⌘K is decorative.</strong> The Home surface advertises a ⌘K shortcut, but no <code>keydown</code> listener is registered for it — only <code>Escape</code> (close) is bound. Either implement it or remove the affordance.</td>
+</tr>
+<tr>
+<td>GAP-4</td>
+<td>Medium</td>
+<td><strong>ZIA is fully simulated.</strong> Responses are drawn round-robin from a fixed pool of 4 report and 4 dashboard canned answers on a 2 s <code>setTimeout</code>, cycling by index and ignoring the user's actual prompt.</td>
+</tr>
+<tr>
+<td>GAP-5</td>
+<td>Medium</td>
+<td><strong>Extension install is cosmetic.</strong> A 1.8 s <code>setTimeout</code> flips <code>isInstalled</code>; no content is actually added to any catalog.</td>
+</tr>
+<tr>
+<td>GAP-6</td>
+<td>Medium</td>
+<td><strong>Run / Export / Download / Copy link are inert.</strong> No report ever renders output; there is no report <em>viewer</em> screen at all in the build.</td>
+</tr>
+<tr>
+<td>GAP-7</td>
+<td>Medium</td>
+<td><strong><code>/ask-zia</code> is dead.</strong> The nav entry is filtered out by <code>featureFlags.askZia.enabled = false</code> and the route redirects to <code>/</code>. Its intended scope is undefined.</td>
+</tr>
+<tr>
+<td>GAP-8</td>
+<td>Low</td>
+<td><strong>404 handling.</strong> The wildcard route silently renders Custom Reports instead of a not-found state.</td>
+</tr>
+<tr>
+<td>GAP-9</td>
+<td>Low</td>
+<td><strong>Design inconsistency.</strong> The schedule wizard uses raw Tailwind palette utilities (<code>blue-50</code>, <code>gray-600</code>) rather than <code>ec-*</code> tokens — see §8.4/D1.</td>
+</tr>
+<tr>
+<td>GAP-10</td>
+<td>Low</td>
+<td><strong>Query builder has no SQL affordances</strong> — no syntax highlighting, validation, autocomplete, or result grid.</td>
+</tr>
+<tr>
+<td>GAP-11</td>
+<td>Low</td>
+<td><strong>Schedule wizard frequency section is a stub</strong> — "Scheduler has not been configured yet" with a link, but no actual scheduler UI.</td>
+</tr>
+<tr>
+<td>GAP-12</td>
+<td>Low</td>
+<td><strong>No dashboard canvas.</strong> Dashboards are only ever listed; there is no widget layout, drag-drop, or rendering surface.</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="12-open-questions"><span class="sec-num">12</span>Open questions</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Question</th>
+<th>Owner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>D1</td>
+<td>Is the classic-form idiom in the schedule wizard intentional (migration muscle memory) or legacy to be migrated?</td>
+<td>Design</td>
+</tr>
+<tr>
+<td>D2</td>
+<td>What is <code>/ask-zia</code> meant to be — a standalone conversational analytics surface distinct from in-builder generation? Why is it flagged off?</td>
+<td>Product</td>
+</tr>
+<tr>
+<td>D3</td>
+<td>Can users author or publish extensions, or is the marketplace curated? What governs "Community" authorship?</td>
+<td>Product</td>
+</tr>
+<tr>
+<td>D4</td>
+<td>Are ZIA-generated reports editable afterward, or regenerate-only? Is the generating prompt retained as provenance?</td>
+<td>Product</td>
+</tr>
+<tr>
+<td>D5</td>
+<td>Does <code>sharedWith</code> imply real sharing/permission grants, or is it descriptive metadata?</td>
+<td>Product / Security</td>
+</tr>
+<tr>
+<td>D6</td>
+<td>What is the report <strong>viewer</strong> experience? It is the single largest missing surface.</td>
+<td>Product / Design</td>
+</tr>
+<tr>
+<td>D7</td>
+<td>Is the retention policy per-schedule or global? The prototype places it at the list level, implying global.</td>
+<td>Product</td>
+</tr>
+<tr>
+<td>D8</td>
+<td>Should predefined reports be favoritable / pinnable? 74 items with no personalization is a lot to navigate.</td>
+<td>Design</td>
+</tr>
+<tr>
+<td>D9</td>
+<td>Do custom reports support drill-down or cross-report linking?</td>
+<td>Product</td>
+</tr>
+<tr>
+<td>D10</td>
+<td>Is the <code>?prompt=</code> deep link into AI creation an intended integration point for other product areas?</td>
+<td>Engineering</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="13-phased-scope-recommendation"><span class="sec-num">13</span>Phased scope recommendation</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Scope</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>P0 — Foundation</strong></td>
+<td>Predefined Reports + Dashboards catalogs, list contract (§7.1), global search, home, <strong>report viewer</strong>, run/export</td>
+<td>The catalog is worthless without a viewer (GAP-6); this is the minimum coherent product</td>
+</tr>
+<tr>
+<td><strong>P1 — Authoring</strong></td>
+<td>Manual report + dashboard builders, dashboard canvas, custom lists, persistence layer</td>
+<td>Closes GAP-2 and GAP-12</td>
+</tr>
+<tr>
+<td><strong>P2 — Automation</strong></td>
+<td>Schedule wizard, schedule list, retention, mail integration, query reports</td>
+<td>Compliance-evidence use case unblocked</td>
+</tr>
+<tr>
+<td><strong>P3 — Platform</strong></td>
+<td>Extensions marketplace, install pipeline, versioning/updates</td>
+<td>Growth vector; depends on P1's content model</td>
+</tr>
+<tr>
+<td><strong>P4 — Intelligence</strong></td>
+<td>ZIA generation (real), <code>/ask-zia</code> surface</td>
+<td>Highest uncertainty (D2, D4); depends on a stable report spec format from P1</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="14-appendix-technology-inventory"><span class="sec-num">14</span>Appendix — technology inventory</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Technology</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Framework</td>
+<td>React 18 (production build, <code>StrictMode</code>)</td>
+</tr>
+<tr>
+<td>Routing</td>
+<td>React Router v6 (<code>BrowserRouter</code>, <code>useNavigate</code>, <code>useLocation</code>, <code>useParams</code>, <code>useSearchParams</code>)</td>
+</tr>
+<tr>
+<td>Styling</td>
+<td>Tailwind CSS (compiled, inlined) + custom <code>ec-*</code> token layer</td>
+</tr>
+<tr>
+<td>Icons</td>
+<td>lucide-react v0.453.0 (ISC)</td>
+</tr>
+<tr>
+<td>Build</td>
+<td>Vite (module preload polyfill present), single-file inline output</td>
+</tr>
+<tr>
+<td>State</td>
+<td>React local state only — no Redux/Zustand/Context store; no data-fetching library</td>
+</tr>
+<tr>
+<td>Persistence</td>
+<td><code>localStorage</code> (<code>ec_recent_searches</code>, cap 6)</td>
+</tr>
+<tr>
+<td>Backend</td>
+<td><strong>None</strong> — all data is hardcoded module-scope arrays</td>
+</tr>
+</tbody>
+</table></div>
+
+    <footer>
+      Source: <code>PRD-Endpoint-Central-Reports.md</code> in <code>kales-20817/untitled-folder</code>.
+      The prototypes it describes are collected in the <a class="back" href="https://claude.ai/code/artifact/497d6873-6def-42da-a3ce-cd72b901ac0e">design index</a>.
+    </footer>
+  </article>
+</div>
+
+<script>
+  (function () {
+    var links = Array.prototype.slice.call(document.querySelectorAll('nav.toc a'));
+    var targets = links.map(function (a) { return document.getElementById(a.hash.slice(1)); });
+    if (!('IntersectionObserver' in window)) return;
+    var io = new IntersectionObserver(function () {
+      var current = null;
+      targets.forEach(function (t) {
+        if (!t) return;
+        if (t.getBoundingClientRect().top - 90 <= 0) current = t.id;
+      });
+      links.forEach(function (a) { a.classList.toggle('on', a.hash === '#' + current); });
+    }, { rootMargin: '-80px 0px -70% 0px', threshold: [0, 1] });
+    targets.forEach(function (t) { if (t) io.observe(t); });
+  })();
+</script>

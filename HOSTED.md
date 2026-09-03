@@ -7,6 +7,7 @@ Start at the index — it links to all of them:
 
 | Page | Link |
 | --- | --- |
+| `PRD-Endpoint-Central-Reports.md` | https://claude.ai/code/artifact/0e874034-4fc4-49c0-a70e-328406bbc8ef |
 | `reports-home.html` | https://claude.ai/code/artifact/de75b4c5-0149-42b5-9639-fd27b6b6b6f9 |
 | `reports-home-variations.html` | https://claude.ai/code/artifact/30905aaf-da28-4211-b9bd-d44e1a84ed6c |
 | `reports-home-export.html` | https://claude.ai/code/artifact/bc698640-4070-41e8-bd76-a4bce3388eb1 |
@@ -32,6 +33,9 @@ The flow diagrams were published earlier and are linked from the index as well:
 - Artifacts are private by default; share each page from its own share menu.
 - `hosted-index.html` is the source of the index page. Republishing it to the same
   URL keeps the link stable.
+- `hosted-prd.html` is the rendered PRD. Regenerate it after editing the markdown with
+  `pip install markdown && python3 tools/build-prd-page.py`, then republish it to the
+  same URL.
 - The two `*-live-export.html` pages carried a full `<!doctype html>` wrapper. The
   hosted copies have that wrapper unwrapped (the artifact host supplies its own),
   with the original `data-theme` and `body` class re-applied by a small inline script.
