@@ -162,6 +162,68 @@
         background:var(--surface-2);border:1px solid var(--border);font-size:12.5px;color:var(--muted);margin-top:30px}
   .note svg{flex-shrink:0;margin-top:1px}
   .note b{color:var(--text)}
+
+  /* ══ ask ZIA — the AI lane over the same catalogue ══ */
+  .modes{display:inline-flex;gap:2px;background:var(--surface-2);padding:3px;border-radius:9px;
+         border:1px solid var(--border);margin:18px 0 0}
+  .modes button{padding:6px 15px;border-radius:7px;border:none;background:none;cursor:pointer;
+                font:600 13px var(--font);color:var(--muted);display:inline-flex;align-items:center;gap:7px;transition:.13s}
+  .modes button:hover{color:var(--text)}
+  .modes button.on{background:var(--surface);color:var(--violet);box-shadow:var(--shadow)}
+  .modes button svg{width:14px;height:14px}
+
+  .askhint{display:flex;align-items:center;gap:6px;font:600 12px var(--font);color:var(--muted);
+           background:var(--surface-2);border:1px solid var(--border);border-radius:7px;padding:4px 9px;flex-shrink:0;cursor:pointer}
+  .askhint:hover{border-color:var(--violet);color:var(--violet)}
+
+  #aizone{margin-bottom:22px}
+  .askpanel{border:1px dashed var(--border);border-radius:var(--r);padding:20px;text-align:center;color:var(--muted)}
+  .askpanel b{display:block;color:var(--text);font-size:14px;margin-bottom:5px}
+  .askpanel p{margin:0 0 14px;font-size:12.5px;max-width:52ch;margin-inline:auto}
+  .askpanel .pills{justify-content:center}
+
+  .askteaser{display:flex;align-items:center;gap:12px;width:100%;text-align:left;cursor:pointer;
+             padding:13px 15px;margin-bottom:16px;border-radius:var(--r);background:var(--violet-soft);
+             border:1px solid var(--border);color:var(--text);font:inherit;transition:.13s}
+  .askteaser:hover{border-color:var(--violet)}
+  .askteaser .gi{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;flex-shrink:0;
+                 background:var(--surface);color:var(--violet);border:1px solid var(--border)}
+  .askteaser .nm{font-size:13.5px;font-weight:600}
+  .askteaser .meta{font-size:12px;color:var(--muted);margin-top:1px}
+  .askteaser .sp{flex:1}
+
+  .ai{border:1px solid var(--border);border-radius:var(--r);background:var(--surface);box-shadow:var(--shadow);overflow:hidden}
+  .ai-top{display:flex;align-items:center;gap:9px;padding:11px 15px;border-bottom:1px solid var(--border-soft);
+          background:linear-gradient(180deg,var(--violet-soft),transparent)}
+  .ai-top .zia{display:inline-flex;align-items:center;gap:6px;font:700 12px var(--font);color:var(--violet)}
+  .ai-top .q{font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+  .ai-top .sp{flex:1}
+  .ai-body{padding:15px}
+  .ai-answer{font-size:14.5px;line-height:1.6;margin:0 0 4px;max-width:70ch}
+  .ai-answer.thinking{color:var(--muted)}
+  .ai-cursor{display:inline-block;width:7px;height:15px;background:var(--violet);vertical-align:-2px;
+             margin-left:2px;animation:blink 1s steps(2) infinite}
+  @keyframes blink{50%{opacity:0}}
+  .ai-sub{font:700 11px var(--font);color:var(--faint);text-transform:uppercase;letter-spacing:.06em;margin:16px 0 8px}
+  .ai-list{border:1px solid var(--border);border-radius:10px;overflow:hidden}
+  .ai-list .hit{border-bottom:1px solid var(--border-soft)}
+  .ai-list .hit:last-child{border-bottom:none}
+  .ai-why{font-size:12px;color:var(--muted);margin-top:2px}
+  .ai-build{border:1px solid var(--border);border-radius:10px;padding:13px 15px;background:var(--surface-2)}
+  .ai-build .nm{font-size:13.5px;font-weight:700;margin-bottom:8px}
+  .ai-spec{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+  .ai-spec .k{font:600 11px var(--font);color:var(--faint);text-transform:uppercase;letter-spacing:.06em;
+              width:100%;margin-bottom:2px}
+  .ai-chip{font:500 12px var(--font);background:var(--surface);border:1px solid var(--border);
+           border-radius:6px;padding:3px 9px;color:var(--text)}
+  .ai-acts{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .ai-foot{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:11px 15px;
+           border-top:1px solid var(--border-soft);background:var(--surface-2)}
+  .ai-foot .lbl{font-size:12px;color:var(--muted)}
+  .ai-err{display:flex;gap:9px;align-items:flex-start;font-size:13px;color:var(--text)}
+  .ai-err svg{color:var(--warn);flex-shrink:0;margin-top:2px}
+  .ai-src{font-size:11.5px;color:var(--faint);display:inline-flex;align-items:center;gap:5px}
+  .ai-src.live{color:var(--violet)}
 </style>
 
 <div class="chrome">
@@ -194,18 +256,30 @@
         <button class="clr" id="clr" hidden aria-label="Clear search">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
         </button>
-        <span class="kbd">/</span>
+        <span class="kbd" id="kbdhint">/</span>
       </div>
+    </div>
+
+    <div class="modes" role="tablist" aria-label="Search mode">
+      <button data-m="find" class="on" role="tab" aria-selected="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        Search
+      </button>
+      <button data-m="ask" role="tab" aria-selected="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m12 3 1.9 5.6L19.5 10l-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.4z"/><path d="M18 15.5l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg>
+        Ask ZIA
+      </button>
     </div>
 
     <div class="facets" id="facets"></div>
   </div>
 
+  <div id="aizone"></div>
   <div id="results"></div>
 
   <div class="note">
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-    <div>Counts are live from the server — <code>/emsapi/reports/scheduleReports/predefinedReports</code> returns <b>267 predefined reports</b>; six are the same report listed under both a Summary and a Detailed view, so <b>261 unique reports</b> are indexed here. <b>37 custom reports</b> and <b>0 custom dashboards</b> come from <code>/dcapi/reports/customReports</code>, alongside <b>56 query reports</b> and <b>1 schedule</b> due tomorrow. Custom and query reports are indexed by name as they're modified, so a handful of recently-touched ones are searchable today; the rest join the index as they're opened.</div>
+    <div>Counts are live from the server — <code>/emsapi/reports/scheduleReports/predefinedReports</code> returns <b>267 predefined reports</b>; six are the same report listed under both a Summary and a Detailed view, so <b>261 unique reports</b> are indexed here. <b>37 custom reports</b> and <b>0 custom dashboards</b> come from <code>/dcapi/reports/customReports</code>, alongside <b>56 query reports</b> and <b>1 schedule</b> due tomorrow. Custom and query reports are indexed by name as they're modified, so a handful of recently-touched ones are searchable today; the rest join the index as they're opened. <b>Ask ZIA</b> sends your question and this catalogue to Claude on the viewer's own account — only when you press ↵ — and routes you to reports; it never reads endpoint data, so it quotes no counts. Opened outside the viewer, the same card is filled by a local word match and says so.</div>
   </div>
 </div>
 
@@ -440,10 +514,20 @@ function setQuery(v){
   render();
 }
 
-function render(){
+function renderResults(){
   const raw = document.getElementById('q').value;
   const q = raw.toLowerCase().trim();
   document.getElementById('clr').hidden = !raw;
+
+  // in Ask mode a full question is ZIA's to answer — a word-match list under it is noise,
+  // and the type facets filter a list that isn't there
+  if(mode==='ask' && (ask || wordCount(q) >= 4)){
+    document.getElementById('facets').hidden = true;
+    document.getElementById('results').innerHTML = '';
+    cur = -1;
+    return;
+  }
+  document.getElementById('facets').hidden = false;
 
   if(!q && activeFacet==='all'){
     renderFacets(null);
@@ -494,6 +578,292 @@ function render(){
   cur = -1;
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   Ask ZIA — the AI lane. Same catalogue, natural language in.
+
+   The published page asks Claude through the artifact `sample`
+   capability, on the viewer's own account, on an explicit action only
+   (Enter, or a click) — never on a keystroke or a timer. Where that is
+   unavailable (opened outside the viewer, capability off, consent
+   declined) the same card is filled by a local catalogue matcher and
+   says so, rather than pretending a model answered.
+   ═══════════════════════════════════════════════════════════════════ */
+
+const ZIA = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m12 3 1.9 5.6L19.5 10l-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.4z"/><path d="M18 15.5l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg>';
+const WARN_I = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/></svg>';
+
+const EXAMPLES = [
+  'Which computers are missing critical patches?',
+  'Show me devices without BitLocker encryption',
+  'Who has a password that never expires?',
+  'What is due to be delivered by email tomorrow?',
+  'Which software is nearing end of life?',
+];
+
+let mode = 'find';        // 'find' | 'ask'
+let ask = null;           // { q, phase, text, data, source, err }
+let askCtl = null;
+
+const samplePromise = (async () => {
+  try { return (await window.claude?.use?.('sample')) ?? null; }
+  catch { return null; }
+})();
+
+const wordCount = s => s.trim().split(/\s+/).filter(Boolean).length;
+const looksLikeQuestion = s => {
+  const t = s.trim().toLowerCase();
+  if(!t) return false;
+  return /\?$/.test(t) || /^(which|what|who|where|when|why|how|show|list|find|give|are|is|do|does|can)\b/.test(t) || wordCount(t) >= 4;
+};
+
+/* ── the catalogue, as Claude reads it ── */
+function catalogueForPrompt(){
+  const lines = Object.entries(CATALOG).map(([cat, list]) => `${cat}: ${list.join(' | ')}`);
+  lines.push(`Custom reports (${CUSTOM_TOTAL} total, recently modified): ${CUSTOM.map(c=>`${c.n} [${c.type}${c.status==='bad'?', erroring':''}]`).join(' | ')}`);
+  lines.push(`Query reports (${QUERY_TOTAL} total, saved SQL): ${QUERY.map(q=>`${q.n} [${q.rows} rows]`).join(' | ')}`);
+  lines.push(`Schedules: ${SCHEDULE.map(s=>`${s.n} [${s.freq} to ${s.to}, next ${s.next}${s.bad?', delivery failing':''}]`).join(' | ')}`);
+  lines.push('Custom dashboards: none on this tenant.');
+  return lines.join('\n');
+}
+
+function askPrompt(q){
+  return [
+    'You are ZIA, the reporting assistant inside ManageEngine Endpoint Central, an endpoint management console.',
+    'An IT administrator typed a question into report search. Route them to the right report — you cannot query endpoint data yourself, so never invent counts, device names or findings.',
+    '',
+    'THE REPORT CATALOGUE AVAILABLE ON THIS TENANT',
+    catalogueForPrompt(),
+    '',
+    `ADMINISTRATOR'S QUESTION: ${q}`,
+    '',
+    'Rules:',
+    '- Recommend at most 4 items, each an EXACT name copied from the catalogue above, with the exact category heading it sits under.',
+    '- "answer" is 1-2 sentences of plain English telling the admin what to run and what it will show them. No greeting, no restating the question.',
+    '- "why" is at most 12 words on why that report answers it.',
+    '- If nothing in the catalogue fits, leave "reports" empty and fill "build" with a report worth creating instead (otherwise set "build" to null).',
+    '- "followups" are 2 short related questions an admin would ask next.',
+    '',
+    'Reply with only JSON of this shape:',
+    '{"answer":"...","reports":[{"name":"Missing Patches","category":"Threats & Patches Reports","why":"Lists every pending patch per endpoint"}],"build":null,"followups":["...","..."]}',
+  ].join('\n');
+}
+
+/* ── local fallback: score the same index by word overlap ── */
+const STOP = new Set('a an the is are was were do does did which what who whom whose where when why how show list find give me my our all of on in for to by with without any that this have has had can could i we us endpoint endpoints computer computers device devices report reports'.split(' '));
+function localMatch(q){
+  const terms = q.toLowerCase().replace(/[^a-z0-9\s-]/g,' ').split(/\s+/).filter(t => t && !STOP.has(t));
+  const need = Math.min(2, terms.length);   // one stray word is not a match
+  const scored = INDEX.map(h => {
+    const hay = (h.n + ' ' + h.cat).toLowerCase();
+    let s = 0, hit = 0;
+    terms.forEach(t => {
+      if(hay.includes(t)){ s += 2; hit++; }
+      else if(t.length > 4 && hay.includes(t.slice(0, t.length-2))){ s += 1; hit++; }
+    });
+    return { h, s, hit };
+  }).filter(x => x.hit >= need).sort((a,b) => b.s - a.s).slice(0,4);
+  return {
+    answer: scored.length
+      ? `Closest matches in the catalogue for “${q.trim()}”, ranked by how many of your words they carry.`
+      : `Nothing in the catalogue carries those words. Build a custom report, or rephrase using a term the report names use — “patch”, “BitLocker”, “logon”, “licence”.`,
+    reports: scored.map(x => ({ name: x.h.n, category: x.h.cat, why: '' })),
+    build: scored.length ? null : { name: q.trim().replace(/\?$/,''), columns: [], filters: [], chart: 'table' },
+    followups: [],
+  };
+}
+
+/* ── partial "answer" field, pulled out of a JSON reply mid-stream ── */
+function partialAnswer(raw){
+  const m = /"answer"\s*:\s*"((?:[^"\\]|\\.)*)/.exec(raw || '');
+  if(!m) return '';
+  try { return JSON.parse('"' + m[1].replace(/\\?$/,'') + '"'); }
+  catch { return m[1].replace(/\\n/g,' ').replace(/\\"/g,'"'); }
+}
+
+const ERR_COPY = {
+  not_granted:     'Sampling wasn’t allowed for this view, so the answer below is a plain catalogue match.',
+  sampling_disabled:'AI answers are switched off for this artifact — showing a catalogue match instead.',
+  capability_disabled:'AI answers are switched off for this artifact — showing a catalogue match instead.',
+  session_expired: 'The viewer session expired. Reload the page to ask again.',
+  rate_limited:    'Too many questions at once — wait a moment, then ask again.',
+  prompt_too_large:'That question plus the catalogue is too large to send.',
+  invalid_json:    'The answer came back in a shape this page couldn’t read.',
+  refused:         'Claude declined to answer that one.',
+  empty_completion:'The answer came back empty. Try asking again.',
+  upstream_error:  'The model service failed on that request.',
+};
+
+async function runAsk(q){
+  q = (q || '').trim();
+  if(!q) return;
+  askCtl?.abort();
+  askCtl = new AbortController();
+  ask = { q, phase:'thinking', text:'', data:null, source:'live', err:null };
+  renderAsk();
+
+  const sample = await samplePromise;
+  if(!sample){
+    ask = { q, phase:'done', text:'', data:localMatch(q), source:'local', err:null };
+    renderAsk();
+    return;
+  }
+
+  try {
+    const data = await sample.json(askPrompt(q), {
+      modelTier: 'quick',
+      signal: askCtl.signal,
+      onText: ({ text }) => {
+        if(!ask || ask.q !== q) return;
+        ask.phase = 'streaming';
+        ask.text = partialAnswer(text);
+        renderAsk();
+      },
+    });
+    if(!ask || ask.q !== q) return;
+    ask = { q, phase:'done', text:'', data, source:'live', err:null };
+  } catch (e) {
+    if(e?.code === 'cancelled'){ ask = null; renderAsk(); return; }
+    const soft = ['not_granted','sampling_disabled','capability_disabled'].includes(e?.code);
+    ask = { q, phase:'done', text:'', data: soft ? localMatch(q) : null,
+            source: soft ? 'local' : 'live', err: ERR_COPY[e?.code] || 'That request didn’t complete.' };
+  }
+  renderAsk();
+}
+
+/* ── rendering ── */
+function aiHit(r){
+  const known = INDEX.find(h => h.n.toLowerCase() === String(r.name||'').toLowerCase());
+  const cat = r.category || known?.cat || '';
+  const ico = known?.ico || ICO_FOR_CAT[cat] || I.grid;
+  return `<div class="hit" data-open="1">
+    <span class="gi">${ico}</span>
+    <span class="body">
+      <span class="nm">${esc(r.name || '')}</span>
+      <span class="meta">${esc(cat)}${r.why ? ' · ' + esc(r.why) : ''}</span>
+    </span>
+    <span class="side"><div class="act"><a class="btn ghost sm" href="${MODULE}">Preview</a><a class="btn primary sm" href="${MODULE}">Run</a></div></span>
+  </div>`;
+}
+
+function aiCard(){
+  const src = ask.phase !== 'done'
+    ? `<span class="ai-src live">${ZIA}ZIA is answering…</span>`
+    : ask.source === 'live'
+      ? `<span class="ai-src live">${ZIA}Answered by ZIA</span>`
+      : `<span class="ai-src">Catalogue match — no model in this view</span>`;
+  const stop = (ask.phase !== 'done')
+    ? `<button class="btn ghost sm" id="aistop">Stop</button>`
+    : `<button class="btn ghost sm" id="airetry">Ask again</button>`;
+
+  let body;
+  if(ask.phase !== 'done'){
+    body = `<p class="ai-answer thinking">${ask.text ? esc(ask.text) : 'Reading the catalogue…'}<span class="ai-cursor"></span></p>`;
+  } else {
+    const d = ask.data;
+    const parts = [];
+    if(ask.err && !d) parts.push(`<div class="ai-err">${WARN_I}<div>${esc(ask.err)}</div></div>`);
+    else if(ask.err) parts.push(`<div class="ai-err" style="margin-bottom:12px">${WARN_I}<div>${esc(ask.err)}</div></div>`);
+    if(d){
+      if(d.answer) parts.push(`<p class="ai-answer">${esc(d.answer)}</p>`);
+      const reports = Array.isArray(d.reports) ? d.reports.filter(r => r && r.name) : [];
+      if(reports.length){
+        parts.push(`<div class="ai-sub">Run these</div><div class="ai-list">${reports.map(aiHit).join('')}</div>`);
+      }
+      const b = d.build;
+      if(b && b.name){
+        const cols = Array.isArray(b.columns) ? b.columns : [];
+        const filts = Array.isArray(b.filters) ? b.filters : [];
+        parts.push(`<div class="ai-sub">Nothing shipped covers this — build it</div>
+          <div class="ai-build">
+            <div class="nm">${esc(b.name)}</div>
+            ${cols.length ? `<div class="ai-spec"><span class="k">Columns</span>${cols.map(c=>`<span class="ai-chip">${esc(c)}</span>`).join('')}</div>` : ''}
+            ${filts.length ? `<div class="ai-spec"><span class="k">Filters</span>${filts.map(c=>`<span class="ai-chip">${esc(c)}</span>`).join('')}</div>` : ''}
+            ${b.chart ? `<div class="ai-spec"><span class="k">Shown as</span><span class="ai-chip">${esc(b.chart)}</span></div>` : ''}
+            <div class="ai-acts">
+              <a class="btn primary sm" href="reports-custom-revamp.html">Open in builder</a>
+              <a class="btn ghost sm" href="reports-custom-revamp.html">Save as query report</a>
+            </div>
+          </div>`);
+      }
+    }
+    body = parts.join('');
+  }
+
+  const follow = (ask.phase === 'done' && Array.isArray(ask.data?.followups))
+    ? ask.data.followups.filter(Boolean).slice(0,3) : [];
+
+  return `<div class="ai">
+    <div class="ai-top">
+      <span class="zia">${ZIA}ZIA</span>
+      <span class="q">${esc(ask.q)}</span>
+      <span class="sp"></span>
+      ${src}
+      ${stop}
+    </div>
+    <div class="ai-body">${body}</div>
+    ${follow.length ? `<div class="ai-foot"><span class="lbl">Next</span>${follow.map(f=>`<button class="pill" data-ask="${esc(f)}">${esc(f)}</button>`).join('')}</div>` : ''}
+  </div>`;
+}
+
+function renderAsk(){
+  const zone = document.getElementById('aizone');
+  const raw = document.getElementById('q').value.trim();
+
+  if(ask && ask.q === raw){
+    zone.innerHTML = aiCard();
+  } else if(mode === 'ask'){
+    zone.innerHTML = `<div class="askpanel">
+      <b>Ask in your own words</b>
+      <p>ZIA reads the ${PREDEF_TOTAL} predefined reports, ${CUSTOM_TOTAL} custom reports, ${QUERY_TOTAL} queries and your schedules, and points you at the ones that answer the question. Press ↵ to ask.</p>
+      <div class="pills">${EXAMPLES.map(x=>`<button class="pill" data-ask="${esc(x)}">${ZIA}${esc(x)}</button>`).join('')}</div>
+    </div>`;
+  } else if(looksLikeQuestion(raw)){
+    zone.innerHTML = `<button class="askteaser" data-ask="${esc(raw)}">
+      <span class="gi">${ZIA}</span>
+      <span class="body"><span class="nm">Ask ZIA “${esc(raw)}”</span>
+        <span class="meta">Let the assistant pick the reports that answer this</span></span>
+      <span class="sp"></span>
+      <span class="kbd">↵</span>
+    </button>`;
+  } else {
+    zone.innerHTML = '';
+  }
+
+  zone.querySelectorAll('[data-ask]').forEach(b => b.onclick = () => {
+    const v = b.dataset.ask;
+    if(v !== document.getElementById('q').value){ document.getElementById('q').value = v; render(); }
+    runAsk(v);
+  });
+  const stopBtn = zone.querySelector('#aistop');
+  if(stopBtn) stopBtn.onclick = () => askCtl?.abort();
+  const retryBtn = zone.querySelector('#airetry');
+  if(retryBtn) retryBtn.onclick = () => runAsk(ask.q);
+  zone.querySelectorAll('.hit[data-open]').forEach(h => h.onclick = e => {
+    if(!e.target.closest('a')) location.href = MODULE;
+  });
+}
+
+function setMode(m){
+  mode = m;
+  document.querySelectorAll('.modes button').forEach(b => b.classList.toggle('on', b.dataset.m === m));
+  const input = document.getElementById('q');
+  input.placeholder = m === 'ask'
+    ? 'Ask anything — “which laptops are missing critical patches?”'
+    : FIND_PLACEHOLDER;
+  document.getElementById('kbdhint').textContent = m === 'ask' ? '↵' : '/';
+  input.focus();
+  render();
+}
+
+const FIND_PLACEHOLDER = document.getElementById('q').placeholder;
+
+function render(){ renderResults(); renderAsk(); }
+
+document.querySelectorAll('.modes button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.modes button').forEach(x => x.setAttribute('aria-selected', String(x === b)));
+  setMode(b.dataset.m);
+});
+
 document.getElementById('q').oninput = render;
 document.getElementById('clr').onclick = () => { setQuery(''); };
 document.getElementById('results').addEventListener('click', e => {
@@ -506,6 +876,10 @@ document.addEventListener('keydown', e => {
   if(e.key==='/' && document.activeElement!==input){ e.preventDefault(); input.focus(); return; }
   if(document.activeElement!==input) return;
   if(e.key==='Escape'){ if(input.value){ setQuery(''); } else { input.blur(); } return; }
+  if(e.key==='Enter'){
+    const v = input.value.trim();
+    if(v && cur < 0 && (mode==='ask' || looksLikeQuestion(v))){ e.preventDefault(); runAsk(v); return; }
+  }
   const rows = [...document.querySelectorAll('.hit')];
   if(!rows.length) return;
   if(e.key==='ArrowDown'||e.key==='ArrowUp'){
@@ -516,6 +890,13 @@ document.addEventListener('keydown', e => {
   }
   if(e.key==='Enter' && cur>=0) rows[cur].click();
 });
+
+document.getElementById('theme').onclick = () => {
+  const root = document.documentElement;
+  const dark = root.getAttribute('data-theme') === 'dark'
+    || (!root.hasAttribute('data-theme') && matchMedia('(prefers-color-scheme:dark)').matches);
+  root.setAttribute('data-theme', dark ? 'light' : 'dark');
+};
 
 render();
 

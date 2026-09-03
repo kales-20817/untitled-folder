@@ -31,6 +31,10 @@ The flow diagrams were published earlier and are linked from the index as well:
 ## Notes
 
 - Artifacts are private by default; share each page from its own share menu.
+- `reports-search-home.html` is published with the `sample` runtime capability so its
+  Ask ZIA lane can call Claude on the viewer's own account. Republish it with
+  `capabilities: {"sample": {}}` — omitting the field on a redeploy keeps it, an empty
+  object clears it. Everything else is plain static HTML.
 - `hosted-index.html` is the source of the index page. Republishing it to the same
   URL keeps the link stable.
 - `hosted-prd.html` is the rendered PRD. Regenerate it after editing the markdown with
